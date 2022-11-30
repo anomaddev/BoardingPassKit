@@ -9,30 +9,30 @@ import Foundation
 
 public class BoardingPassLeg: Codable {
     
-    var airlineData: String?
-    var ticketAirline: String?
-    var ticketNumber: String?
+    public var airlineData: String?
+    public var ticketAirline: String?
+    public var ticketNumber: String?
     
-    let origin: String
-    let destination: String
-    let carrier: String
+    public let origin: String
+    public let destination: String
+    public let carrier: String
     
-    let pnrCode: String
-    let flightno: String
-    let dayOfYear: Int
-    let compartment: String
-    var seatno: String?
-    var checkedin: Int?
-    let passengerStatus: String
+    public let pnrCode: String
+    public let flightno: String
+    public let dayOfYear: Int
+    public let compartment: String
+    public var seatno: String?
+    public var checkedin: Int?
+    public let passengerStatus: String
     
-    var selectee: String?
-    var documentVerification: String?
-    var bookedAirline: String?
-    var ffAirline: String?
-    var ffNumber: String?
-    var idAdIndicator: String?
-    var freeBags: String?
-    var fastTrack: Bool?
+    public var selectee: String?
+    public var documentVerification: String?
+    public var bookedAirline: String?
+    public var ffAirline: String?
+    public var ffNumber: String?
+    public var idAdIndicator: String?
+    public var freeBags: String?
+    public var fastTrack: Bool?
     
     // computed
 //    var originAirport: Airport
@@ -63,7 +63,7 @@ public class BoardingPassLeg: Codable {
 //        return MKGeodesicPolyline(coordinates: [o, d], count: 2)
 //    }
     
-    init(data parser: BoardingPassParser) throws {
+    public init(data parser: BoardingPassParser) throws {
         pnrCode = try parser.getstring(7, mandatory: true)!
         origin = try parser.getstring(3, mandatory: true)!
         destination = try parser.getstring(3, mandatory: true)!
@@ -76,7 +76,7 @@ public class BoardingPassLeg: Codable {
         passengerStatus = try parser.getstring(1, mandatory: true)!
     }
     
-    func addconditionals(data parser: BoardingPassParser) throws {
+    public func addconditionals(data parser: BoardingPassParser) throws {
         ticketAirline = try parser.getstring(3)
         ticketNumber = try parser.getstring(10)
         

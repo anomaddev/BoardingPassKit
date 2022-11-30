@@ -8,10 +8,10 @@
 import Foundation
 
 public struct BagTag: Codable {
-    var type: String?
-    var airlineNumeric: String?
+    public var type: String?
+    public var airlineNumeric: String?
     
-    init(data: Data) throws {
+    public init(data: Data) throws {
         let parser = BoardingPassParser(data: data)
         do {
             type = try parser.getstring(1)
