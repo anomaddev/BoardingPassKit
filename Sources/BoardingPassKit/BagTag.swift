@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct BagTag: Codable {
+public struct BagTag: Codable {
     var type: String?
     var airlineNumeric: String?
     
