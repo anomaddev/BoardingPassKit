@@ -8,7 +8,7 @@
 import UIKit
 import AVFoundation
 
-class BoardingPassParser {
+public class BoardingPassParser {
     
     static func generateQRCode(from string: String) -> UIImage? {
         let data = string.data(using: String.Encoding.ascii)

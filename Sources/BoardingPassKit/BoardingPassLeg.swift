@@ -35,33 +35,33 @@ public class BoardingPassLeg: Codable {
     var fastTrack: Bool?
     
     // computed
-    var originAirport: Airport
-    { origin.airport ?? Airport.UKWN }
+//    var originAirport: Airport
+//    { origin.airport ?? Airport.UKWN }
+//
+//    var destinationAirport: Airport
+//    { destination.airport ?? Airport.UKWN }
+//
+//    var airline: Airline?
+//    { carrier.airline }
     
-    var destinationAirport: Airport
-    { destination.airport ?? Airport.UKWN }
+//    var ident: String? {
+//        let no = flightno.removeLeadingZeros()
+//        guard let airline = airline
+//        else { return nil }
+//        return "\(airline.ident)\(no)"
+//    }
     
-    var airline: Airline?
-    { carrier.airline }
+//    var distance: Distance {
+//        let o = originAirport
+//        let d = destinationAirport
+//        return Distance(from: o.coordinate, to: d.coordinate)
+//    }
     
-    var ident: String? {
-        let no = flightno.removeLeadingZeros()
-        guard let airline = airline
-        else { return nil }
-        return "\(airline.ident)\(no)"
-    }
-    
-    var distance: Distance {
-        let o = originAirport
-        let d = destinationAirport
-        return Distance(from: o.coordinate, to: d.coordinate)
-    }
-    
-    var path: MKGeodesicPolyline? {
-        let o = originAirport.coordinate
-        let d = destinationAirport.coordinate
-        return MKGeodesicPolyline(coordinates: [o, d], count: 2)
-    }
+//    var path: MKGeodesicPolyline? {
+//        let o = originAirport.coordinate
+//        let d = destinationAirport.coordinate
+//        return MKGeodesicPolyline(coordinates: [o, d], count: 2)
+//    }
     
     init(data parser: BoardingPassParser) throws {
         pnrCode = try parser.getstring(7, mandatory: true)!
