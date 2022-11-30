@@ -13,8 +13,7 @@ https://github.com/anomaddev/BoardingPassKit.git
 Here is a simple example using a boarding pass of my own to show how to use the framework.
 
 ```swift
-
-let barcodeString = "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 76UXK84             3"
+let barcodeString = "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 34DGH32             3"
 
 do {
     let boardingPass = try BoardingPass(data: barcodeString.data(using: .ascii))
@@ -73,7 +72,7 @@ print(flight.origin)        // SIN
 print(flight.destination)   // NRT
 print(flight.flightno)      // 712
 print(flight.seatno)        // 25C
-print(flight.ffNumber)      // 76UXK84
+print(flight.ffNumber)      // 34DGH32
 ```
 
 These are all the properties that are available on a `BoardingPassLeg` object.
