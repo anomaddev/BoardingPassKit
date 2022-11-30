@@ -8,11 +8,11 @@
 import Foundation
 
 public struct SecurityData: Codable {
-    var securityType: Int?
-    var securitylength: Int?
-    var securityData: String?
+    public var securityType: Int?
+    public var securitylength: Int?
+    public var securityData: String?
     
-    init(data: Data) throws {
+    public init(data: Data) throws {
         let parser = BoardingPassParser(data: data)
         
         do {
@@ -22,7 +22,7 @@ public struct SecurityData: Codable {
         } catch { throw error }
     }
     
-    init(data: String) {
+    public init(data: String) {
         securityData = data
     }
 }

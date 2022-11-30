@@ -11,42 +11,42 @@ import SwiftDate
 public class BoardingPass: Codable {
     
     // Unique
-    let imported: Date
-    var updated: Date
-    var owner: String!
-    let scan: String
+    public let imported: Date
+    public var updated: Date
+    public var owner: String!
+    public let scan: String
     
     // Mandatory Items
-    let format: String
-    let legs: Int
-    let name: String
-    var eTicket: Bool? = false
-    var segments: [BoardingPassLeg] = []
+    public let format: String
+    public let legs: Int
+    public let name: String
+    public var eTicket: Bool? = false
+    public var segments: [BoardingPassLeg] = []
     
     // Conditionals
-    var version: Int?
-    var uniqueLength: Int?
+    public var version: Int?
+    public var uniqueLength: Int?
     
-    var passengerDesc: String?
-    var checkinSource: String?
-    var passSource: String?
-    var passDate: Date?
-    var passYear: Int?
-    var passDay: Int?
-    var documentType: String?
-    var passIssuer: String?
+    public var passengerDesc: String?
+    public var checkinSource: String?
+    public var passSource: String?
+    public var passDate: Date?
+    public var passYear: Int?
+    public var passDay: Int?
+    public var documentType: String?
+    public var passIssuer: String?
     
-    var bags: [BagTag] = []
+    public var bags: [BagTag] = []
     
     // computed
-    var first: String? {
+    public var first: String? {
         String(
             name.split(separator: "/")[1]
                 .split(separator: " ")[0]
         ).localizedCapitalized
     }
     
-    var last: String?
+    public var last: String?
     { String(name.split(separator: "/")[0]).localizedCapitalized }
     
 //    var ident: String?
@@ -58,7 +58,7 @@ public class BoardingPass: Codable {
 //    var destination: Airport!
 //    { segments.first?.destinationAirport ?? Airport.UKWN  }
     
-    var dayOfYear: Int?
+    public var dayOfYear: Int?
     { segments.first?.dayOfYear ?? passDay }
     
 //    var distance: Distance
@@ -145,7 +145,7 @@ public class BoardingPass: Codable {
     }
     
     // MARK: - Modifiers
-    func parseDate(with year: Int! = nil) throws -> Date? {
+    internal func parseDate(with year: Int! = nil) throws -> Date? {
         guard let day = segments.first?.dayOfYear ?? passDay
         else { return nil }
         
@@ -190,7 +190,7 @@ public class BoardingPass: Codable {
     }
     
     // MARK: - Test Scans
-    enum Test: String, CaseIterable {
+    public enum Test: String, CaseIterable {
         case empty = ""
         case random = "asDFADFAKL asdlfjk ads;aDFJ  la'lsdjkf aASDFA"
         case upgraded = "M1ACKERMANN/JUSTIN    ETDPUPK TPADFWAA 1189 091R003A0033 14A>318   0091BAA 00000000000002900121232782703 AA AA 76UXK84             2IN"
@@ -209,10 +209,13 @@ public class BoardingPass: Codable {
         case dual = "M2ACKERMANN/JUSTIN DAVEWHFPBW TPASEAAS 0635 213L007A0000 148>2181MM    BAS              25             3    AA 76UXK84         1    WHFPBW SEAJNUAS 0555 213L007A0000 13125             3    AA 76UXK84         1    01010^460MEQCICRNjFGBPfJr84Ma6vMjxTQLtZ1z7uB0tUfO+fS/3vvuAiAReH4kY4ZcmXR+vD8Y+KoA1Dn1YKpr8YxCYbREeOYcsA=="
         
         case japan = "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 76UXK84             3"
+        
+        public var data: Data?
+        { rawValue.data(using: .ascii) }
     }
 }
 
-extension Int {
+public extension Int {
     var string: String
     { "\(self)" }
 }

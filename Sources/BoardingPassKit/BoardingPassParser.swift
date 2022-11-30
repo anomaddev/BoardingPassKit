@@ -10,7 +10,7 @@ import AVFoundation
 
 public class BoardingPassParser {
     
-    static func generateQRCode(from string: String) -> UIImage? {
+    public static func generateQRCode(from string: String) -> UIImage? {
         let data = string.data(using: String.Encoding.ascii)
         
         if let filter = CIFilter(name: "CIQRCodeGenerator") {
@@ -28,20 +28,20 @@ public class BoardingPassParser {
     var index: Int = 0
     let data: Data
     
-    init(data: Data) {
+    public init(data: Data) {
         self.data = data
     }
     
-    func raw() throws -> String {
+    public func raw() throws -> String {
         guard let str = String(data: data, encoding: String.Encoding.ascii) else {
             throw NSError() // THROW:
         }
         return str
     }
     
-    func skip(_ length: Int) { index += length }
+    public func skip(_ length: Int) { index += length }
     
-    func readhex(_ length: Int) throws -> Int {
+    public func readhex(_ length: Int) throws -> Int {
         do {
             guard let str = try getstring(length, mandatory: true)
             else { throw NSError() } // THROW:
@@ -52,7 +52,7 @@ public class BoardingPassParser {
         } catch { throw error }
     }
     
-    func getstring(_ length: Int, mandatory: Bool! = false) throws -> String? {
+    public func getstring(_ length: Int, mandatory: Bool! = false) throws -> String? {
         do {
             guard let data = try subsection(length, mandatory: mandatory) else {
                 if mandatory { throw NSError() } // THROW:
@@ -67,7 +67,7 @@ public class BoardingPassParser {
         } catch { throw error }
     }
     
-    func subsection(_ length: Int, mandatory: Bool! = false) throws -> Data? {
+    public func subsection(_ length: Int, mandatory: Bool! = false) throws -> Data? {
         if (data.count < index + length) {
             if mandatory { throw NSError() } // THROW:
             else { return nil }
@@ -77,12 +77,12 @@ public class BoardingPassParser {
         return subdata
     }
     
-    func subparser(_ length: Int) throws -> BoardingPassParser {
+    public func subparser(_ length: Int) throws -> BoardingPassParser {
         do { let sub = try subsection(length, mandatory: true); return BoardingPassParser(data: sub!) }
         catch { throw error }
     }
     
-    func securityData(_ flag: String! = "^") throws -> SecurityData? {
+    public func securityData(_ flag: String! = "^") throws -> SecurityData? {
         guard let rawString = String(data: data, encoding: String.Encoding.ascii),
               let split = rawString
                 .split(separator: " ")
@@ -94,7 +94,7 @@ public class BoardingPassParser {
     }
 }
 
-extension String {
+public extension String {
     func number() throws -> Int {
         guard let number = Int(self) else {
             throw NSError() // THROW:

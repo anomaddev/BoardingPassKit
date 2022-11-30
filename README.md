@@ -12,7 +12,7 @@ Here is a simple example using a boarding pass of my own to show how to use the 
 
 ```swift
 
-let barcodeString = "M1ACKERMANN/JUSTIN    ETDPUPK TPADFWAA 1189 091R003A0033 14A>318   0091BAA 00000000000002900121232782703 AA AA 76UXK84             2IN"
+let barcodeString = "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 76UXK84             3"
 
 do {
     let boardingPass = try BoardingPass(data: barcodeString.data(using: .ascii))
@@ -34,21 +34,21 @@ let flight = segments.first!
 
 After that you can access the flight information contained in the boarding pass leg:
 ```swift 
-print(flight.airlineCode)   // AA
-print(flight.origin)        // TPA
-print(flight.destination)   // DFW
-print(flight.flightNumber)  // 1189
-print(flight.seatno)        // 3A
+print(flight.bookedAirline) // JL
+print(flight.origin)        // SIN
+print(flight.destination)   // NRT
+print(flight.flightno)      // 712
+print(flight.seatno)        // 25C
 print(flight.ffNumber)      // 76UXK84
 ```
 
 ```swift
 var airlineData: String?
-var ticketAirline: String?      // airline that issued the ticket
-var ticketNumber: String?       // ticket num
+var ticketAirline: String?      // id of airline that issued the ticket
+var ticketNumber: String?       // ticket number
 let origin: String              // origin airport code
 let destination: String         // destination airport code     
-let carrier: String             // airline operating the fli
+let carrier: String             // airline operating the flight
 let pnrCode: String             // record locator
 let flightno: String            // flight number
 let dayOfYear: Int              // day of the year of the flight
@@ -59,7 +59,7 @@ let passengerStatus: String
 
 var selectee: String?
 var documentVerification: String?
-var bookedAirline: String?      // airline that booked the ticket
+var bookedAirline: String?      // airline that operates the flight
 var ffAirline: String?          // frequent flyer airline
 var ffNumber: String?           // frequent flyer number
 var idAdIndicator: String?          
