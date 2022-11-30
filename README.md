@@ -21,7 +21,7 @@ do {
 }
 ```
 
-#### Reading the Boarding Pass Data
+### Reading the Boarding Pass Data
 
 ```swift 
 print(boardingPass.passIssuer)  // JL
@@ -52,7 +52,7 @@ var passIssuer: String                  // 2 letter airline code who issued the 
 var bags: [BagTag] = []                 // Baggage tags
 ```
 
-#### Get Flight Information
+### Get Flight Information
 Your boarding pass can contain multiple segments. The first segment listed will typically be the flight for this boarding pass. You can get the flight information for the first segment like this:
 
 ```swift
