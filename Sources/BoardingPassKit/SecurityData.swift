@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct SecurityData: Codable {
+public struct SecurityData: Codable {
     var securityType: Int?
     var securitylength: Int?
     var securityData: String?
