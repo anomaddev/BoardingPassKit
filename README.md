@@ -21,15 +21,47 @@ do {
 }
 ```
 
+#### Reading the Boarding Pass Data
+
+```swift 
+print(boardingPass.passIssuer)  // JL
+print(boardingPass.eTicket)     // true
+print(boardingPass.name)        // ACKERMANN/JUSTIN DAVE
+print(boardingPass.legs)        // 2
+```
+
+These are all the properties that are available on a `BoardingPass` object.
+```swift
+var owner: String!                      
+let scan: String                        // raw scan data
+let format: String                      // Formate of the boarding pass
+let legs: Int                           // Number of legs
+let name: String                        // Name of the passenger
+var eTicket: Bool? = false              // is a mobile boarding pass
+var segments: [BoardingPassLeg]         // Flights in an Array of BoardingPassLeg objects
+var version: Int?                       // Version of the boarding pass
+var uniqueLength: Int?                  // Length of the unique identifier used to parse the boarding pass
+var passengerDesc: String?              // Airline Passenger description
+var checkinSource: String?              // Checkin Source
+var passSource: String?                 // Boarding Pass Source
+var passDate: Date?                     // Date of the boarding pass
+var passYear: Int?                      // Year of the boarding pass
+var passDay: Int?                       // Day of the boarding pass
+var documentType: String?               // Document Type
+var passIssuer: String                  // 2 letter airline code who issued the pass
+var bags: [BagTag] = []                 // Baggage tags
+```
+
 #### Get Flight Information
 Your boarding pass can contain multiple segments. The first segment listed will typically be the flight for this boarding pass. You can get the flight information for the first segment like this:
 
 ```swift
-let boardingPass = try? BoardingPass(data: barcodeString.data(using: .ascii))
-let segments = boardingPass.segments
+// Flight information for the boarding pass is contained in an array of type BoardingPassLeg
+// It is possible to have multiple legs for a single boarding pass
+let segments: [BoardingPassLeg] = boardingPass.segments
 
 // Always validate that the array of segments is not empty before accessing the first element
-let flight = segments.first! 
+let flight: BoardingPassLeg = segments.first! 
 ```
 
 After that you can access the flight information contained in the boarding pass leg:
@@ -42,6 +74,7 @@ print(flight.seatno)        // 25C
 print(flight.ffNumber)      // 76UXK84
 ```
 
+These are all the properties that are available on a `BoardingPassLeg` object.
 ```swift
 var airlineData: String?
 var ticketAirline: String?      // id of airline that issued the ticket
@@ -56,7 +89,6 @@ let compartment: String         // compartment code
 var seatno: String?             // seat number
 var checkedin: Int?             // check-in sequence number      
 let passengerStatus: String    
-
 var selectee: String?
 var documentVerification: String?
 var bookedAirline: String?      // airline that operates the flight
