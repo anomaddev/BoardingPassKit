@@ -82,7 +82,7 @@ public class BoardingPassParser {
         catch { throw error }
     }
     
-    func securityData(_ flag: String! = "^") throws -> BoardingPass.SecurityData? {
+    func securityData(_ flag: String! = "^") throws -> SecurityData? {
         guard let rawString = String(data: data, encoding: String.Encoding.ascii),
               let split = rawString
                 .split(separator: " ")
@@ -90,7 +90,7 @@ public class BoardingPassParser {
                 .trimmingCharacters(in: CharacterSet.whitespaces),
               let data = split.data(using: .ascii)
         else { throw NSError() } // THROW:
-        return try BoardingPass.SecurityData(data: data)
+        return try SecurityData(data: data)
     }
 }
 
