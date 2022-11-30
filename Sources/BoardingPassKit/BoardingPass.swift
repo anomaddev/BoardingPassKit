@@ -8,7 +8,7 @@
 import Foundation
 import SwiftDate
 
-class BoardingPass: Codable {
+public class BoardingPass: Codable {
     
     var atlasId: String?
     var archived: Bool! = false
@@ -52,8 +52,8 @@ class BoardingPass: Codable {
     var last: String?
     { String(name.split(separator: "/")[0]).localizedCapitalized }
     
-    var ident: String?
-    { segments.first?.ident }
+//    var ident: String?
+//    { segments.first?.ident }
     
 //    var origin: Airport!
 //    { segments.first?.originAirport ?? Airport.UKWN }
