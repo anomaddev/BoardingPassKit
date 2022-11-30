@@ -10,6 +10,8 @@ import SwiftDate
 
 public class BoardingPass: Codable {
     
+    public var archived: Bool = false
+    
     // Unique
     public let imported: Date
     public var updated: Date
@@ -48,15 +50,6 @@ public class BoardingPass: Codable {
     
     public var last: String?
     { String(name.split(separator: "/")[0]).localizedCapitalized }
-    
-//    var ident: String?
-//    { segments.first?.ident }
-    
-//    var origin: Airport!
-//    { segments.first?.originAirport ?? Airport.UKWN }
-//
-//    var destination: Airport!
-//    { segments.first?.destinationAirport ?? Airport.UKWN  }
     
     public var dayOfYear: Int?
     { segments.first?.dayOfYear ?? passDay }
@@ -145,7 +138,7 @@ public class BoardingPass: Codable {
     }
     
     // MARK: - Modifiers
-    internal func parseDate(with year: Int! = nil) throws -> Date? {
+    public func parseDate(with year: Int! = nil) throws -> Date? {
         guard let day = segments.first?.dayOfYear ?? passDay
         else { return nil }
         

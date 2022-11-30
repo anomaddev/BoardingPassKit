@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension String {
+public extension String {
     func removeLeadingZeros() -> String
     { return replacingOccurrences(of: "^0+", with: "", options: .regularExpression) }
 }

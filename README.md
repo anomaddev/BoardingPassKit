@@ -2,6 +2,8 @@
 
 This Swift framework will allow you to read the barcodes and QR codes from boarding passes and other documents that are encoded using the IATA 2D barcode standard.
 
+**This Framework is still in development. Please use with caution in your projects!**
+
 ## Installation
 #### Swift Package Manager
 Add the package to your Xcode project with the repository URL: 
