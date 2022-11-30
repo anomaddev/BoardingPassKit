@@ -27,7 +27,7 @@ do {
 print(boardingPass.passIssuer)  // JL
 print(boardingPass.eTicket)     // true
 print(boardingPass.name)        // ACKERMANN/JUSTIN DAVE
-print(boardingPass.legs)        // 2
+print(boardingPass.legs)        // 1
 ```
 
 These are all the properties that are available on a `BoardingPass` object.
