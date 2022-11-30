@@ -35,22 +35,6 @@ public class BoardingPassLeg: Codable {
     public var fastTrack: Bool?
     
     // computed
-//    var originAirport: Airport
-//    { origin.airport ?? Airport.UKWN }
-//
-//    var destinationAirport: Airport
-//    { destination.airport ?? Airport.UKWN }
-//
-//    var airline: Airline?
-//    { carrier.airline }
-    
-//    var ident: String? {
-//        let no = flightno.removeLeadingZeros()
-//        guard let airline = airline
-//        else { return nil }
-//        return "\(airline.ident)\(no)"
-//    }
-    
 //    var distance: Distance {
 //        let o = originAirport
 //        let d = destinationAirport
