@@ -27,10 +27,20 @@ Your boarding pass can contain multiple segments. The first segment listed will 
 ```swift
 let boardingPass = try? BoardingPass(data: barcodeString.data(using: .ascii))
 let segments = boardingPass.segments
-let flight = segments.first
+
+// Always validate that the array of segments is not empty before accessing the first element
+let flight = segments.first! 
 ```
 
-After that you can access the flight information contained in the boarding pass:
+After that you can access the flight information contained in the boarding pass leg:
+```swift 
+print(flight.airlineCode)   // AA
+print(flight.origin)        // TPA
+print(flight.destination)   // DFW
+print(flight.flightNumber)  // 1189
+print(flight.seatno)        // 3A
+print(flight.ffNumber)      // 76UXK84
+```
 
 ```swift
 var airlineData: String?
