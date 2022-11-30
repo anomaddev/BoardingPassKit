@@ -10,9 +10,6 @@ import SwiftDate
 
 public class BoardingPass: Codable {
     
-    var atlasId: String?
-    var archived: Bool! = false
-    
     // Unique
     let imported: Date
     var updated: Date
@@ -67,7 +64,7 @@ public class BoardingPass: Codable {
 //    var distance: Distance
 //    { .init(from: origin.coordinate, to: destination.coordinate) }
     
-    init(_ data: Data?) throws {
+    public init(_ data: Data?) throws {
         guard let data = data else { throw NSError() } // THROW:
         let parser = BoardingPassParser(data: data)
         imported = Date()
