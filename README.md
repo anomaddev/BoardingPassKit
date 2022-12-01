@@ -108,6 +108,7 @@ The parser, that deciphers the Boarding Pass string, can also generate a QR Code
 ```swift
 let barcodeString = "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 34DGH32             3"
 
+// Generate QR code with a UIImage as the output
 let qrCode: UIImage? = BoardingPassParser.generateQRCode(from: barcodeString)
 ```
 
