@@ -101,10 +101,9 @@ var fastTrack: Bool?            // is fast tracked for security
 ```
 
 ### Generating a Barcode or QR Code from Boarding Pass Data
+The parser, that deciphers the Boarding Pass string, can also generate a QR Code from the data. This can be useful if you want to display the QR Code on a screen.
 
 #### QR Code
-
-The parser, that deciphers the Boarding Pass string, can also generate a QR Code from the data. This can be useful if you want to display the QR Code on a screen.
 
 ```swift
 let barcodeString = "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 34DGH32             3"
