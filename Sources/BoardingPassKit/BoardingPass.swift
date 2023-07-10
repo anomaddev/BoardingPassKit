@@ -2,213 +2,91 @@
 //  BoardingPass.swift
 //  
 //
-//  Created by Justin Ackermann on 11/29/22.
+//  Created by Justin Ackermann on 7/9/23.
 //
 
 import Foundation
-import SwiftDate
 
-public class BoardingPass: Codable {
+public struct BoardingPass: Codable {
     
-    public var archived: Bool = false
+    public let version: String
     
-    // Unique
-    public let imported: Date
-    public var updated: Date
-    public var owner: String!
-    public let scan: String
+    public var info: BoardingPassParent
+    public var main: BoardingPassMainSegment
+    public var segments: [BoardingPassSegment]
+    public var security: BoardingPassSecurityData
     
-    // Mandatory Items
-    public let format: String
-    public let legs: Int
-    public let name: String
-    public var eTicket: Bool? = false
-    public var segments: [BoardingPassLeg] = []
+    public var code: String
     
-    // Conditionals
-    public var version: Int?
-    public var uniqueLength: Int?
-    
-    public var passengerDesc: String?
-    public var checkinSource: String?
-    public var passSource: String?
-    public var passDate: Date?
-    public var passYear: Int?
-    public var passDay: Int?
-    public var documentType: String?
-    public var passIssuer: String?
-    
-    public var bags: [BagTag] = []
-    
-    // computed
-    public var first: String? {
-        String(
-            name.split(separator: "/")[1]
-                .split(separator: " ")[0]
-        ).localizedCapitalized
-    }
-    
-    public var last: String?
-    { String(name.split(separator: "/")[0]).localizedCapitalized }
-    
-    public var dayOfYear: Int?
-    { segments.first?.dayOfYear ?? passDay }
-    
-//    var distance: Distance
-//    { .init(from: origin.coordinate, to: destination.coordinate) }
-    
-    public init(_ data: Data?) throws {
-        guard let data = data else { throw NSError() } // THROW:
-        let parser = BoardingPassParser(data: data)
-        imported = Date()
-        updated = Date()
-        scan = try parser.raw()
-        
-        do {
-            format = try parser.getstring(1, mandatory: true)!
-            legs = try parser.getstring(1, mandatory: true)!.number()
-            name = try parser.getstring(20, mandatory: true)!
-            eTicket = try parser.getstring(1, mandatory: true)?.eTicket()
-            
-            for i in 1...legs {
-                let mandatory = try parser.subparser(35)
-                let leg = try BoardingPassLeg(data: mandatory)
-                let length = try parser.readhex(2)
-                
-                if length > 0 {
-                    let conditionals = try parser.subparser(length)
-                    
-                    // parse unique fields in first segment only
-                    if i == 1 {
-                        let versionNumberIndicator = try conditionals.getstring(1, mandatory: true)
-                        guard versionNumberIndicator == ">" else {
-                            throw NSError() // THROW:
-                        }
-                        version = try conditionals.getstring(1, mandatory: true)!.number()
-                        
-                        let conditionalLength = try conditionals.readhex(2)
-                        let conditionalData = try conditionals.subparser(conditionalLength)
-                        passengerDesc = try conditionalData.getstring(1)
-                        checkinSource = try conditionalData.getstring(1)
-                        passSource = try conditionalData.getstring(1)
-                        passYear = try conditionalData.getstring(1)?.number()
-                        passDay = try conditionalData.getstring(3)?.number()
-                        documentType = try conditionalData.getstring(1)
-                        passIssuer = try conditionalData.getstring(3)
-                        
-                        // DEV: Implement later
-                        //                        for _ in 1...3 {
-                        //                            do {
-                        //                                guard let tagData = try parser.subsection(13) else {
-                        //                                    break
-                        //                                }
-                        //                                let tag = try BagTag(data: tagData)
-                        //                                bags.append(tag)
-                        //                            } catch { throw error }
-                        //                        }
-                    }
-                    
-                    let repeatedLength = try conditionals.readhex(2)
-                    let repeatedData = try conditionals.subparser(repeatedLength)
-                    try leg.addconditionals(data: repeatedData)
-                    
-                    let remaining = conditionals.data.count - conditionals.index
-                    if remaining > 0 {
-                        let raw = try conditionals.subparser(remaining)
-                            .raw()
-                            .trimmingCharacters(in: .whitespaces)
-                        if raw != "" { leg.airlineData = raw }
-                    }
-                }
-                
-                segments.append(leg)
-            }
-            
-            passDate = try parseDate(with: passYear)
-//            atlasId = try? generateAtlasId()
-//            print(atlasId)
-//            print()
-            
-            // securityData = try parser.securityData() // TODO: Implement
-            
-//            guard origin != nil else { return } // THROW:
-//            guard destination != nil else { return }
-            guard (passDay != nil || segments.first?.dayOfYear != nil) else { return }
-        } catch { throw error }
-    }
-    
-    // MARK: - Modifiers
-    public func parseDate(with year: Int! = nil) throws -> Date? {
-        guard let day = segments.first?.dayOfYear ?? passDay
-        else { return nil }
-        
-        if let year = year, year > 1000 {
-            var dateComponents = DateComponents();
-            dateComponents.year = year
-            dateComponents.day = day
-            let calendar = Calendar.current
-            let date = calendar.date(from: dateComponents)
-            
-            guard let date = date
-            else { return nil } // THROW:
-            
-            return date
+    public func printout() {
+        print("")
+        print("SEGMENTS: \(info.legs)")
+        print("======================")
+        print("MAIN SEGMENT")
+        print("===MANDATORY ITEMS [60 characters long]===")
+        print("FORMAT CODE:  \(info.format)")
+        print("LEGS ENCODED: \(info.legs)")
+        print("PASSENGER:    \(info.name)")
+        print("INDICATOR:    \(info.ticketIndicator)")
+        print("PNR CODE:     \(info.pnrCode)")
+        print("ORIGIN:       \(info.origin)")
+        print("DESTINATION:  \(info.destination)")
+        print("CARRIER:      \(info.operatingCarrier)")
+        print("FLIGHT NO:    \(info.flightno)")
+        print("JULIAN DATE:  \(info.julianDate)")
+        print("COMPARTMENT:  \(info.compartment)")
+        print("SEAT NO:      \(info.seatno)")
+        print("CHECK IN:     \(info.checkIn)")
+        print("STATUS:       \(info.passengerStatus)")
+        print("VAR SIZE:     \(info.conditionalSize)")
+        print("")
+        print("===CONDITIONAL ITEMS [\(info.conditionalSize) characters long]===")
+        print("VERSION:       \(version)")
+        print("PASS STRUCT:   \(main.structSize)")
+        print("PASS DESC:     \(main.passengerDesc)")
+        print("SOURCE CHK IN: \(main.checkInSource)")
+        print("SOURCE PASS:   \(main.passSource)")
+        print("DATE ISSUED:   \(main.dateIssued)")
+        print("DOC TYPE:      \(main.documentType)")
+        print("AIRLINE DESIG: \(main.carrier)")
+        print("BAG TAG 1:     \(main.bagtag1 ?? "none")")
+        print("BAG TAG 2:     \(main.bagtag2 ?? "none")")
+        print("BAG TAG 3:     \(main.bagtag3 ?? "none")")
+        print("======================")
+        for (i, segment) in segments.enumerated() {
+            print("SEGMENT: \(i + 2)")
+            print("======================")
+            print("PNRCODE:       \(segment.pnrCode)")
+            print("ORIGIN:        \(segment.origin)")
+            print("DESTINATION:   \(segment.destination)")
+            print("CARRIER:       \(segment.carrier)")
+            print("FLIGHT NO:     \(segment.flightno)")
+            print("JULIAN DATE:   \(segment.julianDate)")
+            print("COMPARTMENT:   \(segment.compartment)")
+            print("SEAT NO:       \(segment.seatno ?? "-")")
+            print("CHECKED IN:    \(segment.checkedin)")
+            print("PASS STATUS:   \(segment.passengerStatus)")
+            print("CONDITIONAL:   \(segment.structSize)")
+            print("SEGMENT SIZE:  \(segment.segmentSize)")
+            print("AIRLINE CODE:  \(segment.airlineCode)")
+            print("DOC NUMBER:    \(segment.ticketNumber)")
+            print("SELECTEE:      \(segment.selectee)")
+            print("DOC VERIFY:    \(segment.internationalDoc)")
+            print("OPERATOR:      \(segment.operatingCarrier)")
+            print("FF AIRLINE:    \(segment.ffAirline)")
+            print("FF NUMBER:     \(segment.ffNumber)")
+            print("ID INDICATOR:  \(segment.idAdIndicator ?? "-")")
+            print("FREE BAGS:     \(segment.freeBags ?? "-")")
+            print("FAST TRACK:    \(segment.fastTrack ?? "-")")
+            print("AIRLINE USE:   \(segment.airlineUse ?? "-")")
+            print("========================")
         }
-        
-        let current = Date()
-        let min = (current - 3.years).year
-        let max = (current + 1.years).year
-        let check = Array(min...max).first
-        { $0.string.last == passYear?.string.last ?? Character("l") }
-        
-        guard let check = check
-        else { return nil }
-        
-        var dateComponents = DateComponents();
-        dateComponents.year = check
-        dateComponents.day = day
-        dateComponents.hour = 1
-//        dateComponents.timeZone = TimezoneMapper.latLngToTimezone(origin.coordinate)!
-        
-        var calendar = Calendar.current
-        let timezone = TimeZone(abbreviation: "GMT")!
-        calendar.timeZone = timezone
-        
-        let date = calendar.date(from: dateComponents)
-        
-        guard let date = date
-        else { return nil } // THROW:
-        
-        return date
+        print("")
+        print("SECURITY DATA")
+        print("========================")
+        print("TYPE:     \(security.securityType)")
+        print("LENGTH:   \(security.securitylength)")
+        print("DATA:     \(security.securityData ?? "-")")
+        print("========================")
     }
-    
-    // MARK: - Test Scans
-    public enum Test: String, CaseIterable {
-        case empty = ""
-        case random = "asDFADFAKL asdlfjk ads;aDFJ  la'lsdjkf aASDFA"
-        case upgraded = "M1ACKERMANN/JUSTIN    ETDPUPK TPADFWAA 1189 091R003A0033 14A>318   0091BAA 00000000000002900121232782703 AA AA 76UXK84             2IN"
-        
-        case scan = "M1ACKERMANN/JUSTIN    ELIIBGP CLTTPAAA 1632 136R003A0030 148>218 MM    BAA              29001001212548532AA AA 76UXK84              AKAlfj2mu1aTkVQ5xj83jTf/c5bb+8G61Q==|Wftygjey5EygW2IxQt+9v1+DHuklYFnr"
-        case scan1 = "M1ACKERMANN/JUSTIN    ELIIBGP STLCLTAA 1990 136R003A0026 148>218 MM    BAA              29001001212548532AA AA 76UXK84              ZulMW9ujSJJInrqdwbpy44gCfsK+lwdE|ALqh3u+QhfCfPINi1TMzFFDhCKM7ydqGDg=="
-        case scan2 = "M1ACKERMANN/JUSTIN DAVEUXPVFK HKGSINCX 0715 326Y040G0059 34B>6180 O9326BCX              2A00174597371330 AA AA 76UXK84             N3AA"
-        case scan3 = "M1ACKERMANN/JUSTIN DAVEJKLEAJ MSYPHXAA 2819 014S008F0059 14A>318   0014BAA 00000000000002900174844256573 AA AA 76UXK84             223"
-        case scan4 = "M1ACKERMANN/JUSTIN DAVEQAEWGY SANDFWAA 1765 157K012A0028 14A>318   2157BAA 00000000000002900177636421733 AA AA 76UXK84             253"
-        
-        case other1 = "M1FERRER/JOSE          XYJZ2V TPASJUNK 0538 248Y026F0038 147>1181  0247BNK 000000000000029487000000000000                          ^460MEQCIGJLJLMYXzgkks7Z1jWfkW/cZSPFunmpdfrF/s4m40oYAiBjZH1WLm+3olwz+tMC+uBhr2fuS1EXwDg5qxBhge4RMg=="
-        case other2 = "M1PRUETT/KAILEY       E9169f13BLVPIEG4 0769 057Y011C0001 147>3182OO1057BG4              29268000000000000G4                    00PC^160MEUCIFzucrR1+DVpDo0bBTgfSKeynBc0igyZvQ8fLm67nMLdAiEAxNiljXHk9lNdiG4Nd5LYQwMIvWpohaRMp7E7ogYgQy8="
-        
-        case scan22 = "M1ACKERMANN/JUSTIN DAVEWHNSNI TPAPHXAA 1466 185R005A0056 14A>318   2185BAA 00000000000002900177708173663 AA AA 76UXK84             243"
-        
-        case dual = "M2ACKERMANN/JUSTIN DAVEWHFPBW TPASEAAS 0635 213L007A0000 148>2181MM    BAS              25             3    AA 76UXK84         1    WHFPBW SEAJNUAS 0555 213L007A0000 13125             3    AA 76UXK84         1    01010^460MEQCICRNjFGBPfJr84Ma6vMjxTQLtZ1z7uB0tUfO+fS/3vvuAiAReH4kY4ZcmXR+vD8Y+KoA1Dn1YKpr8YxCYbREeOYcsA=="
-        
-        case japan = "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 76UXK84             3"
-        
-        public var data: Data?
-        { rawValue.data(using: .ascii) }
-    }
-}
-
-public extension Int {
-    var string: String
-    { "\(self)" }
 }
