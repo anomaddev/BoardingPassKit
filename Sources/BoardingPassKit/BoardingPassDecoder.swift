@@ -71,6 +71,7 @@ open class BoardingPassDecoder: NSObject {
     
         let info        = try parent()
         endConditional  = info.conditionalSize + index
+        print("Conditional Size: \(info.conditionalSize)")
         
         let _           = try conditional(1)
         let version     = try conditional(1)
