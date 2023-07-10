@@ -29,7 +29,7 @@ do {
 }
 ```
 
-## Boarding Pass
+## Boarding Pass {#boarding-pass}
 A boarding pass object will contain a few sections. This allows the library to accurately differentiate between mandatory & conditional items in the data.
 
 ```swift
@@ -43,6 +43,65 @@ public struct BoardingPass: Codable {
     public var security: BoardingPassSecurityData
     
     public var code: String
+```
+
+#### Boarding Pass Parent
+The parent object contains the information that is shared between all segments of the boarding pass. This includes the passenger name, the PNR code, first segments seat number, etc.
+
+```swift
+public struct BoardingPassParent: Codable {
+    
+    public let format: String
+    public let legs: Int
+    public let name: String
+    public let ticketIndicator: String
+    public let pnrCode: String
+    public let origin: String
+    public let destination: String
+    public let operatingCarrier: String
+    public let flightno: String
+    public let julianDate: Int
+    public let compartment: String
+    public let seatno: String
+    public let checkIn: Int
+    public let passengerStatus: String
+    public let conditionalSize: Int
+    
+}
+```
+
+#### Boarding Pass Main Segment
+The main segment contains the information that is unique to the first segment of the boarding pass. This includes the airline code, ticket number, bag tags, etc. There are also fields that specify the size of the conditional items in the data.
+
+```swift
+public struct BoardingPassMainSegment: Codable {
+    
+    public let structSize: Int
+    public let passengerDesc: String
+    public let checkInSource: String
+    public let passSource: String
+    public let dateIssued: String
+    public let documentType: String
+    public let passIssuer: String
+    
+    public var bagtag1: String?
+    public var bagtag2: String?
+    public var bagtag3: String?
+    
+    public let nextSize: Int
+    public let airlineCode: String
+    public let ticketNumber: String
+    public let selectee: String
+    public let internationalDoc: String
+    public let carrier: String
+    public var ffCarrier: String?
+    public var ffNumber: String?
+    
+    public var IDADIndicator: String?
+    public var freeBags: String?
+    public var fastTrack: String?
+    public var airlineUse: String?
+}
 ```
 
 #### Print to Console
