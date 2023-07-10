@@ -70,8 +70,10 @@ open class BoardingPassDecoder: NSObject {
         endConditional = 0
     
         let info        = try parent()
-        endConditional  = info.conditionalSize + index
-        print("Conditional Size: \(info.conditionalSize)")
+        endConditional  = info.conditionalSize
+        
+        if debug
+        { print("Conditional Size: \(info.conditionalSize)") }
         
         let _           = try conditional(1)
         let version     = try conditional(1)
@@ -85,11 +87,20 @@ open class BoardingPassDecoder: NSObject {
         }
         
         let beginSecurity = try mandatory(1)
-        let typeSecurity = try mandatory(1)
-        let lengthSecurity = try readhex(2, isMandatory: true)
-        subConditional = lengthSecurity
+        var typeSecurity: String!
+        var lengthSecurity: Int!
+        var data: String!
         
-        let data = try conditional(lengthSecurity)
+        if beginSecurity == ">" {
+            typeSecurity = try mandatory(1)
+            lengthSecurity = try readhex(2, isMandatory: true)
+            
+            subConditional = lengthSecurity
+            data = try conditional(lengthSecurity)
+        } else {
+            subConditional = code.count - index
+            data = try conditional(subConditional)
+        }
         
         guard subConditional == 0
         else { throw NSError() }
@@ -131,16 +142,20 @@ open class BoardingPassDecoder: NSObject {
     /// This returns a conditional field give it does not go over the length specified
     private func conditional(_ length: Int) throws -> String {
         if (data.count < index + length) &&
-           (endConditional < index + length)
+           (endConditional > 0)
         { throw NSError() } // THROW:
         
         if subConditional != 0
         { subConditional -= length }
         
+        if endConditional != 0
+        { endConditional -= length }
+        
         var string: String = try readdata(length)
         if debug {
             print("CONDITIONAL: " + string)
             print("SUB-CONDITIONAL: \(subConditional)")
+            print("END CONDITIONAL: \(endConditional)")
         }
         
         if trimWhitespace { string = string.trimmingCharacters(in: .whitespaces) }
@@ -150,16 +165,11 @@ open class BoardingPassDecoder: NSObject {
     
     /// Read the next section of data of a given length and return the string value
     public func readint(_ length: Int) throws -> Int {
-        let subdata = data.subdata(in: index ..< (index + length))
-        index += length
-        
-        guard let rawString = String(data: subdata, encoding: String.Encoding.ascii)
-        else { throw BoardingPassError.DataFailedStringDecoding }
-        
+        let rawString = try mandatory(length)
         if debug { print("RAW INT: \(rawString)") }
         
         guard let number = Int(rawString.trimmingCharacters(in: .whitespaces))
-        else { throw BoardingPassError.FieldValueNotRequiredInteger }
+        else { throw BoardingPassError.FieldValueNotRequiredInteger(value: rawString) }
         
         return number
     }
@@ -183,12 +193,13 @@ open class BoardingPassDecoder: NSObject {
         else { str = try conditional(length) }
         
         guard let int = Int(str, radix: 16)
-        else { throw BoardingPassError.HexStringFailedDecoding }
+        else { throw BoardingPassError.HexStringFailedDecoding(string: str) }
         
         if debug { print("HEX: \(int)") }
         return int
     }
     
+    /// Cycle through the boarding pass code and pull out the `BoardingPassParent` data
     private func parent() throws -> BoardingPassParent {
         let parent = BoardingPassParent(
             format:             try mandatory(1),
@@ -214,8 +225,9 @@ open class BoardingPassDecoder: NSObject {
         return parent
     }
     
+    /// Cycle through the boarding pass code and pull out the `BoardingPassMainSegment` data
     private func mainSegment() throws -> BoardingPassMainSegment {
-        let passStruct  = try readhex(2)
+        let passStruct  = try readhex(2, isMandatory: false)
         subConditional  = passStruct
         
         let desc        = try conditional(1)
@@ -237,9 +249,9 @@ open class BoardingPassDecoder: NSObject {
         }
         
         guard subConditional == 0
-        else { throw NSError() } // THROW:
+        else { throw BoardingPassError.MainSegmentBagConditionalInvalid }
         
-        let airStruct   = try readhex(2)
+        let airStruct   = try readhex(2, isMandatory: false)
         subConditional  = airStruct
         
         let airlinecode = try conditional(3)
@@ -249,16 +261,25 @@ open class BoardingPassDecoder: NSObject {
         let opCarrier   = try conditional(3)
         let ffAirline   = try conditional(3)
         let ffNumber    = try conditional(16)
-        let idIndicator = try conditional(1)
-        let freeBags    = try conditional(3)
-        let fastTrack   = try conditional(1)
+        
+        var idIndicator: String?
+        if subConditional > 0
+        { idIndicator = try conditional(1) }
+        
+        var freeBags: String?
+        if subConditional > 0
+        { freeBags    = try conditional(3) }
+        
+        var fastTrack: String?
+        if subConditional > 0
+        { fastTrack   = try conditional(1) }
         
         var airlineUse: String?
         if subConditional > 0
         { airlineUse = try conditional(subConditional) }
         
         guard subConditional == 0
-        else { throw NSError() } // THROW:
+        else { throw BoardingPassError.MainSegmentSubConditionalInvalid }
         
         return BoardingPassMainSegment(
             structSize: passStruct,
@@ -286,7 +307,8 @@ open class BoardingPassDecoder: NSObject {
         )
     }
     
-    func segment() throws -> BoardingPassSegment {
+    /// Cycle through the boarding pass code and pull out all the `BoardingPassSegment` data objects
+    private func segment() throws -> BoardingPassSegment {
         let pnrCode = try conditional(7)
         let origin = try conditional(3)
         let destination = try conditional(3)
@@ -318,7 +340,7 @@ open class BoardingPassDecoder: NSObject {
         { airlineUse = try conditional(subConditional) }
         
         guard subConditional == 0
-        else { throw NSError() } // THROW:
+        else { throw BoardingPassError.SegmentSubConditionalInvalid }
         
         return BoardingPassSegment(
             pnrCode: pnrCode,
