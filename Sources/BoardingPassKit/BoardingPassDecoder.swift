@@ -275,10 +275,10 @@ open class BoardingPassDecoder: NSObject {
         { fastTrack   = try conditional(1) }
         
         var airlineUse: String?
-        if subConditional > 0
-        { airlineUse = try conditional(subConditional) }
+        if subConditional >= 0 && endConditional > 0
+        { airlineUse = try conditional(endConditional) }
         
-        guard subConditional == 0
+        guard subConditional == 0 && endConditional == 0
         else { throw BoardingPassError.MainSegmentSubConditionalInvalid }
         
         return BoardingPassMainSegment(
@@ -320,8 +320,9 @@ open class BoardingPassDecoder: NSObject {
         let checkedin = try readint(5)
         let passengerStatus = try conditional(1)
         let structSize = try readhex(2)
+        endConditional = structSize
         
-        let segmentSize = try readhex(2)
+        let segmentSize = try readhex(2, isMandatory: false)
         subConditional  = segmentSize
         
         let airlineCode = try conditional(3)
@@ -331,13 +332,22 @@ open class BoardingPassDecoder: NSObject {
         let opCarrier = try conditional(3)
         let ffAirline = try conditional(3)
         let ffNumber = try conditional(16)
-        let idad = try conditional(1)
-        let freeBags = try conditional(3)
-        let fastTrack = try conditional(1)
+        
+        var idad: String?
+        if subConditional > 0
+        { idad = try conditional(1) }
+        
+        var freeBags: String?
+        if subConditional > 0
+        { freeBags = try conditional(3) }
+        
+        var fastTrack: String?
+        if subConditional > 0
+        { fastTrack = try conditional(1) }
         
         var airlineUse: String?
-        if subConditional > 0
-        { airlineUse = try conditional(subConditional) }
+        if subConditional >= 0 && endConditional > 0
+        { airlineUse = try conditional(endConditional) }
         
         guard subConditional == 0
         else { throw BoardingPassError.SegmentSubConditionalInvalid }
