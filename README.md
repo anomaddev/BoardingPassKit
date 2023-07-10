@@ -29,7 +29,7 @@ do {
 }
 ```
 
-## Boarding Pass {#boarding-pass}
+## Boarding Pass
 A boarding pass object will contain a few sections. This allows the library to accurately differentiate between mandatory & conditional items in the data.
 
 ```swift
