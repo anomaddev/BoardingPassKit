@@ -29,6 +29,9 @@ do {
 }
 ```
 
+#### Print to Console
+When debugging your functions, you can call the `printout()` function on your BoardPass object to print all the details to the console.
+
 ### Generating a Barcode or QR Code from Boarding Pass Data
 The parser, that deciphers the Boarding Pass string, can also generate a QR Code from the data. This can be useful if you want to display the QR Code on a screen.
 
