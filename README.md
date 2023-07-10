@@ -22,7 +22,7 @@ do {
     // example of settings you can change on the decoder. This one prints out the data every step of the decoding.
     decoder.debug = true
     
-    let boardingPassFromString  = try decoder.decode(code: barcodeString)
+    let boardingPass            = try decoder.decode(code: barcodeString)
     let boardingPassFromData    = try decoder.decode(data: barcodeData)
 } catch {
     // Handle error
@@ -33,8 +33,64 @@ do {
 When debugging your functions, you can call the `printout()` function on your BoardPass object to print all the details to the console.
 
 ```swift
-let pass = BoardingPass()
-pass.printout()
+/// for this example we will print out the above boarding pass to the console
+boardingPass.printout()
+
+//
+// SEGMENTS: 1
+// ======================
+// MAIN SEGMENT
+// ===MANDATORY ITEMS [60 characters long]===
+// FORMAT CODE:  M
+// LEGS ENCODED: 1
+// PASSENGER:    ACKERMANN/JUSTIN DAV
+// INDICATOR:    E
+// PNR CODE:     UXPVFK
+// ORIGIN:       HKG
+// DESTINATION:  SIN
+// CARRIER:      CX
+// FLIGHT NO:    0715
+// JULIAN DATE:  326
+// COMPARTMENT:  Y
+// SEAT NO:      040G
+// CHECK IN:     59
+// STATUS:       3
+// VAR SIZE:     75
+// 
+// ===CONDITIONAL ITEMS [75 characters long]===
+// VERSION:       6
+// PASS STRUCT:   24
+// PASS DESC:     0
+// SOURCE CHK IN:
+// SOURCE PASS:   O
+// DATE ISSUED:   9326
+// DOC TYPE:      B
+// AIRLINE DESIG: AA
+// BAG TAG 1:
+// BAG TAG 2:     none
+// BAG TAG 3:     none
+// FIELD SIZE:    42
+// AIRLINE CODE:  001
+// TICKET NO:     7459737133
+// SELECTEE:      0
+// INTERNATIONAL:
+// CARRIER:       AA
+// FREQ CARRIER:  AA
+// FREQ NUMBER:   76UXK84
+// 
+// AD ID:
+// FREE BAGS:
+// FAST TRACK:    N
+// AIRLINE USE:   3AA
+// ======================
+// 
+// SECURITY DATA
+// ========================
+// TYPE:     nil
+// LENGTH:   nil
+// DATA:
+// ========================
+// 
 ```
 
 ### Generating a Barcode or QR Code from Boarding Pass Data
