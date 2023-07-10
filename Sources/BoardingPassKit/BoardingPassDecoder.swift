@@ -11,6 +11,7 @@ open class BoardingPassDecoder: NSObject {
     
     public var debug: Bool = false
     
+    // TODO: Implement
     /// Will trim any leading zeros from fields when not needed. Default value is `true`
     public var trimLeadingZeroes: Bool  = true
     
