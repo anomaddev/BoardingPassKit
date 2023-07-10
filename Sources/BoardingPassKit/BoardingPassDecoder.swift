@@ -180,6 +180,8 @@ open class BoardingPassDecoder: NSObject {
         
         guard let int = Int(str, radix: 16)
         else { throw BoardingPassError.HexStringFailedDecoding }
+        
+        if debug { print("HEX: \(int)") }
         return int
     }
     
