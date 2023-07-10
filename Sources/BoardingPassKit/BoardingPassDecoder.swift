@@ -137,7 +137,10 @@ open class BoardingPassDecoder: NSObject {
         { subConditional -= length }
         
         var string: String = try readdata(length)
-        if debug { print("CONDITIONAL: " + string) }
+        if debug {
+            print("CONDITIONAL: " + string)
+            print("SUB-CONDITIONAL: \(subConditional)")
+        }
         
         if trimWhitespace { string = string.trimmingCharacters(in: .whitespaces) }
         
