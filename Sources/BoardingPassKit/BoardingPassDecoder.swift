@@ -370,7 +370,7 @@ open class BoardingPassDecoder: NSObject {
             ticketNumber: ticketNumber,
             selectee: selectee,
             internationalDoc: internationalDoc,
-            operatingCarrier: opCarrier,
+            ticketingCarrier: opCarrier,
             ffAirline: ffAirline,
             ffNumber: ffNumber,
             idAdIndicator: idad,
