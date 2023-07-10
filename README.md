@@ -29,6 +29,22 @@ do {
 }
 ```
 
+## Boarding Pass
+A boarding pass object will contain a few sections. This allows the library to accurately differentiate between mandatory & conditional items in the data.
+
+```swift
+public struct BoardingPass: Codable {
+    
+    public let version: String
+    
+    public var info: BoardingPassParent
+    public var main: BoardingPassMainSegment
+    public var segments: [BoardingPassSegment]
+    public var security: BoardingPassSecurityData
+    
+    public var code: String
+```
+
 #### Print to Console
 When debugging your functions, you can call the `printout()` function on your BoardPass object to print all the details to the console.
 

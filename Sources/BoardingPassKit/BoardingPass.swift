@@ -86,7 +86,7 @@ public struct BoardingPass: Codable {
             print("DOC NUMBER:    \(segment.ticketNumber)")
             print("SELECTEE:      \(segment.selectee)")
             print("DOC VERIFY:    \(segment.internationalDoc)")
-            print("OPERATOR:      \(segment.operatingCarrier)")
+            print("TICKET CARRIER:\(segment.ticketingCarrier)")
             print("FF AIRLINE:    \(segment.ffAirline)")
             print("FF NUMBER:     \(segment.ffNumber)")
             print("ID INDICATOR:  \(segment.idAdIndicator ?? "-")")

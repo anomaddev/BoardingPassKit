@@ -27,7 +27,7 @@ public struct BoardingPassSegment: Codable {
     public var ticketNumber: String
     public var selectee: String
     public var internationalDoc: String
-    public var operatingCarrier: String
+    public var ticketingCarrier: String
     public var ffAirline: String
     public var ffNumber: String
     public var idAdIndicator: String?
