@@ -86,7 +86,7 @@ open class BoardingPassDecoder: NSObject {
             else if i != info.legs { segments.append(try segment()) }
         }
         
-        let beginSecurity = try mandatory(1)
+        let beginSecurity = try? mandatory(1)
         var typeSecurity: String!
         var lengthSecurity: Int!
         var data: String!
