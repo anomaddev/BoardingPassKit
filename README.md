@@ -45,7 +45,7 @@ public struct BoardingPass: Codable {
     public var code: String
 ```
 
-#### Boarding Pass Parent
+### Boarding Pass Parent
 The parent object contains the information that is shared between all segments of the boarding pass. This includes the passenger name, the PNR code, first segments seat number, etc.
 
 ```swift
@@ -70,7 +70,7 @@ public struct BoardingPassParent: Codable {
 }
 ```
 
-#### Boarding Pass Main Segment
+### Boarding Pass Main Segment
 The main segment contains the information that is unique to the first segment of the boarding pass. This includes the airline code, ticket number, bag tags, etc. There are also fields that specify the size of the conditional items in the data.
 
 ```swift
