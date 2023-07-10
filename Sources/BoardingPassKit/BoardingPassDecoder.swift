@@ -31,7 +31,7 @@ open class BoardingPassDecoder: NSObject {
     private func raw(_ data: Data) throws -> String {
         guard let str = String(data: data,
                                encoding: String.Encoding.ascii)
-        else { throw NSError() } // THROW:
+        else { throw BoardingPassError.DataFailedStringDecoding }
         return str
     }
     
@@ -143,7 +143,7 @@ open class BoardingPassDecoder: NSObject {
     private func conditional(_ length: Int) throws -> String {
         if (data.count < index + length) &&
            (endConditional > 0)
-        { throw NSError() } // THROW:
+        { throw BoardingPassError.ConditionalIndexInvalid(endConditional, subConditional) }
         
         if subConditional != 0
         { subConditional -= length }

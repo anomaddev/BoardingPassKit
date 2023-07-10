@@ -15,6 +15,7 @@ public enum BoardingPassError: Error {
     case FieldValueNotRequiredInteger(value: String)
     case HexStringFailedDecoding(string: String)
     
+    case ConditionalIndexInvalid(Int, Int)
     case MainSegmentBagConditionalInvalid
     case MainSegmentSubConditionalInvalid
     case SegmentSubConditionalInvalid
@@ -31,6 +32,9 @@ extension BoardingPassError: CustomStringConvertible {
         case .DataFailedStringDecoding:                 return "Data fail .ascii String decoding"
         case .FieldValueNotRequiredInteger(let value):  return "Field value \(value) is supposed to be an integer and is not"
         case .HexStringFailedDecoding(let str):         return "String \(str) failed to decode as hexidecimal"
+            
+        case .ConditionalIndexInvalid(let end, let sub):
+            return "Conditional parsing failed due to endConditional \(end) or subConditional \(sub)"
             
         case .MainSegmentBagConditionalInvalid:         return "Main segment conditional is invalid parsing after bag tags"
         case .MainSegmentSubConditionalInvalid:         return "Final main segment conditional is invalid parsing index"
@@ -53,6 +57,7 @@ extension BoardingPassError: LocalizedError {
         case .FieldValueNotRequiredInteger:     key = "FieldValueNotRequiredInteger"
         case .HexStringFailedDecoding:          key = "HexStringFailedDecoding"
             
+        case .ConditionalIndexInvalid:          key = "ConditionalIndexInvalid"
         case .MainSegmentBagConditionalInvalid: key = "MainSegmentBagConditionalInvalid"
         case .MainSegmentSubConditionalInvalid: key = "MainSegmentSubConditionalInvalid"
         case .SegmentSubConditionalInvalid:     key = "SegmentSubConditionalInvalid"
