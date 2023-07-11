@@ -244,7 +244,13 @@ The parser, that deciphers the Boarding Pass string, can also generate a QR Code
 #### QR Code
 
 ```swift
-// Coming Soon
+do { 
+    let decoder = BoardingPassDecoder()
+    let pass = try decoder.decode(data: data)
+    let qrCode = try pass.qrCode()
+} catch {
+    print(error.localizedDescription)
+}
 ```
 
 #### PDF417
