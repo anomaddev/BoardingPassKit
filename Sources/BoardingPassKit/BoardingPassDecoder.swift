@@ -202,28 +202,41 @@ open class BoardingPassDecoder: NSObject {
     
     /// Cycle through the boarding pass code and pull out the `BoardingPassParent` data
     private func parent() throws -> BoardingPassParent {
-        let parent = BoardingPassParent(
-            format:             try mandatory(1),
-            legs:               try readint(1),
-            name:               try mandatory(20),
-            ticketIndicator:    try mandatory(1),
-            pnrCode:            try mandatory(7),
-            origin:             try mandatory(3),
-            destination:        try mandatory(3),
-            operatingCarrier:   try mandatory(3),
-            flightno:           try mandatory(5),
-            julianDate:         try readint(3),
-            compartment:        try mandatory(1),
-            seatno:             try mandatory(4),
-            checkIn:            try readint(5),
-            passengerStatus:    try mandatory(1),
-            conditionalSize:    try readhex(2)
-        )
-        
-        guard parent.legs > 0
-        else { throw BoardingPassError.InvalidBoardingPassLegs(parent.legs) }
-        
-        return parent
+        do {
+            let format          = try mandatory(1)
+            let legs            = try readint(1)
+            let name            = try mandatory(20)
+            let ticketIndicator = try mandatory(1)
+            let pnrCode         = try mandatory(7)
+            let origin          = try mandatory(3)
+            let destination     = try mandatory(3)
+            
+            guard format == "M" || format == "S"
+            else { throw BoardingPassError.InvalidPassFormat(format: format) }
+            
+            guard legs > 0
+            else { throw BoardingPassError.InvalidSegments(legs: legs) }
+            
+            // TODO: Add more validation
+            
+            return BoardingPassParent(
+                format:             format,
+                legs:               legs,
+                name:               name,
+                ticketIndicator:    ticketIndicator,
+                pnrCode:            pnrCode,
+                origin:             origin,
+                destination:        destination,
+                operatingCarrier:   try mandatory(3),
+                flightno:           try mandatory(5),
+                julianDate:         try readint(3),
+                compartment:        try mandatory(1),
+                seatno:             try mandatory(4),
+                checkIn:            try readint(5),
+                passengerStatus:    try mandatory(1),
+                conditionalSize:    try readhex(2)
+            )
+        } catch { throw BoardingPassError.DataIsNotBoardingPass(error: error) }
     }
     
     /// Cycle through the boarding pass code and pull out the `BoardingPassMainSegment` data
