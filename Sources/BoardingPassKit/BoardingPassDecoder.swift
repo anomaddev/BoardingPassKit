@@ -124,6 +124,10 @@ open class BoardingPassDecoder: NSObject {
             code: code
         )
         
+        print("======================")
+        print("Boarding Pass:")
+        print(pass.code)
+        print("======================")
         if debug { pass.printout() }
         return pass
     }
