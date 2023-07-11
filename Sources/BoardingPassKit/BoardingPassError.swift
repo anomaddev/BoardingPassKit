@@ -15,6 +15,9 @@ public enum BoardingPassError: Error {
     case DataFailedValidation(code: String)
     case DataIsNotBoardingPass(error: Error)
     
+    case CIQRCodeGeneratorNotFound
+    case CIQRCodeGeneratorOutputFailed
+    
     case MandatoryItemNotFound(index: Int)
     case DataFailedStringDecoding
     case FieldValueNotRequiredInteger(value: String)
@@ -37,6 +40,9 @@ extension BoardingPassError: CustomStringConvertible {
             
         case .DataFailedValidation(let code):           return "Data provided failed boarding pass validation: \(code)"
         case .DataIsNotBoardingPass(let error):         return "Data provided is not a boarding pass: \(error.localizedDescription)"
+            
+        case .CIQRCodeGeneratorNotFound:                return "Loading the CIQRCodeGenerator filter to generate the barcode failed"
+        case .CIQRCodeGeneratorOutputFailed:            return "For some reason we could not generate the barcode output from the filter"
             
         case .MandatoryItemNotFound(let index):         return "Mandatory field value is not found at index \(index)"
         case .DataFailedStringDecoding:                 return "Data fail .ascii String decoding"
@@ -66,6 +72,9 @@ extension BoardingPassError: LocalizedError {
             
         case .DataFailedValidation:             key = "DataFailedValidation"
         case .DataIsNotBoardingPass:            key = "DataIsNotBoardingPass"
+            
+        case .CIQRCodeGeneratorNotFound:        key = "CIQRCodeGeneratorNotFound"
+        case .CIQRCodeGeneratorOutputFailed:    key = "CIQRCodeGeneratorOutputFailed"
             
         case .MandatoryItemNotFound:            key = "MandatoryItemNotFound"
         case .DataFailedStringDecoding:         key = "DataFailedStringDecoding"

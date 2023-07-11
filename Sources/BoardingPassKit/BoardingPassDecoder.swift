@@ -9,6 +9,7 @@ import Foundation
 
 open class BoardingPassDecoder: NSObject {
     
+    /// Setting this to `true` will print lots of details to the console
     public var debug: Bool = false
     
     // TODO: Implement
@@ -165,7 +166,7 @@ open class BoardingPassDecoder: NSObject {
     }
     
     /// Read the next section of data of a given length and return the string value
-    public func readint(_ length: Int) throws -> Int {
+    private func readint(_ length: Int) throws -> Int {
         let rawString = try mandatory(length)
         if debug { print("RAW INT: \(rawString)") }
         
@@ -176,7 +177,7 @@ open class BoardingPassDecoder: NSObject {
     }
     
     /// Read the next section of data of a given length and return the string value
-    public func readdata(_ length: Int) throws -> String {
+    private func readdata(_ length: Int) throws -> String {
         let subdata = data.subdata(in: index ..< (index + length))
         index += length
         
@@ -187,7 +188,7 @@ open class BoardingPassDecoder: NSObject {
     
     
     /// Read the next section of data of a given length and return the decimal hex value
-    public func readhex(_ length: Int, isMandatory: Bool! = true) throws -> Int {
+    private func readhex(_ length: Int, isMandatory: Bool! = true) throws -> Int {
         let str: String!
         
         if isMandatory { str = try mandatory(length) }

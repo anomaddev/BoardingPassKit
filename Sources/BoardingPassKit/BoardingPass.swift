@@ -4,7 +4,8 @@
 //
 //  Created by Justin Ackermann on 7/9/23.
 //
-
+ // Core iOS
+import UIKit
 import Foundation
 
 public struct BoardingPass: Codable {
@@ -17,6 +18,18 @@ public struct BoardingPass: Codable {
     public var security: BoardingPassSecurityData
     
     public var code: String
+    
+    public func qrCode() throws -> UIImage {
+        let data = code.data(using: String.Encoding.ascii)
+        if let filter = CIFilter(name: "CIQRCodeGenerator") {
+            filter.setValue(data, forKey: "inputMessage")
+            let transform = CGAffineTransform(scaleX: 3, y: 3)
+            
+            if let output = filter.outputImage?.transformed(by: transform) {
+                return UIImage(ciImage: output)
+            } else { throw NSError() }
+        } else { throw NSError() }
+    }
     
     /// A text representation of the entire `BoardingPass` object printed to the console
     public func printout() {
