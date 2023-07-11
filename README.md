@@ -105,30 +105,70 @@ The main segment contains the information that is unique to the first segment of
 ```swift
 public struct BoardingPassMainSegment: Codable {
     
+    /// The size of the main segment in the boarding pass. Parsed decimal from hexidecimal.
     public let structSize: Int
+
+    /// The passenger description code.
     public let passengerDesc: String
+
+    /// The source of the passenger's check in
     public let checkInSource: String
+
+    /// The source of the passenger's boarding pass
     public let passSource: String
+
+    /// The date the boarding pass was issued
     public let dateIssued: String
+
+    /// The type of document the passenger is using
     public let documentType: String
+
+    /// The IATA airline code issuing the boarding pass
     public let passIssuer: String
     
+    /// Your first bag tag
     public var bagtag1: String?
+
+    /// Your second bag tag
     public var bagtag2: String?
+
+    /// Your third bag tag
     public var bagtag3: String?
     
+    /// The size of the variable data in the boarding pass. Parsed decimal from hexidecimal.
     public let nextSize: Int
+
+    /// The numeric airline code of the airline issuing the boarding pass
     public let airlineCode: String
+
+    /// The boarding pass ticket number
     public let ticketNumber: String
+
+    /// Selectee indicator
     public let selectee: String
+
+    /// International documentation verification indicator
     public let internationalDoc: String
+
+    /// Marketing carrier
     public let carrier: String
+
+    /// Frequent flyer carrier
     public var ffCarrier: String?
+
+    /// Frequent flyer number
     public var ffNumber: String?
     
+    /// ID/AD indicator
     public var IDADIndicator: String?
+
+    /// Free baggage allowance
     public var freeBags: String?
+
+    /// Fast track indicator
     public var fastTrack: String?
+
+    /// For internal airline use
     public var airlineUse: String?
 }
 ```
