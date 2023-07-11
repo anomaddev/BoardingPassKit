@@ -10,15 +10,29 @@ import Foundation
 
 public struct BoardingPass: Codable {
     
+    /// The IATA BCBP version number
     public let version: String
     
+    /// The parent object contains the information that is shared between all segments of the boarding pass.
     public var info: BoardingPassParent
+    
+    /// The main segment of the boarding pass.
     public var main: BoardingPassMainSegment
+    
+    /// The segments of the boarding pass. This will be empty if there is only one segment.
     public var segments: [BoardingPassSegment]
+    
+    /// The Boarding Pass security data used by the airline
     public var security: BoardingPassSecurityData
     
+    /// The original `String` that was used to create the boarding pass
     public var code: String
     
+    /// Generates a QR representation of the boarding pass code
+    ///
+    /// - returns: QR code in the format of a `UIImage`
+    /// - throws: Throws a `BoardingPassError` if the `UIImage` creation fails
+    ///
     public func qrCode() throws -> UIImage {
         let data = code.data(using: String.Encoding.ascii)
         if let filter = CIFilter(name: "CIQRCodeGenerator") {
