@@ -35,13 +35,22 @@ A boarding pass object will contain a few sections. This allows the library to a
 ```swift
 public struct BoardingPass: Codable {
     
+    /// The IATA BCBP version number
     public let version: String
     
+    /// The parent object contains the information that is shared between all segments of the boarding pass.
     public var info: BoardingPassParent
+
+    /// The main segment of the boarding pass.
     public var main: BoardingPassMainSegment
+
+    /// The segments of the boarding pass. This will be empty if there is only one segment.
     public var segments: [BoardingPassSegment]
+
+    /// The Boarding Pass security data used by the airline
     public var security: BoardingPassSecurityData
     
+    /// The original `String` that was used to create the boarding pass
     public var code: String
 }
 ```
