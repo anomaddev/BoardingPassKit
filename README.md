@@ -43,6 +43,7 @@ public struct BoardingPass: Codable {
     public var security: BoardingPassSecurityData
     
     public var code: String
+}
 ```
 
 ### Boarding Pass Parent
