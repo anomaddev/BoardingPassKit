@@ -394,3 +394,9 @@ open class BoardingPassDecoder: NSObject {
         )
     }
 }
+
+// TODO: Implement
+//extension String {
+//    func removeLeading() -> String
+//    { return replacingOccurrences(of: "^0+", with: "", options: .regularExpression) }
+//}
