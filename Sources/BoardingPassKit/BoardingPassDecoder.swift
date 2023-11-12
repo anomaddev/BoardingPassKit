@@ -215,6 +215,11 @@ open class BoardingPassDecoder: NSObject {
             let pnrCode         = try mandatory(7)
             let origin          = try mandatory(3)
             let destination     = try mandatory(3)
+            let opCarrier       = try mandatory(3)
+            var flightno        = try mandatory(5)
+            let julianDate      = try readint(3)
+            let compartment     = try mandatory(1)
+            var seatno          = try mandatory(4)
             
             guard format == "M" || format == "S"
             else { throw BoardingPassError.InvalidPassFormat(format: format) }
@@ -224,6 +229,11 @@ open class BoardingPassDecoder: NSObject {
             
             // TODO: Add more validation
             
+            if trimLeadingZeroes {
+                flightno = flightno.removeLeadingZeros()
+                seatno = seatno.removeLeadingZeros()
+            }
+            
             return BoardingPassParent(
                 format:             format,
                 legs:               legs,
@@ -232,11 +242,11 @@ open class BoardingPassDecoder: NSObject {
                 pnrCode:            pnrCode,
                 origin:             origin,
                 destination:        destination,
-                operatingCarrier:   try mandatory(3),
-                flightno:           try mandatory(5),
-                julianDate:         try readint(3),
-                compartment:        try mandatory(1),
-                seatno:             try mandatory(4),
+                operatingCarrier:   opCarrier,
+                flightno:           flightno,
+                julianDate:         julianDate,
+                compartment:        compartment,
+                seatno:             seatno,
                 checkIn:            try readint(5),
                 passengerStatus:    try mandatory(1),
                 conditionalSize:    try readhex(2)
