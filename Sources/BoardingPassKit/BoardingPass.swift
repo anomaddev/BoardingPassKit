@@ -125,8 +125,8 @@ public struct BoardingPass: Codable {
         print("")
         print("SECURITY DATA")
         print("========================")
-        print("TYPE:     \(security.securityType)")
-        print("LENGTH:   \(security.securitylength)")
+        print("TYPE:     \(security.securityType ?? "-")")
+        print("LENGTH:   \(security.securitylength ?? -1)")
         print("DATA:     \(security.securityData ?? "-")")
         print("========================")
     }
