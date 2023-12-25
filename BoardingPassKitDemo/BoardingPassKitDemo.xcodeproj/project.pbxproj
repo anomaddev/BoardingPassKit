@@ -39,6 +39,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+<<<<<<< HEAD
+=======
+		5101591A2B2FA4F100F6C0E8 /* BoardingPassPlayground.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = BoardingPassPlayground.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+>>>>>>> a34b18fd214ba45007b735c3f0f47c51a6399fb5
 		51EE70DE2B22FB6200B82E76 /* BoardingPassKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BoardingPassKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51EE70E12B22FB6200B82E76 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		51EE70E32B22FB6300B82E76 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -87,6 +91,10 @@
 		51EE70D52B22FB6200B82E76 = {
 			isa = PBXGroup;
 			children = (
+<<<<<<< HEAD
+=======
+				5101591A2B2FA4F100F6C0E8 /* BoardingPassPlayground.playground */,
+>>>>>>> a34b18fd214ba45007b735c3f0f47c51a6399fb5
 				51EE71112B22FB7B00B82E76 /* Packages */,
 				51EE70E02B22FB6200B82E76 /* BoardingPassKitDemo */,
 				51EE70F72B22FB6600B82E76 /* BoardingPassKitDemoTests */,

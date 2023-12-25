@@ -75,6 +75,11 @@ public struct BoardingPass: Codable {
         print("SOURCE CHK IN: \(main.checkInSource)")
         print("SOURCE PASS:   \(main.passSource)")
         print("DATE ISSUED:   \(main.dateIssued)")
+<<<<<<< HEAD
+=======
+        print("ISSUED YEAR:   \(main.year == nil ? "none" : "\(main.year ?? 999)")")
+        print("ISSUED DAY:    \(main.nthDay == nil ? "none" : "\(main.nthDay ?? 999)")")
+>>>>>>> a34b18fd214ba45007b735c3f0f47c51a6399fb5
         print("DOC TYPE:      \(main.documentType)")
         print("AIRLINE DESIG: \(main.carrier)")
         print("BAG TAG 1:     \(main.bagtag1 ?? "none")")
@@ -125,8 +130,13 @@ public struct BoardingPass: Codable {
         print("")
         print("SECURITY DATA")
         print("========================")
+<<<<<<< HEAD
         print("TYPE:     \(security.securityType)")
         print("LENGTH:   \(security.securitylength)")
+=======
+        print("TYPE:     \(security.securityType ?? "-")")
+        print("LENGTH:   \(security.securitylength ?? -1)")
+>>>>>>> a34b18fd214ba45007b735c3f0f47c51a6399fb5
         print("DATA:     \(security.securityData ?? "-")")
         print("========================")
     }
@@ -146,4 +156,9 @@ public struct BoardingPass: Codable {
     public static let scan12 = "M2FORHETZ/BETHANY     EP2DJMN CDGLHRAF 1780 117Y017C0130 348>5182 O    BAF              2A93223260324620    VS 1091120160          NP2DJMN LHRTPAVS 0129 117W026H0088 32C2A93223260324620    VS 1091120160          N"
     
     public static let scan13 = "M2ACKERMANN/JUSTIN    EP2DJMN CDGLHRAF 1780 117Y017A0129 348>5181 O    BAF              2A93223260324630    DL 9379805238          NP2DJMN LHRTPAVS 0129 117W026K0087 32C2A93223260324630    DL 9379805238          N"
+<<<<<<< HEAD
+=======
+    
+    public static let scan14 = "M1FORHETZ/BETHANY     EJNRBUA TPADFWAA 2529 342C014E0099 147>1180OO3342BAA              29             31                          "
+>>>>>>> a34b18fd214ba45007b735c3f0f47c51a6399fb5
 }
