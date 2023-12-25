@@ -5,6 +5,8 @@
 //  Created by Justin Ackermann on 7/9/23.
 //
 
+// TODO: Handle last day of the year for issue date vs flight date
+
 import Foundation
 
 public struct BoardingPassMainSegment: Codable {
@@ -34,4 +36,18 @@ public struct BoardingPassMainSegment: Codable {
     public var freeBags: String?
     public var fastTrack: String?
     public var airlineUse: String?
+    
+    /// julian year
+    public var year: Int? {
+        guard dateIssued != "    " else { return nil}
+        if dateIssued.count == 4 { return Int(String(dateIssued.first!)) }
+        else { return nil }
+    }
+    
+    /// julian day
+    public var nthDay: Int? {
+        guard dateIssued != "    " else { return nil}
+        if dateIssued.count == 3 { return Int(dateIssued) }
+        else { return Int(String(dateIssued.dropFirst())) }
+    }
 }
