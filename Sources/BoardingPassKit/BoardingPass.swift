@@ -4,9 +4,13 @@
 //
 //  Created by Justin Ackermann on 7/9/23.
 //
- // Core iOS
-import UIKit
+// Core iOS
+
 import Foundation
+
+#if os(iOS)
+import UIKit
+#endif
 
 public struct BoardingPass: Codable {
     
@@ -36,6 +40,7 @@ public struct BoardingPass: Codable {
             .map { String($0).lowercased() }
     }
     
+    #if os(iOS)
     /// Generates a QR representation of the boarding pass code
     ///
     /// - returns: QR code in the format of a `UIImage`
@@ -52,6 +57,7 @@ public struct BoardingPass: Codable {
             } else { throw NSError() }
         } else { throw NSError() }
     }
+    #endif
     
     /// A text representation of the entire `BoardingPass` object printed to the console
     public func printout() {

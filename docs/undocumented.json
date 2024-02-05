@@ -1,0 +1,621 @@
+{
+  "warnings": [
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 15,
+      "symbol": "BoardingPass",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 35,
+      "symbol": "BoardingPass.nameSegments",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 152,
+      "symbol": "BoardingPass.scan1",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 153,
+      "symbol": "BoardingPass.scan2",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 154,
+      "symbol": "BoardingPass.scan3",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 155,
+      "symbol": "BoardingPass.scan4",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 156,
+      "symbol": "BoardingPass.scan5",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 157,
+      "symbol": "BoardingPass.scan6",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 158,
+      "symbol": "BoardingPass.scan7",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 159,
+      "symbol": "BoardingPass.scan8",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 160,
+      "symbol": "BoardingPass.scan9",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 161,
+      "symbol": "BoardingPass.scan10",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 162,
+      "symbol": "BoardingPass.scan11",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 164,
+      "symbol": "BoardingPass.scan12",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 166,
+      "symbol": "BoardingPass.scan13",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPass.swift",
+      "line": 168,
+      "symbol": "BoardingPass.scan14",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassDecoder.swift",
+      "line": 10,
+      "symbol": "BoardingPassDecoder",
+      "symbol_kind": "source.lang.swift.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 10,
+      "symbol": "BoardingPassError",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 12,
+      "symbol": "BoardingPassError.InvalidPassFormat(format:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 13,
+      "symbol": "BoardingPassError.InvalidSegments(legs:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 15,
+      "symbol": "BoardingPassError.DataFailedValidation(code:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 16,
+      "symbol": "BoardingPassError.DataIsNotBoardingPass(error:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 18,
+      "symbol": "BoardingPassError.CIQRCodeGeneratorNotFound",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 19,
+      "symbol": "BoardingPassError.CIQRCodeGeneratorOutputFailed",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 21,
+      "symbol": "BoardingPassError.MandatoryItemNotFound(index:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 22,
+      "symbol": "BoardingPassError.DataFailedStringDecoding",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 23,
+      "symbol": "BoardingPassError.FieldValueNotRequiredInteger(value:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 24,
+      "symbol": "BoardingPassError.HexStringFailedDecoding(string:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 26,
+      "symbol": "BoardingPassError.ConditionalIndexInvalid(_:_:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 27,
+      "symbol": "BoardingPassError.MainSegmentBagConditionalInvalid",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 28,
+      "symbol": "BoardingPassError.MainSegmentSubConditionalInvalid",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 29,
+      "symbol": "BoardingPassError.SegmentSubConditionalInvalid",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 31,
+      "symbol": "BoardingPassError.unexpected(code:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 34,
+      "symbol": "BoardingPassError",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassError.swift",
+      "line": 64,
+      "symbol": "BoardingPassError",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 12,
+      "symbol": "BoardingPassMainSegment",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 14,
+      "symbol": "BoardingPassMainSegment.structSize",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 15,
+      "symbol": "BoardingPassMainSegment.passengerDesc",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 16,
+      "symbol": "BoardingPassMainSegment.checkInSource",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 17,
+      "symbol": "BoardingPassMainSegment.passSource",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 18,
+      "symbol": "BoardingPassMainSegment.dateIssued",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 19,
+      "symbol": "BoardingPassMainSegment.documentType",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 20,
+      "symbol": "BoardingPassMainSegment.passIssuer",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 22,
+      "symbol": "BoardingPassMainSegment.bagtag1",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 23,
+      "symbol": "BoardingPassMainSegment.bagtag2",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 24,
+      "symbol": "BoardingPassMainSegment.bagtag3",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 26,
+      "symbol": "BoardingPassMainSegment.nextSize",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 27,
+      "symbol": "BoardingPassMainSegment.airlineCode",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 28,
+      "symbol": "BoardingPassMainSegment.ticketNumber",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 29,
+      "symbol": "BoardingPassMainSegment.selectee",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 30,
+      "symbol": "BoardingPassMainSegment.internationalDoc",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 31,
+      "symbol": "BoardingPassMainSegment.carrier",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 32,
+      "symbol": "BoardingPassMainSegment.ffCarrier",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 33,
+      "symbol": "BoardingPassMainSegment.ffNumber",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 35,
+      "symbol": "BoardingPassMainSegment.IDADIndicator",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 36,
+      "symbol": "BoardingPassMainSegment.freeBags",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 37,
+      "symbol": "BoardingPassMainSegment.fastTrack",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassMainSegment.swift",
+      "line": 38,
+      "symbol": "BoardingPassMainSegment.airlineUse",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassParent.swift",
+      "line": 10,
+      "symbol": "BoardingPassParent",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSecurityData.swift",
+      "line": 13,
+      "symbol": "BoardingPassSecurityData.beginSecurity",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSecurityData.swift",
+      "line": 14,
+      "symbol": "BoardingPassSecurityData.securityType",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSecurityData.swift",
+      "line": 15,
+      "symbol": "BoardingPassSecurityData.securitylength",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSecurityData.swift",
+      "line": 16,
+      "symbol": "BoardingPassSecurityData.securityData",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 11,
+      "symbol": "BoardingPassSegment",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 13,
+      "symbol": "BoardingPassSegment.pnrCode",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 14,
+      "symbol": "BoardingPassSegment.origin",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 15,
+      "symbol": "BoardingPassSegment.destination",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 16,
+      "symbol": "BoardingPassSegment.carrier",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 17,
+      "symbol": "BoardingPassSegment.flightno",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 18,
+      "symbol": "BoardingPassSegment.julianDate",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 19,
+      "symbol": "BoardingPassSegment.compartment",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 20,
+      "symbol": "BoardingPassSegment.seatno",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 21,
+      "symbol": "BoardingPassSegment.checkedin",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 22,
+      "symbol": "BoardingPassSegment.passengerStatus",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 23,
+      "symbol": "BoardingPassSegment.structSize",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 25,
+      "symbol": "BoardingPassSegment.segmentSize",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 26,
+      "symbol": "BoardingPassSegment.airlineCode",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 27,
+      "symbol": "BoardingPassSegment.ticketNumber",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 28,
+      "symbol": "BoardingPassSegment.selectee",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 29,
+      "symbol": "BoardingPassSegment.internationalDoc",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 30,
+      "symbol": "BoardingPassSegment.ticketingCarrier",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 31,
+      "symbol": "BoardingPassSegment.ffAirline",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 32,
+      "symbol": "BoardingPassSegment.ffNumber",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 33,
+      "symbol": "BoardingPassSegment.idAdIndicator",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 34,
+      "symbol": "BoardingPassSegment.freeBags",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 35,
+      "symbol": "BoardingPassSegment.fastTrack",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/BoardingPassSegment.swift",
+      "line": 36,
+      "symbol": "BoardingPassSegment.airlineUse",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Volumes/ISS/Github/BoardingPassKit/Sources/BoardingPassKit/Extensions/BoardingPassKit+String.swift",
+      "line": 11,
+      "symbol": "String.removeLeadingZeros()",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Volumes/ISS/Github/BoardingPassKit"
+}

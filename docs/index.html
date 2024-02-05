@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>BoardingPassKit  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a title="BoardingPassKit  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html">BoardingPassKit Docs</a> (28% documented)</p>
+        <div class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html">BoardingPassKit Reference</a>
+        <img id="carat" src="img/carat.png" alt=""/>
+        BoardingPassKit  Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Classes/BoardingPassDecoder.html">BoardingPassDecoder</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Enums/BoardingPassError.html">BoardingPassError</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Extensions/String.html">String</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/BoardingPass.html">BoardingPass</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/BoardingPassMainSegment.html">BoardingPassMainSegment</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/BoardingPassParent.html">BoardingPassParent</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/BoardingPassSecurityData.html">BoardingPassSecurityData</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/BoardingPassSegment.html">BoardingPassSegment</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            
+            <h1 id='boardingpasskit' class='heading'>BoardingPassKit</h1>
+
+<p>This Swift framework will allow you to parse the barcodes and QR codes of airline boarding passes and other documents that are encoded using the IATA 2D barcode standard.</p>
+
+<p><strong>This Framework is still in development. Please use with caution in your projects!</strong></p>
+<h2 id='installation' class='heading'>Installation</h2>
+<h4 id='swift-package-manager' class='heading'>Swift Package Manager</h4>
+
+<p>Add the package to your Xcode project with the repository URL: 
+<a href="https://github.com/anomaddev/BoardingPassKit.git">https://github.com/anomaddev/BoardingPassKit.git</a></p>
+<h2 id='example' class='heading'>Example</h2>
+
+<p>Here is a simple example using a boarding pass of my own to show how to use the framework.</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">barcodeString</span> <span class="o">=</span> <span class="s">"M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348&gt;3180 O9335BJL 01315361700012900174601118720 JL AA 34DGH32             3"</span>
+<span class="c1">// or you can use a Data representation of the string in .ascii format.</span>
+<span class="k">let</span> <span class="nv">barcodeData</span> <span class="o">=</span> <span class="n">barcodeString</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">ascii</span><span class="p">)</span>
+
+<span class="k">do</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">decoder</span> <span class="o">=</span> <span class="kt">BoardingPassDecoder</span><span class="p">()</span>
+    <span class="c1">// example of settings you can change on the decoder. This one prints out the data every step of the decoding.</span>
+    <span class="n">decoder</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="kc">true</span>
+
+    <span class="k">let</span> <span class="nv">boardingPass</span>            <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="nv">code</span><span class="p">:</span> <span class="n">barcodeString</span><span class="p">)</span>
+    <span class="k">let</span> <span class="nv">boardingPassFromData</span>    <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">barcodeData</span><span class="p">)</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+    <span class="c1">// Handle error</span>
+<span class="p">}</span>
+</code></pre>
+<h2 id='boarding-pass' class='heading'>Boarding Pass</h2>
+
+<p>A boarding pass object will contain a few sections. This allows the library to accurately differentiate between mandatory &amp; conditional items in the data.</p>
+<pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">BoardingPass</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+
+    <span class="c1">/// The IATA BCBP version number</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">version</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The parent object contains the information that is shared between all segments of the boarding pass.</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">info</span><span class="p">:</span> <span class="kt">BoardingPassParent</span>
+
+    <span class="c1">/// The main segment of the boarding pass.</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">main</span><span class="p">:</span> <span class="kt">BoardingPassMainSegment</span>
+
+    <span class="c1">/// The segments of the boarding pass. This will be empty if there is only one segment.</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">segments</span><span class="p">:</span> <span class="p">[</span><span class="kt">BoardingPassSegment</span><span class="p">]</span>
+
+    <span class="c1">/// The Boarding Pass security data used by the airline</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">security</span><span class="p">:</span> <span class="kt">BoardingPassSecurityData</span>
+
+    <span class="c1">/// The original `String` that was used to create the boarding pass</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">code</span><span class="p">:</span> <span class="kt">String</span>
+<span class="p">}</span>
+</code></pre>
+<h3 id='boarding-pass-parent' class='heading'>Boarding Pass Parent</h3>
+
+<p>The parent object contains the information that is shared between all segments of the boarding pass. This includes the passenger name, the PNR code, first segments seat number, etc.</p>
+<pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">BoardingPassParent</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+
+    <span class="c1">/// The format code of the boarding pass</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">format</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The number of legs included in this boarding pass</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">legs</span><span class="p">:</span> <span class="kt">Int</span>
+
+    <span class="c1">/// The passenger's name information</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The electronic ticket indicator</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">ticketIndicator</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The record locator with the airline</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">pnrCode</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The IATA code of the origin airport</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">origin</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The IATA code of the destination airport</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">destination</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The IATA code of the airline operating the flight</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">operatingCarrier</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The flight number of the operating airline</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">flightno</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The day of the year the flight takes place</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">julianDate</span><span class="p">:</span> <span class="kt">Int</span>
+
+    <span class="c1">/// The compartment code for the passenger on the main segment</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">compartment</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The seat number for the passenger on the main segment</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">seatno</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// What number passenger you were to check in</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">checkIn</span><span class="p">:</span> <span class="kt">Int</span>
+
+    <span class="c1">/// Bag check, checked in, etc. This code needs to be parsed.</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">passengerStatus</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The size of the conditional data in the boarding pass. Parsed decimal from hexidecimal.</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">conditionalSize</span><span class="p">:</span> <span class="kt">Int</span>
+
+<span class="p">}</span>
+</code></pre>
+<h3 id='boarding-pass-main-segment' class='heading'>Boarding Pass Main Segment</h3>
+
+<p>The main segment contains the information that is unique to the first segment of the boarding pass. This includes the airline code, ticket number, bag tags, etc. There are also fields that specify the size of the conditional items in the data.</p>
+<pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">BoardingPassMainSegment</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+
+    <span class="c1">/// The size of the main segment in the boarding pass. Parsed decimal from hexidecimal.</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">structSize</span><span class="p">:</span> <span class="kt">Int</span>
+
+    <span class="c1">/// The passenger description code.</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">passengerDesc</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The source of the passenger's check in</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">checkInSource</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The source of the passenger's boarding pass</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">passSource</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The date the boarding pass was issued</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">dateIssued</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The type of document the passenger is using</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">documentType</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The IATA airline code issuing the boarding pass</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">passIssuer</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// Your first bag tag</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">bagtag1</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span>
+
+    <span class="c1">/// Your second bag tag</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">bagtag2</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span>
+
+    <span class="c1">/// Your third bag tag</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">bagtag3</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span>
+
+    <span class="c1">/// The size of the variable data in the boarding pass. Parsed decimal from hexidecimal.</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">nextSize</span><span class="p">:</span> <span class="kt">Int</span>
+
+    <span class="c1">/// The numeric airline code of the airline issuing the boarding pass</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">airlineCode</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// The boarding pass ticket number</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">ticketNumber</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// Selectee indicator</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">selectee</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// International documentation verification indicator</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">internationalDoc</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// Marketing carrier</span>
+    <span class="kd">public</span> <span class="k">let</span> <span class="nv">carrier</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="c1">/// Frequent flyer carrier</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">ffCarrier</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span>
+
+    <span class="c1">/// Frequent flyer number</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">ffNumber</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span>
+
+    <span class="c1">/// ID/AD indicator</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">IDADIndicator</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span>
+
+    <span class="c1">/// Free baggage allowance</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">freeBags</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span>
+
+    <span class="c1">/// Fast track indicator</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">fastTrack</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span>
+
+    <span class="c1">/// For internal airline use</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">airlineUse</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span>
+<span class="p">}</span>
+</code></pre>
+<h3 id='generating-a-barcode-or-qr-code-from-boarding-pass-data' class='heading'>Generating a Barcode or QR Code from Boarding Pass Data</h3>
+
+<p>The parser, that deciphers the Boarding Pass string, can also generate a QR Code from the data. This can be useful if you want to display the QR Code on a screen.</p>
+<h4 id='qr-code' class='heading'>QR Code</h4>
+<pre class="highlight swift"><code><span class="k">do</span> <span class="p">{</span> 
+    <span class="k">let</span> <span class="nv">decoder</span> <span class="o">=</span> <span class="kt">BoardingPassDecoder</span><span class="p">()</span>
+    <span class="k">let</span> <span class="nv">pass</span> <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">let</span> <span class="nv">qrCode</span> <span class="o">=</span> <span class="k">try</span> <span class="n">pass</span><span class="o">.</span><span class="nf">qrCode</span><span class="p">()</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">localizedDescription</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+<h4 id='pdf417' class='heading'>PDF417</h4>
+<pre class="highlight swift"><code><span class="c1">// Coming Soon</span>
+</code></pre>
+<h3 id='print-to-console' class='heading'>Print to Console</h3>
+
+<p>When debugging your functions, you can call the <code>printout()</code> function on your BoardPass object to print all the details to the console.</p>
+<pre class="highlight swift"><code><span class="c1">/// for this example we will print out the above boarding pass to the console</span>
+<span class="n">boardingPass</span><span class="o">.</span><span class="nf">printout</span><span class="p">()</span>
+
+<span class="c1">//</span>
+<span class="c1">// SEGMENTS: 1</span>
+<span class="c1">// ======================</span>
+<span class="c1">// MAIN SEGMENT</span>
+<span class="c1">// ===MANDATORY ITEMS [60 characters long]===</span>
+<span class="c1">// FORMAT CODE:  M</span>
+<span class="c1">// LEGS ENCODED: 1</span>
+<span class="c1">// PASSENGER:    ACKERMANN/JUSTIN DAV</span>
+<span class="c1">// INDICATOR:    E</span>
+<span class="c1">// PNR CODE:     UXPVFK</span>
+<span class="c1">// ORIGIN:       HKG</span>
+<span class="c1">// DESTINATION:  SIN</span>
+<span class="c1">// CARRIER:      CX</span>
+<span class="c1">// FLIGHT NO:    0715</span>
+<span class="c1">// JULIAN DATE:  326</span>
+<span class="c1">// COMPARTMENT:  Y</span>
+<span class="c1">// SEAT NO:      040G</span>
+<span class="c1">// CHECK IN:     59</span>
+<span class="c1">// STATUS:       3</span>
+<span class="c1">// VAR SIZE:     75</span>
+<span class="c1">// </span>
+<span class="c1">// ===CONDITIONAL ITEMS [75 characters long]===</span>
+<span class="c1">// VERSION:       6</span>
+<span class="c1">// PASS STRUCT:   24</span>
+<span class="c1">// PASS DESC:     0</span>
+<span class="c1">// SOURCE CHK IN:</span>
+<span class="c1">// SOURCE PASS:   O</span>
+<span class="c1">// DATE ISSUED:   9326</span>
+<span class="c1">// DOC TYPE:      B</span>
+<span class="c1">// AIRLINE DESIG: AA</span>
+<span class="c1">// BAG TAG 1:</span>
+<span class="c1">// BAG TAG 2:     none</span>
+<span class="c1">// BAG TAG 3:     none</span>
+<span class="c1">// FIELD SIZE:    42</span>
+<span class="c1">// AIRLINE CODE:  001</span>
+<span class="c1">// TICKET NO:     7459737133</span>
+<span class="c1">// SELECTEE:      0</span>
+<span class="c1">// INTERNATIONAL:</span>
+<span class="c1">// CARRIER:       AA</span>
+<span class="c1">// FREQ CARRIER:  AA</span>
+<span class="c1">// FREQ NUMBER:   76UXK84</span>
+<span class="c1">// </span>
+<span class="c1">// AD ID:</span>
+<span class="c1">// FREE BAGS:</span>
+<span class="c1">// FAST TRACK:    N</span>
+<span class="c1">// AIRLINE USE:   3AA</span>
+<span class="c1">// ======================</span>
+<span class="c1">// </span>
+<span class="c1">// SECURITY DATA</span>
+<span class="c1">// ========================</span>
+<span class="c1">// TYPE:     nil</span>
+<span class="c1">// LENGTH:   nil</span>
+<span class="c1">// DATA:</span>
+<span class="c1">// ========================</span>
+<span class="c1">// </span>
+</code></pre>
+<h2 id='author' class='heading'>Author</h2>
+
+<p>Justin Ackermann</p>
+
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2024 <a class="link" href="" target="_blank" rel="external noopener"></a>. All rights reserved. (Last updated: 2024-02-05)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.14.4</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>
