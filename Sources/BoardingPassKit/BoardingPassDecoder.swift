@@ -7,32 +7,192 @@
 
 import Foundation
 
+/**
+ * Decodes IATA boarding pass barcodes into structured data
+ *
+ * The `BoardingPassDecoder` class is responsible for parsing raw boarding pass barcode data
+ * (either as Data or String) and converting it into a structured `BoardingPass` object.
+ * It handles the complex parsing logic required for IATA BCBP (Boarding Pass Bar Code) format.
+ *
+ * ## Key Features
+ * - **Data Format Support**: Handles both Data and String input formats
+ * - **Validation Integration**: Built-in validation before parsing (configurable)
+ * - **Debug Support**: Comprehensive debugging output for development
+ * - **Error Handling**: Detailed error reporting with specific failure reasons
+ * - **Flexible Parsing**: Supports single and multi-segment boarding passes
+ *
+ * ## Usage Example
+ * ```swift
+ * let decoder = BoardingPassDecoder()
+ * decoder.debug = true  // Enable debug output
+ * decoder.validationEnabled = true  // Enable validation
+ * 
+ * do {
+ *     // Decode from string
+ *     let boardingPass = try decoder.decode(code: barcodeString)
+ *     print("Passenger: \(boardingPass.info.name)")
+ *     print("Flight: \(boardingPass.info.operatingCarrier) \(boardingPass.info.flightno)")
+ *     
+ *     // Decode from Data
+ *     let barcodeData = barcodeString.data(using: .ascii)!
+ *     let boardingPass2 = try decoder.decode(barcodeData)
+ * } catch BoardingPassError.InvalidPassFormat(let format) {
+ *     print("Invalid format: \(format)")
+ * } catch {
+ *     print("Decoding failed: \(error)")
+ * }
+ * ```
+ *
+ * ## IATA BCBP Parsing Process
+ * The decoder follows the IATA BCBP standard parsing sequence:
+ * 1. **Mandatory Fields** (60 characters): Format, passenger info, flight details
+ * 2. **Conditional Fields** (variable length): Additional flight and passenger data
+ * 3. **Segment Data** (if multi-leg): Additional flight segments
+ * 4. **Security Data**: Airline-specific validation codes
+ *
+ * ## Configuration Options
+ * - `debug`: Enable detailed console output for development
+ * - `trimLeadingZeroes`: Remove unnecessary leading zeros from numeric fields
+ * - `trimWhitespace`: Remove whitespace from field values
+ * - `validationEnabled`: Enable pre-parsing validation (recommended)
+ *
+ * ## Error Handling
+ * The decoder throws `BoardingPassError` types for various failure scenarios:
+ * - Format validation errors
+ * - Data corruption errors
+ * - Parsing structure errors
+ * - Field value errors
+ */
 open class BoardingPassDecoder: NSObject {
     
-    /// Setting this to `true` will print lots of details to the console
+    // MARK: - Configuration Properties
+    
+    /**
+     * Enables detailed debug output to console
+     *
+     * When set to `true`, the decoder will print detailed information about
+     * each parsing step, including field values and conditional field processing.
+     * Useful for development and debugging parsing issues.
+     *
+     * ## Debug Output Includes
+     * - Mandatory field values and positions
+     * - Conditional field processing
+     * - Sub-conditional field calculations
+     * - Parsing progress and validation results
+     */
     public var debug: Bool = false
     
-    // TODO: Implement
-    /// Will trim any leading zeros from fields when not needed. Default value is `true`
-    public var trimLeadingZeroes: Bool  = true
+    /**
+     * Automatically removes leading zeros from numeric fields
+     *
+     * When enabled, fields like flight numbers and seat numbers will have
+     * leading zeros removed for cleaner output. For example, "00123" becomes "123".
+     *
+     * ## Affected Fields
+     * - Flight numbers
+     * - Seat numbers
+     * - Other numeric identifiers
+     *
+     * ## Default Value
+     * `true` - Leading zeros are removed by default
+     */
+    public var trimLeadingZeroes: Bool = true
     
-    /// Will trim any whitespace from fields when not needed. Default value is `true`
-    public var trimWhitespace: Bool     = true
+    /**
+     * Automatically removes whitespace from field values
+     *
+     * When enabled, all field values will have leading and trailing whitespace
+     * removed. This ensures consistent, clean data output.
+     *
+     * ## Affected Fields
+     * - Passenger names
+     * - Airport codes
+     * - PNR codes
+     * - All other text fields
+     *
+     * ## Default Value
+     * `true` - Whitespace is trimmed by default
+     */
+    public var trimWhitespace: Bool = true
     
-    /// Setting this to `true` will validate the boarding pass data before parsing. Default value is `true`
-    public var validationEnabled: Bool  = true
+    /**
+     * Enables pre-parsing validation of boarding pass data
+     *
+     * When enabled, the decoder will validate the boarding pass data structure
+     * and format before attempting to parse it. This helps catch errors early
+     * and provides better error messages.
+     *
+     * ## Validation Checks
+     * - Format code validation (M/S)
+     * - Segment count validation
+     * - Field length requirements
+     * - Character encoding validation
+     *
+     * ## Default Value
+     * `true` - Validation is enabled by default (recommended)
+     */
+    public var validationEnabled: Bool = true
     
+    // MARK: - Internal State
+    
+    /**
+     * Current parsing position in the boarding pass data
+     *
+     * Tracks the current byte/character position during parsing.
+     * Used internally to ensure proper field extraction and positioning.
+     */
     private var index: Int = 0
+    
+    /**
+     * Sub-conditional field counter for complex parsing
+     *
+     * Tracks the remaining length of sub-conditional fields during parsing.
+     * Used for handling nested conditional field structures.
+     */
     private var subConditional: Int = 0
+    
+    /**
+     * End conditional field counter for parsing boundaries
+     *
+     * Tracks the remaining length of conditional fields during parsing.
+     * Used to determine when conditional field processing is complete.
+     */
     private var endConditional: Int = 0
     
-    /// A `Data` representation of the boarding pass barcode
+    // MARK: - Parsed Data
+    
+    /**
+     * Raw boarding pass data as Data object
+     *
+     * Contains the original boarding pass barcode data in binary format.
+     * Used internally for parsing and field extraction.
+     */
     public var data: Data!
     
-    /// A `String` representation of the boarding pass barcode
+    /**
+     * Raw boarding pass data as String
+     *
+     * Contains the original boarding pass barcode data as an ASCII string.
+     * Used internally for parsing and field extraction.
+     */
     public var code: String!
     
-    /// takes `Data` and parses as .ascii encoded `String`
+    // MARK: - Core Decoding Methods
+    
+    /**
+     * Converts raw Data to ASCII string for parsing
+     *
+     * Internal method that converts the binary boarding pass data to an
+     * ASCII string representation for parsing.
+     *
+     * - Parameter data: The raw boarding pass data
+     * - Returns: ASCII string representation of the data
+     * - Throws: `BoardingPassError.DataFailedStringDecoding` if conversion fails
+     *
+     * ## Usage
+     * This method is called internally by the decode methods to prepare
+     * the data for parsing. It ensures proper ASCII encoding.
+     */
     private func raw(_ data: Data) throws -> String {
         guard let str = String(data: data,
                                encoding: String.Encoding.ascii)
@@ -40,14 +200,37 @@ open class BoardingPassDecoder: NSObject {
         return str
     }
     
-    /// Decode to a Boarding Pass class
-    ///
-    /// - parameter data: `Data` to be decoded
-    /// - returns: `BoardingPass` codable object
-    /// - throws: `BoardingPassDecoderError` code
-    ///
-    /// - todo: remove optional in the return
-    ///
+    /**
+     * Decodes boarding pass data from Data object
+     *
+     * Parses a boarding pass barcode from raw binary data and returns
+     * a structured `BoardingPass` object.
+     *
+     * - Parameter data: The boarding pass barcode data
+     * - Returns: A fully parsed `BoardingPass` object
+     * - Throws: `BoardingPassError` if parsing or validation fails
+     *
+     * ## Parsing Process
+     * 1. Converts Data to ASCII string
+     * 2. Validates data structure (if validation enabled)
+     * 3. Parses mandatory fields (60 characters)
+     * 4. Parses conditional fields (variable length)
+     * 5. Parses segment data (if multi-leg)
+     * 6. Parses security data
+     *
+     * ## Usage Example
+     * ```swift
+     * let decoder = BoardingPassDecoder()
+     * let barcodeData = barcodeString.data(using: .ascii)!
+     * 
+     * do {
+     *     let boardingPass = try decoder.decode(barcodeData)
+     *     print("Successfully decoded boarding pass for \(boardingPass.info.name)")
+     * } catch {
+     *     print("Failed to decode: \(error)")
+     * }
+     * ```
+     */
     public func decode(_ data: Data) throws -> BoardingPass {
         self.data = data
         self.code = try raw(data)
@@ -60,14 +243,37 @@ open class BoardingPassDecoder: NSObject {
         return try breakdown()
     }
     
-    /// Decode to a Boarding Pass class
-    ///
-    /// - parameter code: `String` of a barcode scan
-    /// - returns: `BoardingPass` codable object
-    /// - throws: `BoardingPassDecoderError` code
-    ///
-    /// - todo: remove optional in the return
-    ///
+    /**
+     * Decodes boarding pass data from String
+     *
+     * Parses a boarding pass barcode from a string representation and returns
+     * a structured `BoardingPass` object.
+     *
+     * - Parameter code: The boarding pass barcode string
+     * - Returns: A fully parsed `BoardingPass` object
+     * - Throws: `BoardingPassError` if parsing or validation fails
+     *
+     * ## Parsing Process
+     * 1. Converts string to Data for internal processing
+     * 2. Validates data structure (if validation enabled)
+     * 3. Parses all boarding pass fields
+     * 4. Returns structured boarding pass object
+     *
+     * ## Usage Example
+     * ```swift
+     * let decoder = BoardingPassDecoder()
+     * let barcodeString = "M1ACKERMANN/JUSTIN    ETDPUPK TPADFWAA..."
+     * 
+     * do {
+     *     let boardingPass = try decoder.decode(code: barcodeString)
+     *     print("Flight: \(boardingPass.info.origin) → \(boardingPass.info.destination)")
+     * } catch BoardingPassError.InvalidPassFormat(let format) {
+     *     print("Invalid format code: \(format)")
+     * } catch {
+     *     print("Decoding failed: \(error)")
+     * }
+     * ```
+     */
     public func decode(code: String) throws -> BoardingPass {
         self.data = code.data(using: .ascii)
         self.code = code
@@ -80,7 +286,30 @@ open class BoardingPassDecoder: NSObject {
         return try breakdown()
     }
     
-    /// Breaks down the code/data and returns the boarding pass decoded. This is the mothership function
+    // MARK: - Core Parsing Logic
+    
+    /**
+     * Main parsing method that orchestrates the entire decoding process
+     *
+     * This is the core method that coordinates all parsing steps to create
+     * a complete `BoardingPass` object from the raw barcode data.
+     *
+     * - Returns: A fully parsed `BoardingPass` object
+     * - Throws: `BoardingPassError` if any parsing step fails
+     *
+     * ## Parsing Sequence
+     * 1. **Parent Information**: Format, passenger details, flight basics
+     * 2. **Version**: Boarding pass format version
+     * 3. **Main Segment**: Primary flight segment details
+     * 4. **Additional Segments**: Multi-leg flight information
+     * 5. **Security Data**: Airline validation and security codes
+     *
+     * ## Internal State Management
+     * - Resets parsing indices
+     * - Manages conditional field boundaries
+     * - Handles multi-segment parsing
+     * - Validates final data integrity
+     */
     private func breakdown() throws -> BoardingPass {
         index = 0
         subConditional = 0
@@ -147,7 +376,41 @@ open class BoardingPassDecoder: NSObject {
         return pass
     }
     
-    /// This returns a mandatory string in the decoding sequence of the barcode scan
+    // MARK: - Field Parsing Methods
+    
+    /**
+     * Extracts mandatory fields from the boarding pass data
+     *
+     * Mandatory fields are the core 60 characters that must be present
+     * in every boarding pass. These fields contain essential flight information.
+     *
+     * - Parameter length: The length of the field to extract
+     * - Returns: The extracted field value as a string
+     * - Throws: `BoardingPassError.MandatoryItemNotFound` if field is missing
+     *
+     * ## Mandatory Fields Include
+     * - Format code (1 character)
+     * - Number of legs (1 character)
+     * - Passenger name (20 characters)
+     * - Ticket indicator (1 character)
+     * - PNR code (7 characters)
+     * - Origin airport (3 characters)
+     * - Destination airport (3 characters)
+     * - Operating carrier (3 characters)
+     * - Flight number (5 characters)
+     * - Julian date (3 characters)
+     * - Compartment code (1 character)
+     * - Seat number (4 characters)
+     * - Check-in sequence (5 characters)
+     * - Passenger status (1 character)
+     * - Conditional size (2 hex characters)
+     *
+     * ## Processing
+     * - Extracts data at current parsing position
+     * - Advances parsing index
+     * - Applies whitespace trimming if enabled
+     * - Logs debug information if debug mode is enabled
+     */
     private func mandatory(_ length: Int) throws -> String {
         if (data.count < index + length)
         { throw BoardingPassError.MandatoryItemNotFound(index: index) }
@@ -160,7 +423,33 @@ open class BoardingPassDecoder: NSObject {
         return string
     }
     
-    /// This returns a conditional field give it does not go over the length specified
+    /**
+     * Extracts conditional fields from the boarding pass data
+     *
+     * Conditional fields contain additional information that may vary in length
+     * and content depending on the boarding pass type and airline.
+     *
+     * - Parameter length: The length of the field to extract
+     * - Returns: The extracted field value as a string
+     * - Throws: `BoardingPassError.ConditionalIndexInvalid` if structure is invalid
+     *
+     * ## Conditional Fields Include
+     * - Boarding pass version
+     * - Passenger description
+     * - Check-in source
+     * - Pass source
+     * - Date issued
+     * - Document type
+     * - Airline designation
+     * - Bag tag information
+     * - Airline-specific data
+     *
+     * ## Processing
+     * - Tracks remaining conditional field length
+     * - Updates sub-conditional counters
+     * - Applies whitespace trimming if enabled
+     * - Logs debug information if debug mode is enabled
+     */
     private func conditional(_ length: Int) throws -> String {
         if (data.count < index + length) &&
            (endConditional > 0)
@@ -184,7 +473,29 @@ open class BoardingPassDecoder: NSObject {
         return string
     }
     
-    /// Read the next section of data of a given length and return the string value
+    /**
+     * Extracts and converts integer fields from the boarding pass data
+     *
+     * Converts string field values to integers, useful for numeric fields
+     * like check-in sequence numbers and segment counts.
+     *
+     * - Parameter length: The length of the field to extract
+     * - Returns: The extracted field value as an integer
+     * - Throws: `BoardingPassError.FieldValueNotRequiredInteger` if conversion fails
+     *
+     * ## Usage
+     * Used for fields that should contain numeric values:
+     * - Number of legs
+     * - Julian date
+     * - Check-in sequence
+     * - Segment sizes
+     *
+     * ## Processing
+     * - Extracts string value using mandatory parsing
+     * - Trims whitespace
+     * - Converts to integer
+     * - Logs debug information if debug mode is enabled
+     */
     private func readint(_ length: Int) throws -> Int {
         let rawString = try mandatory(length)
         if debug { print("RAW INT: \(rawString)") }
@@ -195,7 +506,22 @@ open class BoardingPassDecoder: NSObject {
         return number
     }
     
-    /// Read the next section of data of a given length and return the string value
+    /**
+     * Extracts raw data from the boarding pass at the current position
+     *
+     * Low-level method that extracts raw bytes from the data and converts
+     * them to a string. This is the foundation for all field extraction.
+     *
+     * - Parameter length: The length of data to extract
+     * - Returns: The extracted data as a string
+     * - Throws: `BoardingPassError.DataFailedStringDecoding` if conversion fails
+     *
+     * ## Processing
+     * - Extracts raw bytes from current position
+     * - Advances parsing index
+     * - Converts bytes to ASCII string
+     * - Handles encoding errors gracefully
+     */
     private func readdata(_ length: Int) throws -> String {
         let subdata = data.subdata(in: index ..< (index + length))
         index += length
@@ -205,8 +531,29 @@ open class BoardingPassDecoder: NSObject {
         return rawString
     }
     
-    
-    /// Read the next section of data of a given length and return the decimal hex value
+    /**
+     * Extracts and converts hexadecimal fields from the boarding pass data
+     *
+     * Converts hexadecimal string values to integers, used for fields that
+     * contain hex-encoded size information.
+     *
+     * - Parameters:
+     *   - length: The length of the hex field to extract
+     *   - isMandatory: Whether to use mandatory or conditional parsing
+     * - Returns: The extracted field value as an integer
+     * - Throws: `BoardingPassError.HexStringFailedDecoding` if conversion fails
+     *
+     * ## Usage
+     * Used for fields that contain hexadecimal values:
+     * - Conditional field sizes
+     * - Segment structure sizes
+     * - Security data lengths
+     *
+     * ## Processing
+     * - Extracts string value using appropriate parsing method
+     * - Converts hex string to integer
+     * - Logs debug information if debug mode is enabled
+     */
     private func readhex(_ length: Int, isMandatory: Bool! = true) throws -> Int {
         let str: String!
         
@@ -220,7 +567,35 @@ open class BoardingPassDecoder: NSObject {
         return int
     }
     
-    /// Cycle through the boarding pass code and pull out the `BoardingPassParent` data
+    // MARK: - Structure Parsing Methods
+    
+    /**
+     * Parses the parent information section of the boarding pass
+     *
+     * Extracts the core mandatory fields that apply to the entire boarding pass,
+     * including passenger details and primary flight information.
+     *
+     * - Returns: A `BoardingPassParent` object with parsed information
+     * - Throws: `BoardingPassError` if parsing fails or data is invalid
+     *
+     * ## Parsed Fields
+     * - Format code (M/S)
+     * - Number of legs
+     * - Passenger name
+     * - Ticket indicator
+     * - PNR code
+     * - Origin and destination airports
+     * - Operating carrier and flight number
+     * - Julian date
+     * - Compartment and seat information
+     * - Check-in sequence and passenger status
+     * - Conditional data size
+     *
+     * ## Validation
+     * - Ensures format code is valid (M or S)
+     * - Validates segment count is greater than 0
+     * - Applies leading zero trimming if enabled
+     */
     private func parent() throws -> BoardingPassParent {
         do {
             let format          = try mandatory(1)
@@ -269,7 +644,31 @@ open class BoardingPassDecoder: NSObject {
         } catch { throw BoardingPassError.DataIsNotBoardingPass(error: error) }
     }
     
-    /// Cycle through the boarding pass code and pull out the `BoardingPassMainSegment` data
+    /**
+     * Parses the main segment section of the boarding pass
+     *
+     * Extracts detailed information about the primary flight segment,
+     * including bag tags, airline codes, and passenger-specific data.
+     *
+     * - Returns: A `BoardingPassMainSegment` object with parsed information
+     * - Throws: `BoardingPassError` if parsing fails or structure is invalid
+     *
+     * ## Parsed Fields
+     * - Passenger description and check-in source
+     * - Pass source and date issued
+     * - Document type and airline designation
+     * - Bag tag information (up to 3 tags)
+     * - Airline code and ticket number
+     * - Selectee and international document indicators
+     * - Operating carrier and frequent flyer information
+     * - ID indicators and airline-specific data
+     *
+     * ## Structure Handling
+     * - Manages conditional field boundaries
+     * - Handles variable-length bag tag fields
+     * - Processes airline-specific conditional data
+     * - Validates field structure integrity
+     */
     private func mainSegment() throws -> BoardingPassMainSegment {
         let passStruct  = try readhex(2, isMandatory: false)
         subConditional  = passStruct
@@ -351,7 +750,30 @@ open class BoardingPassDecoder: NSObject {
         )
     }
     
-    /// Cycle through the boarding pass code and pull out all the `BoardingPassSegment` data objects
+    /**
+     * Parses additional flight segment information
+     *
+     * Extracts information about additional flight segments beyond the main segment,
+     * used for multi-leg journeys and connecting flights.
+     *
+     * - Returns: A `BoardingPassSegment` object with parsed information
+     * - Throws: `BoardingPassError` if parsing fails or structure is invalid
+     *
+     * ## Parsed Fields
+     * - PNR code and route information
+     * - Carrier and flight details
+     * - Date and compartment information
+     * - Seat and check-in status
+     * - Passenger status and structure size
+     * - Airline codes and ticket information
+     * - Frequent flyer and airline-specific data
+     *
+     * ## Multi-Segment Handling
+     * - Processes variable-length segment data
+     * - Manages conditional field boundaries
+     * - Handles airline-specific extensions
+     * - Validates segment structure integrity
+     */
     private func segment() throws -> BoardingPassSegment {
         let pnrCode = try conditional(7)
         let origin = try conditional(3)
