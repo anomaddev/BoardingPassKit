@@ -166,4 +166,25 @@ public struct BoardingPass: Codable {
     public static let scan13 = "M2ACKERMANN/JUSTIN    EP2DJMN CDGLHRAF 1780 117Y017A0129 348>5181 O    BAF              2A93223260324630    DL 9379805238          NP2DJMN LHRTPAVS 0129 117W026K0087 32C2A93223260324630    DL 9379805238          N"
     
     public static let scan14 = "M1FORHETZ/BETHANY     EJNRBUA TPADFWAA 2529 342C014E0099 147>1180OO3342BAA              29             31                          "
+    
+    // MARK: - Validation Methods
+    
+    /// Validates a boarding pass code string without creating a BoardingPass instance
+    /// - Parameter code: The boarding pass code to validate
+    /// - Returns: Array of validation errors found
+    public static func validate(_ code: String) -> [BoardingPassError] {
+        return BoardingPassValidator.validateBoardingPass(code)
+    }
+    
+    /// Validates the current boarding pass data
+    /// - Returns: Array of validation errors found
+    public func validate() -> [BoardingPassError] {
+        return BoardingPassValidator.validateBoardingPass(code)
+    }
+    
+    /// Checks if the current boarding pass data is valid
+    /// - Returns: `true` if valid, `false` otherwise
+    public var isValid: Bool {
+        return validate().isEmpty
+    }
 }

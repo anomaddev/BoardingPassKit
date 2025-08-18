@@ -19,6 +19,9 @@ open class BoardingPassDecoder: NSObject {
     /// Will trim any whitespace from fields when not needed. Default value is `true`
     public var trimWhitespace: Bool     = true
     
+    /// Setting this to `true` will validate the boarding pass data before parsing. Default value is `true`
+    public var validationEnabled: Bool  = true
+    
     private var index: Int = 0
     private var subConditional: Int = 0
     private var endConditional: Int = 0
@@ -48,6 +51,12 @@ open class BoardingPassDecoder: NSObject {
     public func decode(_ data: Data) throws -> BoardingPass {
         self.data = data
         self.code = try raw(data)
+        
+        // Validate before parsing if enabled
+        if validationEnabled {
+            try BoardingPassValidator.validateAndThrow(code)
+        }
+        
         return try breakdown()
     }
     
@@ -62,6 +71,12 @@ open class BoardingPassDecoder: NSObject {
     public func decode(code: String) throws -> BoardingPass {
         self.data = code.data(using: .ascii)
         self.code = code
+        
+        // Validate before parsing if enabled
+        if validationEnabled {
+            try BoardingPassValidator.validateAndThrow(code)
+        }
+        
         return try breakdown()
     }
     
