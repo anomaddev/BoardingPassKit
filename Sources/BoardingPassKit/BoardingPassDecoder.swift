@@ -83,9 +83,9 @@ open class BoardingPassDecoder: NSObject {
         var main: BoardingPassMainSegment!
         var segments: [BoardingPassSegment] = []
         
-        for i in 0...(info.legs) {
+        for i in 0..<info.legs {
             if i == 0 { main = try mainSegment() }
-            else if i != info.legs { segments.append(try segment()) }
+            else { segments.append(try segment()) }
         }
         
         let beginSecurity = try? mandatory(1)
@@ -271,7 +271,7 @@ open class BoardingPassDecoder: NSObject {
         
         if subConditional > 0 {
             let tags = subConditional / 13
-            for i in 0...tags {
+            for i in 0..<tags {
                 if i == 0 { bagtag2 = try conditional(13) }
                 else if i == 1 { bagtag3 = try conditional(13) }
             }
@@ -343,12 +343,22 @@ open class BoardingPassDecoder: NSObject {
         let destination = try conditional(3)
         let carrier = try conditional(3)
         let flightno = try conditional(5)
-        let julianDate = try readint(3)
+        
+        // Parse julian date from conditional data (not mandatory for subsequent segments)
+        let julianDateStr = try conditional(3)
+        guard let julianDate = Int(julianDateStr.trimmingCharacters(in: .whitespaces))
+        else { throw BoardingPassError.FieldValueNotRequiredInteger(value: julianDateStr) }
+        
         let compartment = try conditional(1)
         let seatno = try conditional(4)
-        let checkedin = try readint(5)
+        
+        // Parse check-in sequence from conditional data
+        let checkedinStr = try conditional(5)
+        guard let checkedin = Int(checkedinStr.trimmingCharacters(in: .whitespaces))
+        else { throw BoardingPassError.FieldValueNotRequiredInteger(value: checkedinStr) }
+        
         let passengerStatus = try conditional(1)
-        let structSize = try readhex(2)
+        let structSize = try readhex(2, isMandatory: false)
         endConditional = structSize
         
         let segmentSize = try readhex(2, isMandatory: false)

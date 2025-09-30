@@ -13,15 +13,48 @@ let scan9 = "M1ACKERMANN/JUSTIN DAVEWHNSNI TPAPHXAA 1466 185R005A0056 14A>318   
 let scan10 = "M2ACKERMANN/JUSTIN DAVEWHFPBW TPASEAAS 0635 213L007A0000 148>2181MM    BAS              25             3    AA 76UXK84         1    WHFPBW SEAJNUAS 0555 213L007A0000 13125             3    AA 76UXK84         1    01010^460MEQCICRNjFGBPfJr84Ma6vMjxTQLtZ1z7uB0tUfO+fS/3vvuAiAReH4kY4ZcmXR+vD8Y+KoA1Dn1YKpr8YxCYbREeOYcsA=="
 let scan11 = "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 76UXK84             3"
 
+let githubIssue = "M2DOEDOED/JOHNJOH     ENBVZS7 ORYMRSAF 6000 151Y021A0106 336>60B        KL 2505760840335640    KL 5193929192      NBVZS7 MRSORYAF 6009 151Y021F0040 3272505760840335640    KL 5193929192"
+
+let userTest = "M2DOEDOED/JOHNJOH     ENBVZS7 ORYMRSAF 6000 151Y021A0106 336>60B        KL 2505760840335640    KL 5193929192      NBVZS7 MRSORYAF 6009 151Y021F0040 3272505760840335640    KL 5193929192"
+
+print("=" * 80)
+print("TESTING USER PROVIDED BOARDING PASS")
+print("=" * 80)
+print("")
+
 do {
     let decoder = BoardingPassDecoder()
-    
-    let pass = try decoder.decode(code: scan10)
-    
     decoder.debug = true
-    let pass2 = try decoder.decode(code: scan7)
-    pass2.printout()
+    
+    let pass = try decoder.decode(code: userTest)
+    pass.printout()
+    
+    print("")
+    print("✅ SUCCESS! Boarding pass parsed correctly")
+    print("")
+    print("Quick Summary:")
+    print("  Passenger: \(pass.info.name)")
+    print("  Total Legs: \(pass.info.legs)")
+    print("  ")
+    print("  Leg 1: \(pass.info.origin) → \(pass.info.destination)")
+    print("         Flight: \(pass.info.operatingCarrier) \(pass.info.flightno)")
+    print("         Seat: \(pass.info.seatno)")
+    print("  ")
+    if !pass.segments.isEmpty {
+        for (index, segment) in pass.segments.enumerated() {
+            print("  Leg \(index + 2): \(segment.origin) → \(segment.destination)")
+            print("         Flight: \(segment.carrier) \(segment.flightno)")
+            print("         Seat: \(segment.seatno ?? "Not assigned")")
+            print("  ")
+        }
+    }
+    
 } catch {
+    print("❌ ERROR!")
     print(error.localizedDescription)
+    print("")
+    if let bpError = error as? BoardingPassError {
+        print("Detailed error: \(bpError.description)")
+    }
     print()
 }

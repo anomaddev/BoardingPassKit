@@ -35,7 +35,7 @@ extension BoardingPassError: CustomStringConvertible {
     public var description: String {
         switch self {
             
-        case .InvalidPassFormat(let format):            return "Invalid baording pass format: \(format)"
+        case .InvalidPassFormat(let format):            return "Invalid boarding pass format: \(format)"
         case .InvalidSegments(let legs):                return "Invalid number of boarding pass segments \(legs)"
             
         case .DataFailedValidation(let code):           return "Data provided failed boarding pass validation: \(code)"

@@ -1,6 +1,8 @@
 # BoardingPassKit
 
-This Swift framework will allow you to parse the barcodes and QR codes of airline boarding passes and other documents that are encoded using the IATA 2D barcode standard.
+This Swift framework will allow you to parse the barcodes and QR codes of airline boarding passes and other documents that are encoded using the **IATA Bar Coded Boarding Pass (BCBP) standard**.
+
+**Compliance:** IATA Resolution 792 - BCBP **Version 8** (Effective June 1, 2020) ✅
 
 **This Framework is still in development. Please use with caution in your projects!**
 
