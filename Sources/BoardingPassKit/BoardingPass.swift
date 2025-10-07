@@ -158,9 +158,39 @@ public struct BoardingPass: Codable {
     public static let scan7  = "M1FERRER/JOSE          XYJZ2V TPASJUNK 0538 248Y026F0038 147>1181  0247BNK 000000000000029487000000000000                          ^460MEQCIGJLJLMYXzgkks7Z1jWfkW/cZSPFunmpdfrF/s4m40oYAiBjZH1WLm+3olwz+tMC+uBhr2fuS1EXwDg5qxBhge4RMg=="
     public static let scan8  = "M1PRUETT/KAILEY       E9169f13BLVPIEG4 0769 057Y011C0001 147>3182OO1057BG4              29268000000000000G4                    00PC^160MEUCIFzucrR1+DVpDo0bBTgfSKeynBc0igyZvQ8fLm67nMLdAiEAxNiljXHk9lNdiG4Nd5LYQwMIvWpohaRMp7E7ogYgQy8="
     public static let scan9  = "M1ACKERMANN/JUSTIN DAVEWHNSNI TPAPHXAA 1466 185R005A0056 14A>318   2185BAA 00000000000002900177708173663 AA AA 76UXK84             243"
-    public static let scan10 = "M2ACKERMANN/JUSTIN DAVEWHFPBW TPASEAAS 0635 213L007A0000 148>2181MM    BAS              25             3    AA 76UXK84         1    WHFPBW SEAJNUAS 0555 213L007A0000 13125             3    AA 76UXK84         1    01010^460MEQCICRNjFGBPfJr84Ma6vMjxTQLtZ1z7uB0tUfO+fS/3vvuAiAReH4kY4ZcmXR+vD8Y+KoA1Dn1YKpr8YxCYbREeOYcsA=="
     public static let scan11 = "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 76UXK84             3"
     public static let scan12 = "M2FORHETZ/BETHANY     EP2DJMN CDGLHRAF 1780 117Y017C0130 348>5182 O    BAF              2A93223260324620    VS 1091120160          NP2DJMN LHRTPAVS 0129 117W026H0088 32C2A93223260324620    VS 1091120160          N"
     public static let scan13 = "M2ACKERMANN/JUSTIN    EP2DJMN CDGLHRAF 1780 117Y017A0129 348>5181 O    BAF              2A93223260324630    DL 9379805238          NP2DJMN LHRTPAVS 0129 117W026K0087 32C2A93223260324630    DL 9379805238          N"
     public static let scan14 = "M1FORHETZ/BETHANY     EJNRBUA TPADFWAA 2529 342C014E0099 147>1180OO3342BAA              29             31                          "
+    
+    /// Demo Data used for testing
+    public enum DemoData: String {
+        
+        /// A simple example of a boarding pass scan
+        case Simple
+        
+        /// An example of a boarding pass from a really old flight
+        case Historical
+        
+        /// An example of a Multi-Leg Boarding Pass
+        case MultiLeg
+        
+        /// A `String` representation of the selected DemoData
+        public var string: String {
+            switch self {
+            case .Simple:
+                return "M1ACKERMANN/JUSTIN DAVEJKLEAJ MSYPHXAA 2819 014S008F0059 14A>318   0014BAA 00000000000002900174844256573 AA AA 76UXK84             223"
+                
+            case .Historical:
+                return "M1ACKERMANN/JUSTIN    ETDPUPK TPADFWAA 1189 091R003A0033 14A>318   0091BAA 00000000000002900121232782703 AA AA 76UXK84             2IN"
+                
+            case .MultiLeg:
+                return "M2ACKERMANN/JUSTIN DAVEWHFPBW TPASEAAS 0635 213L007A0000 148>2181MM    BAS              25             3    AA 76UXK84         1    WHFPBW SEAJNUAS 0555 213L007A0000 13125             3    AA 76UXK84         1    01010^460MEQCICRNjFGBPfJr84Ma6vMjxTQLtZ1z7uB0tUfO+fS/3vvuAiAReH4kY4ZcmXR+vD8Y+KoA1Dn1YKpr8YxCYbREeOYcsA=="
+            }
+        }
+        
+        /// A `Data` representation of the selected DemoData
+        public var data: Data?
+        { return self.string.data(using: .utf8) }
+    }
 }
