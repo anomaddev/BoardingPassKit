@@ -164,11 +164,7 @@ public struct BoardingPass: Codable {
     public static let scan14 = "M1FORHETZ/BETHANY     EJNRBUA TPADFWAA 2529 342C014E0099 147>1180OO3342BAA              29             31                          "
     
     /// Demo Data used for testing
-<<<<<<< HEAD
-    public enum DemoData: String {
-=======
     public enum DemoData: String, CaseIterable {
->>>>>>> 2b9023a (v1.0.2)
         
         /// A simple example of a boarding pass scan
         case Simple
