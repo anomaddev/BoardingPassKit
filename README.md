@@ -1,273 +1,337 @@
 # BoardingPassKit
 
-This Swift framework will allow you to parse the barcodes and QR codes of airline boarding passes and other documents that are encoded using the **IATA Bar Coded Boarding Pass (BCBP) standard**.
+A Swift framework for parsing airline boarding pass barcodes and QR codes that conform to the **IATA Bar Coded Boarding Pass (BCBP) standard**.
 
 **Compliance:** IATA Resolution 792 - BCBP **Version 8** (Effective June 1, 2020) ✅
 
-**This Framework is still in development. Please use with caution in your projects!**
+## Features
+
+- 🛫 Parse IATA BCBP compliant boarding pass barcodes and QR codes
+- 📱 Generate QR codes from boarding pass data (iOS only)
+- 🔍 Comprehensive debugging and logging capabilities
+- 📊 Support for single and multi-leg itineraries
+- 🏷️ Extract bag tags, frequent flyer information, and security data
+- 🎯 Built-in demo data for testing and development
+- 📦 Swift Package Manager support
+
+## Requirements
+
+- iOS 15.0+ / macOS 10.15+
+- Swift 5.7+
+- Xcode 14.0+
 
 ## Installation
-#### Swift Package Manager
-Add the package to your Xcode project with the repository URL: 
-https://github.com/anomaddev/BoardingPassKit.git
 
-## Example
-Here is a simple example using a boarding pass of my own to show how to use the framework.
+### Swift Package Manager
+
+Add BoardingPassKit to your project using Swift Package Manager:
+
+1. In Xcode, go to **File** → **Add Package Dependencies**
+2. Enter the repository URL: `https://github.com/anomaddev/BoardingPassKit.git`
+3. Select the version and add to your target
+
+Or add it to your `Package.swift`:
 
 ```swift
-let barcodeString = "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 34DGH32             3"
-// or you can use a Data representation of the string in .ascii format.
-let barcodeData = barcodeString.data(using: .ascii)
+dependencies: [
+    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "1.0.0")
+]
+```
+
+## Quick Start
+
+```swift
+import BoardingPassKit
+
+// Using a barcode string
+let barcodeString = "M1ACKERMANN/JUSTIN DAVEJKLEAJ MSYPHXAA 2819 014S008F0059 14A>318   0014BAA 00000000000002900174844256573 AA AA 76UXK84             223"
 
 do {
     let decoder = BoardingPassDecoder()
-    // example of settings you can change on the decoder. This one prints out the data every step of the decoding.
-    decoder.debug = true
+    let boardingPass = try decoder.decode(code: barcodeString)
     
-    let boardingPass            = try decoder.decode(code: barcodeString)
-    let boardingPassFromData    = try decoder.decode(data: barcodeData)
+    print("Passenger: \(boardingPass.passengerName)")
+    print("Flight: \(boardingPass.boardingPassLegs.first?.flightno ?? "N/A")")
+    print("From: \(boardingPass.boardingPassLegs.first?.origin ?? "N/A")")
+    print("To: \(boardingPass.boardingPassLegs.first?.destination ?? "N/A")")
+    
 } catch {
-    // Handle error
+    print("Error decoding boarding pass: \(error)")
 }
 ```
 
-## Boarding Pass
-A boarding pass object will contain a few sections. This allows the library to accurately differentiate between mandatory & conditional items in the data.
+## API Reference
+
+### BoardingPassDecoder
+
+The main class for decoding boarding pass barcodes.
+
+```swift
+let decoder = BoardingPassDecoder()
+
+// Configuration options
+decoder.debug = true                    // Enable detailed logging
+decoder.trimLeadingZeroes = true        // Remove leading zeros from fields
+decoder.trimWhitespace = true          // Remove whitespace from fields
+decoder.emptyStringIsNil = true        // Convert empty strings to nil
+
+// Decode from string
+let boardingPass = try decoder.decode(code: barcodeString)
+
+// Decode from Data
+let boardingPass = try decoder.decode(barcodeData)
+```
+
+### BoardingPass
+
+The main structure representing a decoded boarding pass.
 
 ```swift
 public struct BoardingPass: Codable {
+    /// The IATA BCBP format (M or S)
+    public var format: String
     
-    /// The IATA BCBP version number
-    public let version: String
+    /// Number of legs in the boarding pass
+    public var numberOfLegs: Int
     
-    /// The parent object contains the information that is shared between all segments of the boarding pass.
-    public var info: BoardingPassParent
-
-    /// The main segment of the boarding pass.
-    public var main: BoardingPassMainSegment
-
-    /// The segments of the boarding pass. This will be empty if there is only one segment.
-    public var segments: [BoardingPassSegment]
-
-    /// The Boarding Pass security data used by the airline
-    public var security: BoardingPassSecurityData
+    /// Passenger name (20 characters)
+    public var passengerName: String
     
-    /// The original `String` that was used to create the boarding pass
-    public var code: String
+    /// Electronic ticket indicator (E or blank)
+    public var ticketIndicator: String
+    
+    /// Array of flight legs
+    public var boardingPassLegs: [BoardingPassLeg]
+    
+    /// Boarding pass information
+    public var passInfo: BoardingPassInfo
+    
+    /// Security data (if present)
+    public var securityData: BoardingPassSecurityData?
+    
+    /// Airline-specific blob data
+    public var airlineBlob: String?
+    
+    /// Original barcode string
+    public let code: String
 }
 ```
 
-### Boarding Pass Parent
-The parent object contains the information that is shared between all segments of the boarding pass. This includes the passenger name, the PNR code, first segments seat number, etc.
+### BoardingPassLeg
+
+Represents a single flight segment.
 
 ```swift
-public struct BoardingPassParent: Codable {
+public struct BoardingPassLeg: Codable {
+    /// Leg index (0 for first leg)
+    public let legIndex: Int
     
-    /// The format code of the boarding pass
-    public let format: String
-    
-    /// The number of legs included in this boarding pass
-    public let legs: Int
-    
-    /// The passenger's name information
-    public let name: String
-    
-    /// The electronic ticket indicator
-    public let ticketIndicator: String
-    
-    /// The record locator with the airline
+    /// Record locator (PNR code)
     public let pnrCode: String
     
-    /// The IATA code of the origin airport
+    /// Origin airport (IATA code)
     public let origin: String
     
-    /// The IATA code of the destination airport
+    /// Destination airport (IATA code)
     public let destination: String
     
-    /// The IATA code of the airline operating the flight
+    /// Operating carrier (IATA code)
     public let operatingCarrier: String
     
-    /// The flight number of the operating airline
+    /// Flight number
     public let flightno: String
     
-    /// The day of the year the flight takes place
+    /// Julian date of flight
     public let julianDate: Int
     
-    /// The compartment code for the passenger on the main segment
+    /// Compartment code (Y, C, F, etc.)
     public let compartment: String
     
-    /// The seat number for the passenger on the main segment
+    /// Seat number
     public let seatno: String
     
-    /// What number passenger you were to check in
+    /// Check-in sequence number
     public let checkIn: Int
     
-    /// Bag check, checked in, etc. This code needs to be parsed.
+    /// Passenger status
     public let passengerStatus: String
     
-    /// The size of the conditional data in the boarding pass. Parsed decimal from hexidecimal.
+    /// Size of conditional data
     public let conditionalSize: Int
     
+    /// Conditional data for this leg
+    public var conditionalData: BoardingPassLegData?
 }
 ```
 
-### Boarding Pass Main Segment
-The main segment contains the information that is unique to the first segment of the boarding pass. This includes the airline code, ticket number, bag tags, etc. There are also fields that specify the size of the conditional items in the data.
+### BoardingPassInfo
+
+Contains boarding pass metadata and bag tags.
 
 ```swift
-public struct BoardingPassMainSegment: Codable {
+public struct BoardingPassInfo: Codable {
+    /// IATA BCBP version
+    let version: String
     
-    /// The size of the main segment in the boarding pass. Parsed decimal from hexidecimal.
-    public let structSize: Int
-
-    /// The passenger description code.
-    public let passengerDesc: String
-
-    /// The source of the passenger's check in
-    public let checkInSource: String
-
-    /// The source of the passenger's boarding pass
-    public let passSource: String
-
-    /// The date the boarding pass was issued
-    public let dateIssued: String
-
-    /// The type of document the passenger is using
-    public let documentType: String
-
-    /// The IATA airline code issuing the boarding pass
-    public let passIssuer: String
+    /// Passenger description/gender code
+    var passengerDescription: String?
     
-    /// Your first bag tag
-    public var bagtag1: String?
-
-    /// Your second bag tag
-    public var bagtag2: String?
-
-    /// Your third bag tag
-    public var bagtag3: String?
+    /// Check-in source
+    var checkInSource: String?
     
-    /// The size of the variable data in the boarding pass. Parsed decimal from hexidecimal.
-    public let nextSize: Int
+    /// Pass issuance source
+    var passSource: String?
+    
+    /// Issue date
+    var issueDate: String?
+    
+    /// Document type
+    var documentType: String?
+    
+    /// Issuing airline (IATA code)
+    let issuingAirline: String
+    
+    /// Bag tags
+    var bagTags: [String]
+}
+```
 
-    /// The numeric airline code of the airline issuing the boarding pass
-    public let airlineCode: String
+### BoardingPassLegData
 
-    /// The boarding pass ticket number
-    public let ticketNumber: String
+Contains conditional data for a specific leg.
 
-    /// Selectee indicator
-    public let selectee: String
-
-    /// International documentation verification indicator
-    public let internationalDoc: String
-
-    /// Marketing carrier
-    public let carrier: String
-
-    /// Frequent flyer carrier
-    public var ffCarrier: String?
-
+```swift
+public struct BoardingPassLegData: Codable {
+    /// Segment size
+    public let segmentSize: Int
+    
+    /// Airline code
+    public var airlineCode: String
+    
+    /// Ticket number
+    public var ticketNumber: String
+    
+    /// Security selectee flag
+    public var selectee: String
+    
+    /// International documentation indicator
+    public var internationalDoc: String
+    
+    /// Ticketing carrier
+    public var ticketingCarrier: String
+    
+    /// Frequent flyer airline
+    public var ffAirline: String
+    
     /// Frequent flyer number
-    public var ffNumber: String?
+    public var ffNumber: String
     
     /// ID/AD indicator
-    public var IDADIndicator: String?
-
+    public var idAdIndicator: String?
+    
     /// Free baggage allowance
     public var freeBags: String?
-
+    
     /// Fast track indicator
     public var fastTrack: String?
-
-    /// For internal airline use
+    
+    /// Airline-specific data
     public var airlineUse: String?
 }
 ```
 
-### Generating a Barcode or QR Code from Boarding Pass Data
-The parser, that deciphers the Boarding Pass string, can also generate a QR Code from the data. This can be useful if you want to display the QR Code on a screen.
+## QR Code Generation (iOS Only)
 
-#### QR Code
+Generate QR codes from boarding pass data:
 
 ```swift
-do { 
-    let decoder = BoardingPassDecoder()
-    let pass = try decoder.decode(data: data)
-    let qrCode = try pass.qrCode()
+#if os(iOS)
+do {
+    let qrCodeImage = try boardingPass.qrCode()
+    // Display the QR code image
 } catch {
-    print(error.localizedDescription)
+    print("Failed to generate QR code: \(error)")
+}
+#endif
+```
+
+## Demo Data
+
+The framework includes built-in demo data for testing:
+
+```swift
+// Simple single-leg boarding pass
+let simplePass = try decoder.decode(code: BoardingPass.DemoData.Simple.string)
+
+// Historical boarding pass example
+let historicalPass = try decoder.decode(code: BoardingPass.DemoData.Historical.string)
+
+// Multi-leg boarding pass
+let multiLegPass = try decoder.decode(code: BoardingPass.DemoData.MultiLeg.string)
+
+// GitHub issue example
+let githubIssuePass = try decoder.decode(code: BoardingPass.DemoData.GithubIssue.string)
+```
+
+## Debugging
+
+Enable detailed logging to see the parsing process:
+
+```swift
+let decoder = BoardingPassDecoder()
+decoder.debug = true
+
+let boardingPass = try decoder.decode(code: barcodeString)
+boardingPass.printout() // Prints detailed information to console
+```
+
+## Error Handling
+
+The framework provides comprehensive error handling:
+
+```swift
+do {
+    let boardingPass = try decoder.decode(code: barcodeString)
+} catch BoardingPassError.InvalidPassFormat(let format) {
+    print("Invalid format: \(format)")
+} catch BoardingPassError.DataIsNotBoardingPass(let error) {
+    print("Not a valid boarding pass: \(error)")
+} catch BoardingPassError.MandatoryItemNotFound(let index) {
+    print("Missing mandatory field at index: \(index)")
+} catch {
+    print("Other error: \(error)")
 }
 ```
 
-#### PDF417
-```swift
-// Coming Soon
-``` 
+## Multi-Leg Support
 
-### Print to Console
-When debugging your functions, you can call the `printout()` function on your BoardPass object to print all the details to the console.
+The framework fully supports multi-leg itineraries:
 
 ```swift
-/// for this example we will print out the above boarding pass to the console
-boardingPass.printout()
+let boardingPass = try decoder.decode(code: multiLegBarcodeString)
 
-//
-// SEGMENTS: 1
-// ======================
-// MAIN SEGMENT
-// ===MANDATORY ITEMS [60 characters long]===
-// FORMAT CODE:  M
-// LEGS ENCODED: 1
-// PASSENGER:    ACKERMANN/JUSTIN DAV
-// INDICATOR:    E
-// PNR CODE:     UXPVFK
-// ORIGIN:       HKG
-// DESTINATION:  SIN
-// CARRIER:      CX
-// FLIGHT NO:    0715
-// JULIAN DATE:  326
-// COMPARTMENT:  Y
-// SEAT NO:      040G
-// CHECK IN:     59
-// STATUS:       3
-// VAR SIZE:     75
-// 
-// ===CONDITIONAL ITEMS [75 characters long]===
-// VERSION:       6
-// PASS STRUCT:   24
-// PASS DESC:     0
-// SOURCE CHK IN:
-// SOURCE PASS:   O
-// DATE ISSUED:   9326
-// DOC TYPE:      B
-// AIRLINE DESIG: AA
-// BAG TAG 1:
-// BAG TAG 2:     none
-// BAG TAG 3:     none
-// FIELD SIZE:    42
-// AIRLINE CODE:  001
-// TICKET NO:     7459737133
-// SELECTEE:      0
-// INTERNATIONAL:
-// CARRIER:       AA
-// FREQ CARRIER:  AA
-// FREQ NUMBER:   76UXK84
-// 
-// AD ID:
-// FREE BAGS:
-// FAST TRACK:    N
-// AIRLINE USE:   3AA
-// ======================
-// 
-// SECURITY DATA
-// ========================
-// TYPE:     nil
-// LENGTH:   nil
-// DATA:
-// ========================
-// 
+print("Number of legs: \(boardingPass.numberOfLegs)")
+
+for leg in boardingPass.boardingPassLegs {
+    print("Leg \(leg.legIndex): \(leg.origin) → \(leg.destination)")
+    print("Flight: \(leg.operatingCarrier)\(leg.flightno)")
+    print("Seat: \(leg.seatno)")
+}
 ```
 
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
 ## Author
+
 Justin Ackermann
+
+## Acknowledgments
+
+- IATA Resolution 792 - BCBP Version 8 specification
+- SwiftDate library for date handling
