@@ -11,6 +11,7 @@ A Swift framework for parsing airline boarding pass barcodes and QR codes that c
 - 🔍 Comprehensive debugging and logging capabilities
 - 📊 Support for single and multi-leg itineraries
 - 🏷️ Extract bag tags, frequent flyer information, and security data
+- ⚙️ Configurable data processing options (trim whitespace, remove leading zeros, convert empty strings to nil)
 - 🎯 Built-in demo data for testing and development
 - 📦 Swift Package Manager support
 
@@ -80,6 +81,101 @@ let boardingPass = try decoder.decode(code: barcodeString)
 
 // Decode from Data
 let boardingPass = try decoder.decode(barcodeData)
+```
+
+### Configuration Options
+
+The `BoardingPassDecoder` provides several configuration options to customize parsing behavior:
+
+```swift
+let decoder = BoardingPassDecoder()
+
+// Debug and Logging
+decoder.debug = true                    // Enable detailed console logging during parsing
+
+// Data Processing Options
+decoder.trimLeadingZeroes = true        // Remove leading zeros from numeric fields (default: true)
+decoder.trimWhitespace = true          // Remove whitespace from string fields (default: true)
+decoder.emptyStringIsNil = true        // Convert empty strings to nil for optional fields (default: true)
+```
+
+#### Trim Leading Zeroes
+When enabled (default), leading zeros are removed from fields like flight numbers and seat numbers:
+
+```swift
+decoder.trimLeadingZeroes = true
+// Flight number "00234" becomes "234"
+// Seat number "005A" becomes "5A"
+
+decoder.trimLeadingZeroes = false
+// Flight number "00234" remains "00234"
+// Seat number "005A" remains "005A"
+```
+
+#### Trim Whitespace
+When enabled (default), whitespace is removed from string fields:
+
+```swift
+decoder.trimWhitespace = true
+// Field "  ABC  " becomes "ABC"
+
+decoder.trimWhitespace = false
+// Field "  ABC  " remains "  ABC  "
+```
+
+#### Empty String to Nil Conversion
+When enabled (default), empty strings are converted to `nil` for optional fields, providing cleaner data representation:
+
+```swift
+decoder.emptyStringIsNil = true
+// Optional field with "" becomes nil
+// Bag tags with empty strings are filtered out
+
+decoder.emptyStringIsNil = false
+// Optional field with "" remains ""
+// All bag tags are preserved regardless of content
+```
+
+**Example of the difference:**
+
+```swift
+// With emptyStringIsNil = true (default)
+let boardingPass = try decoder.decode(code: barcodeString)
+print(boardingPass.passInfo.passengerDescription) // nil (if field was empty)
+print(boardingPass.passInfo.bagTags) // ["ABC123", "DEF456"] (empty tags filtered out)
+
+// With emptyStringIsNil = false
+let decoder2 = BoardingPassDecoder()
+decoder2.emptyStringIsNil = false
+let boardingPass2 = try decoder2.decode(code: barcodeString)
+print(boardingPass2.passInfo.passengerDescription) // "" (if field was empty)
+print(boardingPass2.passInfo.bagTags) // ["ABC123", "", "DEF456"] (all tags preserved)
+```
+
+#### Best Practices
+
+**For most use cases, keep the default settings:**
+```swift
+let decoder = BoardingPassDecoder()
+// All defaults are optimal for typical boarding pass parsing
+```
+
+**For data analysis or debugging, you might want to preserve original formatting:**
+```swift
+let decoder = BoardingPassDecoder()
+decoder.trimWhitespace = false
+decoder.trimLeadingZeroes = false
+decoder.emptyStringIsNil = false
+// Preserves original field formatting for analysis
+```
+
+**For user-facing applications, use defaults to ensure clean data:**
+```swift
+let decoder = BoardingPassDecoder()
+// Default settings ensure clean, user-friendly data
+// Empty strings become nil (easier to handle in UI)
+// Whitespace is trimmed (cleaner display)
+// Leading zeros are removed (more readable numbers)
 ```
 
 ### BoardingPass

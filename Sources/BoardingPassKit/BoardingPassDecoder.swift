@@ -39,6 +39,12 @@ open class BoardingPassDecoder: NSObject {
         return str
     }
     
+    /// Helper function to apply emptyStringIsNil logic to optional strings
+    private func applyEmptyStringIsNil(_ value: String?) -> String? {
+        guard let value = value else { return nil }
+        return emptyStringIsNil && value.isEmpty ? nil : value
+    }
+    
     /// Decode to a Boarding Pass class
     ///
     /// - parameter data: `Data` to be decoded
@@ -135,10 +141,10 @@ open class BoardingPassDecoder: NSObject {
                 let securityData = try mandatory(lengthSecurity)
 
                 security = BoardingPassSecurityData(
-                    beginSecurity: beginSecurity,
-                    securityType: typeSecurity,
+                    beginSecurity: applyEmptyStringIsNil(beginSecurity),
+                    securityType: applyEmptyStringIsNil(typeSecurity),
                     securitylength: lengthSecurity,
-                    securityData: securityData
+                    securityData: applyEmptyStringIsNil(securityData)
                 )
             }
         }
@@ -146,7 +152,10 @@ open class BoardingPassDecoder: NSObject {
         // After a valid security block, if there is any remaining data, capture it as the airline blob
         if index < data.count {
             let remaining = data.subdata(in: index..<data.count)
-            blob = String(data: remaining, encoding: .ascii)
+            if let remainingString = String(data: remaining, encoding: .ascii) {
+                let processedString = trimWhitespace ? remainingString.trimmingCharacters(in: .whitespaces) : remainingString
+                blob = applyEmptyStringIsNil(processedString)
+            }
             index = data.count
         }
         
@@ -212,10 +221,15 @@ open class BoardingPassDecoder: NSObject {
     
     /// Read the next section of data of a given length and return the `Int` value
     private func readint(_ length: Int) throws -> Int {
-        let rawString = try mandatory(length)
+        var rawString = try mandatory(length)
         if debug { print("RAW INT: \(rawString)") }
         
-        guard let number = Int(rawString.trimmingCharacters(in: .whitespaces))
+        // Apply leading zero trimming if enabled
+        if trimLeadingZeroes {
+            rawString = rawString.removeLeadingZeros()
+        }
+        
+        guard let number = Int(rawString)
         else { throw BoardingPassError.FieldValueNotRequiredInteger(value: rawString) }
         
         return number
@@ -308,13 +322,27 @@ open class BoardingPassDecoder: NSObject {
             var passSource: String?  = try conditional(1)
             var issueDate: String?   = try conditional(4)
             var docType: String?     = try conditional(1)
-            var airlineCode: String  = try conditional(3)
+            let airlineCode: String  = try conditional(3)
+            
+            // Apply leading zero trimming to relevant fields
+            if trimLeadingZeroes {
+                issueDate = issueDate?.removeLeadingZeros()
+            }
+            
+            // Apply emptyStringIsNil logic to optional fields
+            passDesc = applyEmptyStringIsNil(passDesc)
+            checkSource = applyEmptyStringIsNil(checkSource)
+            passSource = applyEmptyStringIsNil(passSource)
+            issueDate = applyEmptyStringIsNil(issueDate)
+            docType = applyEmptyStringIsNil(docType)
             
             var bagTags: [String] = []
             // Read any 13-character bag tag chunks remaining in this sub-conditional
             while subConditional >= 13 {
-                let tag = try conditional(13).trimmingCharacters(in: .whitespaces)
-                if !tag.isEmpty { bagTags.append(tag) }
+                let tag = try conditional(13)
+                if !tag.isEmpty && (!emptyStringIsNil || !tag.trimmingCharacters(in: .whitespaces).isEmpty) { 
+                    bagTags.append(tag) 
+                }
             }
             
             // If any non-bag-tag padding remains, consume it defensively to avoid desync
@@ -373,9 +401,13 @@ open class BoardingPassDecoder: NSObject {
             
             let ffInfo: String = try conditional(ffFieldSize)
             // Parse Frequent Flyer fields from ffInfo
-            let parsedFFAirline: String = String(ffInfo.prefix(3)).trimmingCharacters(in: .whitespaces)
+            let parsedFFAirline: String = trimWhitespace 
+                ? String(ffInfo.prefix(3)).trimmingCharacters(in: .whitespaces)
+                : String(ffInfo.prefix(3))
             let parsedFFNumber: String = ffInfo.count > 3
-                ? String(ffInfo.dropFirst(3)).trimmingCharacters(in: .whitespaces)
+                ? (trimWhitespace 
+                    ? String(ffInfo.dropFirst(3)).trimmingCharacters(in: .whitespaces)
+                    : String(ffInfo.dropFirst(3)))
                 : ""
   
             if debug {
@@ -386,13 +418,19 @@ open class BoardingPassDecoder: NSObject {
                 print("Conditional chars left: \(subConditional)")
             }
             
-            let idAdIndicator: String = try conditional(1)
-            let freeBags: String      = try conditional(3)
-            let fastTrack: String     = try conditional(1)
+            var idAdIndicator: String? = try conditional(1)
+            var freeBags: String?      = try conditional(3)
+            var fastTrack: String?     = try conditional(1)
             
             var airlineUse: String?
             let leftOver: Int = endConditional - subConditional
             if leftOver > 0 { airlineUse = try conditional(leftOver) }
+            
+            // Apply emptyStringIsNil logic to optional fields
+            idAdIndicator = applyEmptyStringIsNil(idAdIndicator)
+            freeBags = applyEmptyStringIsNil(freeBags)
+            fastTrack = applyEmptyStringIsNil(fastTrack)
+            airlineUse = applyEmptyStringIsNil(airlineUse)
             
             guard endConditional == subConditional
             else { throw BoardingPassError.BoardingPassLegConditionalMismatch }
