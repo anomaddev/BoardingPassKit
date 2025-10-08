@@ -50,7 +50,7 @@ public struct BoardingPassLeg: Codable {
     public let seatno: String
     
     /// What number passenger you were to check in
-    public let checkIn: Int
+    public let checkIn: Int?
     
     /// Bag check, checked in, etc. This code needs to be parsed.
     public let passengerStatus: String

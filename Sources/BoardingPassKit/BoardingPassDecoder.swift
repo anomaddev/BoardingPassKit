@@ -87,6 +87,9 @@ open class BoardingPassDecoder: NSObject {
         let name            = try mandatory(20)
         let ticketIndicator = try mandatory(1)
         
+        guard let numberOfLegs
+        else { throw BoardingPassError.DataFailedValidation(code: "Number of legs is nil") }
+        
         // INITIALIZE LEGS ARRAY
         var legs: [BoardingPassLeg] = []
         
@@ -220,14 +223,15 @@ open class BoardingPassDecoder: NSObject {
     }
     
     /// Read the next section of data of a given length and return the `Int` value
-    private func readint(_ length: Int) throws -> Int {
+    private func readint(_ length: Int) throws -> Int? {
         var rawString = try mandatory(length)
         if debug { print("RAW INT: \(rawString)") }
         
         // Apply leading zero trimming if enabled
-        if trimLeadingZeroes {
-            rawString = rawString.removeLeadingZeros()
-        }
+        if trimWhitespace { rawString = rawString.trimmingCharacters(in: .whitespaces) }
+        if trimLeadingZeroes { rawString = rawString.removeLeadingZeros() }
+        if emptyStringIsNil && rawString.isEmpty { return nil }
+        if !emptyStringIsNil && rawString.isEmpty { return 0 }
         
         guard let number = Int(rawString)
         else { throw BoardingPassError.FieldValueNotRequiredInteger(value: rawString) }
@@ -281,6 +285,9 @@ open class BoardingPassDecoder: NSObject {
                 flightno = flightno.removeLeadingZeros()
                 seatno = seatno.removeLeadingZeros()
             }
+            
+            guard let julianDate
+            else { throw BoardingPassError.DataFailedValidation(code: "Julian Date is nil") }
             
             return BoardingPassLeg(
                 legIndex:           index,
