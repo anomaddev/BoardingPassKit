@@ -116,6 +116,8 @@ open class BoardingPassDecoder: NSObject {
         }
         
         if debug { print("PARSING LEGS COMPLETE") }
+        // Ensure legs are sorted by legIndex in ascending order
+        legs.sort { $0.legIndex < $1.legIndex }
         
         var security: BoardingPassSecurityData?
         var blob: String?

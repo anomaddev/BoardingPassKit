@@ -268,9 +268,6 @@ let historicalPass = try decoder.decode(code: BoardingPass.DemoData.Historical.s
 
 // Multi-leg boarding pass
 let multiLegPass = try decoder.decode(code: BoardingPass.DemoData.MultiLeg.string)
-
-// GitHub issue example
-let githubIssuePass = try decoder.decode(code: BoardingPass.DemoData.GithubIssue.string)
 ```
 
 ## Debugging
