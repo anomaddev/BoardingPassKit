@@ -132,6 +132,14 @@ swift test
 
 ## Version History
 
+- **2.0.1** - Patch release with improved configuration options
+  - Enhanced data processing with configurable trim options
+  - Better handling of empty strings and whitespace
+  - Improved debugging capabilities
+- **2.0.0** - Major release with new configuration options
+  - Added trimLeadingZeroes, trimWhitespace, and emptyStringIsNil configuration options
+  - Backward compatible with v1.x
+  - Enhanced data quality and consistency
 - **1.2.0** - IATA Resolution 792 Version 8 compliance (June 2020 standard)
   - Supports new gender codes "X" (Unspecified) and "U" (Undisclosed)
   - Updated documentation and field descriptions
