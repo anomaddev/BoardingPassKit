@@ -15,7 +15,7 @@ public struct BoardingPassSecurityData: Codable {
     public var securitylength: Int?
     public var securityData: String?
     
-    func printout() {
+    public func printout() {
         print("""
         Begin Char:         \(beginSecurity ?? "N/A")
         Security Type:      \(securityType ?? "N/A")

@@ -51,7 +51,7 @@ public struct BoardingPassLegData: Codable {
     public var airlineUse: String?
     
     /// print the data to the console
-    func printout() {
+    public func printout() {
         print("""
         ====CONDITIONAL DATA====
 
