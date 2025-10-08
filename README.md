@@ -12,6 +12,7 @@ A Swift framework for parsing airline boarding pass barcodes and QR codes that c
   - [Requirements](#requirements)
   - [Installation](#installation)
     - [Swift Package Manager](#swift-package-manager)
+    - [CocoaPods](#cocoapods)
   - [Quick Start](#quick-start)
   - [API Reference](#api-reference)
     - [BoardingPassDecoder](#boardingpassdecoder)
@@ -46,7 +47,7 @@ A Swift framework for parsing airline boarding pass barcodes and QR codes that c
 - 🏷️ Extract bag tags, frequent flyer information, and security data
 - ⚙️ Configurable data processing options (trim whitespace, remove leading zeros, convert empty strings to nil)
 - 🎯 Built-in demo data for testing and development
-- 📦 Swift Package Manager support
+- 📦 Swift Package Manager and CocoaPods support
 
 ## Requirements
 
@@ -70,6 +71,26 @@ Or add it to your `Package.swift`:
 dependencies: [
     .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "1.0.0")
 ]
+```
+
+### CocoaPods
+
+Add BoardingPassKit to your project using CocoaPods:
+
+1. Add this line to your `Podfile`:
+```ruby
+pod 'BoardingPassKit'
+```
+
+2. Run `pod install` in your terminal
+3. Use the `.xcworkspace` file that was created
+
+Or add it directly to your `Podfile`:
+
+```ruby
+target 'YourAppTarget' do
+  pod 'BoardingPassKit'
+end
 ```
 
 ## Quick Start
