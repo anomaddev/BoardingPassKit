@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "BoardingPassParser"
-  spec.version      = "2.0.1"
+  spec.version      = "2.0.2"
   spec.summary      = "A Swift framework for parsing airline boarding pass barcodes and QR codes that conform to the IATA BCBP standard."
   spec.description  = <<-DESC
   BoardingPassKit is a comprehensive Swift framework for parsing airline boarding pass barcodes and QR codes that conform to the IATA Bar Coded Boarding Pass (BCBP) standard Version 8. It supports single and multi-leg itineraries, bag tags, frequent flyer information, and includes comprehensive debugging capabilities.

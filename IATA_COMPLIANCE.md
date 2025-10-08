@@ -132,6 +132,10 @@ swift test
 
 ## Version History
 
+- **2.0.2** - CocoaPods naming update
+  - Renamed CocoaPods pod from BoardingPassKit to BoardingPassParser to avoid conflicts
+  - Swift Package Manager remains as BoardingPassKit
+  - No functional changes, packaging update only
 - **2.0.1** - Patch release with improved configuration options
   - Enhanced data processing with configurable trim options
   - Better handling of empty strings and whitespace
