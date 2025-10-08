@@ -70,12 +70,6 @@ The main class for decoding boarding pass barcodes.
 ```swift
 let decoder = BoardingPassDecoder()
 
-// Configuration options
-decoder.debug = true                    // Enable detailed logging
-decoder.trimLeadingZeroes = true        // Remove leading zeros from fields
-decoder.trimWhitespace = true          // Remove whitespace from fields
-decoder.emptyStringIsNil = true        // Convert empty strings to nil
-
 // Decode from string
 let boardingPass = try decoder.decode(code: barcodeString)
 
@@ -90,66 +84,41 @@ The `BoardingPassDecoder` provides several configuration options to customize pa
 ```swift
 let decoder = BoardingPassDecoder()
 
-// Debug and Logging
+// Configuration options (all default to true)
 decoder.debug = true                    // Enable detailed console logging during parsing
-
-// Data Processing Options
-decoder.trimLeadingZeroes = true        // Remove leading zeros from numeric fields (default: true)
-decoder.trimWhitespace = true          // Remove whitespace from string fields (default: true)
-decoder.emptyStringIsNil = true        // Convert empty strings to nil for optional fields (default: true)
+decoder.trimLeadingZeroes = true        // Remove leading zeros from numeric fields
+decoder.trimWhitespace = true          // Remove whitespace from string fields
+decoder.emptyStringIsNil = true        // Convert empty strings to nil for optional fields
 ```
 
-#### Trim Leading Zeroes
-When enabled (default), leading zeros are removed from fields like flight numbers and seat numbers:
+**Default behavior examples:**
 
 ```swift
-decoder.trimLeadingZeroes = true
+// trimLeadingZeroes = true (default)
 // Flight number "00234" becomes "234"
 // Seat number "005A" becomes "5A"
 
-decoder.trimLeadingZeroes = false
-// Flight number "00234" remains "00234"
-// Seat number "005A" remains "005A"
-```
-
-#### Trim Whitespace
-When enabled (default), whitespace is removed from string fields:
-
-```swift
-decoder.trimWhitespace = true
+// trimWhitespace = true (default)
 // Field "  ABC  " becomes "ABC"
 
-decoder.trimWhitespace = false
-// Field "  ABC  " remains "  ABC  "
-```
-
-#### Empty String to Nil Conversion
-When enabled (default), empty strings are converted to `nil` for optional fields, providing cleaner data representation:
-
-```swift
-decoder.emptyStringIsNil = true
+// emptyStringIsNil = true (default)
 // Optional field with "" becomes nil
 // Bag tags with empty strings are filtered out
-
-decoder.emptyStringIsNil = false
-// Optional field with "" remains ""
-// All bag tags are preserved regardless of content
 ```
 
-**Example of the difference:**
+**Comparison with disabled settings:**
 
 ```swift
-// With emptyStringIsNil = true (default)
-let boardingPass = try decoder.decode(code: barcodeString)
-print(boardingPass.passInfo.passengerDescription) // nil (if field was empty)
-print(boardingPass.passInfo.bagTags) // ["ABC123", "DEF456"] (empty tags filtered out)
+let decoder = BoardingPassDecoder()
+decoder.trimLeadingZeroes = false
+decoder.trimWhitespace = false
+decoder.emptyStringIsNil = false
 
-// With emptyStringIsNil = false
-let decoder2 = BoardingPassDecoder()
-decoder2.emptyStringIsNil = false
-let boardingPass2 = try decoder2.decode(code: barcodeString)
-print(boardingPass2.passInfo.passengerDescription) // "" (if field was empty)
-print(boardingPass2.passInfo.bagTags) // ["ABC123", "", "DEF456"] (all tags preserved)
+// Results in:
+// Flight number "00234" remains "00234"
+// Field "  ABC  " remains "  ABC  "
+// Optional field with "" remains ""
+// All bag tags preserved: ["ABC123", "", "DEF456"]
 ```
 
 #### Best Practices
