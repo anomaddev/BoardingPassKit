@@ -96,6 +96,9 @@ public struct BoardingPass: Codable {
         /// An example of a Multi-Leg Boarding Pass
         case MultiLeg
         
+        /// An international specific Boarding Pass
+        case International
+        
         /// A `String` representation of the selected DemoData
         public var string: String {
             switch self {
@@ -108,6 +111,9 @@ public struct BoardingPass: Codable {
             case .MultiLeg:
                 return "M2ACKERMANN/JUSTIN DAVEWHFPBW TPASEAAS 0635 213L007A0000 148>2181MM    BAS              25             3    AA 76UXK84         1    WHFPBW SEAJNUAS 0555 213L007A0000 13125             3    AA 76UXK84         1    01010^460MEQCICRNjFGBPfJr84Ma6vMjxTQLtZ1z7uB0tUfO+fS/3vvuAiAReH4kY4ZcmXR+vD8Y+KoA1Dn1YKpr8YxCYbREeOYcsA=="
             
+            case .International:
+                return "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 76UXK84             3"
+                
             }
         }
         
