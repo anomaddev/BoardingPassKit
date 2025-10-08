@@ -87,6 +87,10 @@ public struct BoardingPass: Codable {
     /// Demo Data used for testing
     public enum DemoData: String, CaseIterable {
         
+        /// Get a random example
+        static func random() -> DemoData
+        { DemoData.allCases.randomElement()! }
+        
         /// A simple example of a boarding pass scan
         case Simple
         
