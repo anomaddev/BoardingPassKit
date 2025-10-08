@@ -449,69 +449,160 @@ Justin Ackermann
 
 ## Migration Guide
 
-This version includes significant improvements over v1.0. Here's what's changed:
+Version 2.x includes **critical parsing fixes** and significant improvements over v1.x. If you're upgrading from v1.x, please read this section carefully.
 
-### New Configuration Options
+### ⚠️ Critical Changes from v1.x to v2.x
 
-The `BoardingPassDecoder` now includes three new configuration properties that provide better control over data processing:
+**Version 2.0 is a major release with critical bug fixes.** While we've maintained API compatibility where possible, the internal parsing logic has been significantly improved to fix critical issues with multi-leg boarding passes and conditional data parsing.
+
+#### What Changed
+
+**1. Critical Parsing Bug Fixes**
+- **Multi-leg boarding passes**: v1.x incorrectly parsed subsequent flight segments using mandatory parsing instead of conditional parsing, causing failures on multi-leg itineraries
+- **Check-in sequence numbers**: Fixed incorrect parsing logic that could cause data misalignment
+- **Conditional data handling**: Improved parsing of optional fields to match IATA Resolution 792 specification
+
+**2. IATA Resolution 792 Version 8 Compliance**
+- Added support for new gender codes: "X" (Unspecified) and "U" (Undisclosed)
+- Updated passenger description field to handle Version 8 specifications
+- See `IATA_COMPLIANCE.md` for full compliance details
+
+**3. New Configuration Options**
+The `BoardingPassDecoder` now includes three configuration properties for better control over data processing:
 
 ```swift
-// NEW: These properties are now available (all default to true)
-decoder.trimLeadingZeroes = true        // Remove leading zeros from fields
-decoder.trimWhitespace = true          // Remove whitespace from fields  
-decoder.emptyStringIsNil = true        // Convert empty strings to nil
+// NEW in v2.x: These properties are now available (all default to true)
+decoder.trimLeadingZeroes = true        // Remove leading zeros from numeric fields
+decoder.trimWhitespace = true           // Remove whitespace from string fields  
+decoder.emptyStringIsNil = true         // Convert empty strings to nil for optional fields
 ```
+
+**4. Enhanced Error Handling**
+- More descriptive error messages for parsing failures
+- Better validation of conditional data boundaries
+- Improved debugging output
 
 ### Breaking Changes
 
-**None** - This update is fully backward compatible. Existing code will continue to work without changes.
+While the public API remains largely compatible, the **parsing behavior has changed**:
+
+1. **Multi-leg boarding passes**: v2.x correctly parses multi-leg itineraries that may have failed or parsed incorrectly in v1.x
+2. **Field values**: With default settings, fields are now trimmed and cleaned (leading zeros removed, whitespace trimmed, empty strings converted to nil)
+3. **Data validation**: Stricter validation may cause some malformed boarding passes that parsed in v1.x to now throw errors (this is correct behavior)
 
 ### Migration Steps
 
-**For most users: No action required**
-- Your existing code will work exactly as before
-- The new features are enabled by default and improve data quality
-- No code changes needed
+#### For Users of Single-Leg Boarding Passes
 
-**For users who want to preserve original formatting:**
+If you only parse single-leg (M1 format) boarding passes, your code should work with minimal changes:
 
-If you need to maintain the exact original field formatting from v1.0, you can disable the new features:
+```swift
+// v1.x code
+let decoder = BoardingPassDecoder()
+let boardingPass = try decoder.decode(code: barcodeString)
+
+// v2.x code - same API, improved parsing
+let decoder = BoardingPassDecoder()
+let boardingPass = try decoder.decode(code: barcodeString)
+```
+
+**Expected differences:**
+- Numeric fields will have leading zeros removed (`"00234"` → `"234"`)
+- String fields will have whitespace trimmed
+- Empty optional fields will be `nil` instead of `""`
+
+#### For Users of Multi-Leg Boarding Passes
+
+**IMPORTANT:** If you use multi-leg boarding passes, v2.x **fixes critical bugs** that likely caused parsing failures in v1.x.
+
+```swift
+// v2.x correctly parses multi-leg boarding passes
+let decoder = BoardingPassDecoder()
+let boardingPass = try decoder.decode(code: multiLegBarcodeString)
+
+// Now you can reliably access all legs
+for leg in boardingPass.boardingPassLegs {
+    print("Leg \(leg.legIndex): \(leg.origin) → \(leg.destination)")
+}
+```
+
+#### Preserving v1.x Behavior (Not Recommended)
+
+If you need to preserve the exact field formatting from v1.x (not recommended for new code):
 
 ```swift
 let decoder = BoardingPassDecoder()
 
-// Disable new data processing features to match v1.0 behavior
+// Disable data cleaning features (not recommended)
 decoder.trimLeadingZeroes = false
 decoder.trimWhitespace = false
 decoder.emptyStringIsNil = false
+
+// This will produce output closer to v1.x behavior
+// WARNING: This does NOT restore v1.x parsing bugs
 ```
 
-### What's Improved
+**Note:** Even with these settings disabled, v2.x uses the corrected parsing logic. You cannot restore v1.x's parsing bugs.
 
-1. **Better Data Quality**: Leading zeros and whitespace are automatically cleaned
-2. **Cleaner Optional Fields**: Empty strings are converted to `nil` for better Swift integration
-3. **More Consistent Parsing**: All string fields now use consistent processing logic
-4. **Enhanced Debugging**: Improved logging and error handling
+### What's Improved in v2.x
+
+1. **Correct Multi-Leg Parsing**: Properly handles M2, M3, M4 format boarding passes
+2. **IATA Compliance**: Full compliance with IATA Resolution 792 Version 8
+3. **Better Data Quality**: Automatic cleaning of leading zeros and whitespace
+4. **Cleaner Optional Fields**: Empty strings converted to `nil` for better Swift integration
+5. **Enhanced Debugging**: Improved logging and error messages
+6. **Configurable Processing**: Choose how data should be cleaned
 
 ### Version Comparison
 
-| Feature | v1.0 (Main) | v2.1.0 (Stable) | v2.1.1 (Latest) |
-|---------|-------------|-------------|-------------|
-| Basic parsing | ✅ | ✅ | ✅ |
+| Feature | v1.0.x | v2.0.x | v2.1.x (Latest) |
+|---------|--------|--------|-----------------|
+| Single-leg parsing | ✅ | ✅ | ✅ |
+| Multi-leg parsing | ⚠️ Broken | ✅ Fixed | ✅ |
+| IATA Version 8 compliance | ❌ | ✅ | ✅ |
 | Trim leading zeros | ❌ | ✅ (default) | ✅ (default) |
 | Trim whitespace | ❌ | ✅ (default) | ✅ (default) |
 | Empty string to nil | ❌ | ✅ (default) | ✅ (default) |
 | Configurable options | ❌ | ✅ | ✅ |
-| Backward compatibility | N/A | ✅ | ✅ |
-| Fixed "0000" parsing issue | ❌ | ❌ | ✅ |
+| "0000" field parsing | ⚠️ | ⚠️ | ✅ Fixed in v2.1.1 |
+| Conditional data parsing | ⚠️ Broken | ✅ Fixed | ✅ |
 
-## Version 2.1.1 (Latest)
+### Version History
 
-### Bug Fixes
+#### v2.1.1 (Latest - Recommended)
+- **Fixed "0000" integer parsing issue**: Resolved bug where fields containing "0000" failed to parse
+- Full backward compatibility with v2.1.0
 
-- **Fixed "0000" integer parsing issue**: Resolved a bug where boarding pass fields containing "0000" would fail to parse correctly. The `readint()` function now properly handles fields with all zeros, ensuring consistent parsing across all boarding pass formats.
+#### v2.1.0
+- Enhanced configuration options
+- Improved data processing and validation
+- Better debugging capabilities
 
-This patch release maintains full backward compatibility with v2.1.0.
+#### v2.0.2
+- CocoaPods naming update (BoardingPassKit → BoardingPassParser for pods)
+- No functional changes
+
+#### v2.0.1
+- Patch release with improved configuration options
+
+#### v2.0.0 (Major Release)
+- **Critical parsing fixes for multi-leg boarding passes**
+- IATA Resolution 792 Version 8 compliance
+- New configuration options (trimLeadingZeroes, trimWhitespace, emptyStringIsNil)
+- Enhanced error handling and validation
+
+#### v1.x
+- Initial IATA BCBP implementation
+- ⚠️ Known issues with multi-leg boarding passes
+- ⚠️ Incorrect conditional data parsing
+
+### Recommended Action
+
+**We strongly recommend upgrading to v2.1.1** for all users:
+- Critical bug fixes for multi-leg boarding passes
+- Full IATA Resolution 792 Version 8 compliance
+- Better data quality and error handling
+- Minimal migration effort for most use cases
 
 ## Acknowledgments
 
