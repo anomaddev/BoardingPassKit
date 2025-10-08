@@ -4,6 +4,39 @@ A Swift framework for parsing airline boarding pass barcodes and QR codes that c
 
 **Compliance:** IATA Resolution 792 - BCBP **Version 8** (Effective June 1, 2020) ✅
 
+## Table of Contents
+
+- [BoardingPassKit](#boardingpasskit)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+    - [Swift Package Manager](#swift-package-manager)
+  - [Quick Start](#quick-start)
+  - [API Reference](#api-reference)
+    - [BoardingPassDecoder](#boardingpassdecoder)
+    - [Configuration Options](#configuration-options)
+      - [Best Practices](#best-practices)
+    - [BoardingPass](#boardingpass)
+    - [BoardingPassLeg](#boardingpassleg)
+    - [BoardingPassInfo](#boardingpassinfo)
+    - [BoardingPassLegData](#boardingpasslegdata)
+  - [QR Code Generation (iOS Only)](#qr-code-generation-ios-only)
+  - [Demo Data](#demo-data)
+  - [Debugging](#debugging)
+  - [Error Handling](#error-handling)
+  - [Multi-Leg Support](#multi-leg-support)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Author](#author)
+  - [Migration Guide](#migration-guide)
+    - [New Configuration Options](#new-configuration-options)
+    - [Breaking Changes](#breaking-changes)
+    - [Migration Steps](#migration-steps)
+    - [What's Improved](#whats-improved)
+    - [Version Comparison](#version-comparison)
+  - [Acknowledgments](#acknowledgments)
+
 ## Features
 
 - 🛫 Parse IATA BCBP compliant boarding pass barcodes and QR codes
