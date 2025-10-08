@@ -1,5 +1,5 @@
 Pod::Spec.new do |spec|
-  spec.name         = "BoardingPassKit"
+  spec.name         = "BoardingPassParser"
   spec.version      = "2.0.1"
   spec.summary      = "A Swift framework for parsing airline boarding pass barcodes and QR codes that conform to the IATA BCBP standard."
   spec.description  = <<-DESC
