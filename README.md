@@ -69,7 +69,7 @@ Or add it to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.0.2")
+    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.1.0")
 ]
 ```
 
@@ -495,7 +495,7 @@ decoder.emptyStringIsNil = false
 
 ### Version Comparison
 
-| Feature | v1.0 (Main) | v2.0 (Beta) |
+| Feature | v1.0 (Main) | v2.1.0 (Stable) |
 |---------|-------------|-------------|
 | Basic parsing | ✅ | ✅ |
 | Trim leading zeros | ❌ | ✅ (default) |
