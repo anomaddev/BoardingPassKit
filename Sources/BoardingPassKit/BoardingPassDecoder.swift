@@ -1,6 +1,6 @@
 //
 //  BoardingPassDecoder.swift
-//  
+//
 //
 //  Created by Justin Ackermann on 7/7/23.
 //
@@ -9,19 +9,21 @@ import Foundation
 
 open class BoardingPassDecoder: NSObject {
     
-    /// Setting this to `true` will print lots of details to the console
-    public var debug: Bool = false
-    
-    // TODO: Implement
-    /// Will trim any leading zeros from fields when not needed. Default value is `true`
-    public var trimLeadingZeroes: Bool  = true
-    
-    /// Will trim any whitespace from fields when not needed. Default value is `true`
-    public var trimWhitespace: Bool     = true
-    
     private var index: Int = 0
     private var subConditional: Int = 0
     private var endConditional: Int = 0
+    
+    /// Setting this to `true` will print lots of details to the console
+    public var debug: Bool = true
+    
+    /// Will trim any leading zeros from fields when not needed. Default value is `true`
+    public var trimLeadingZeroes: Bool = true
+    
+    /// Will trim any whitespace from fields when not needed. Default value is `true`
+    public var trimWhitespace: Bool = true
+    
+    /// Empty strings should set the Boarding Pass variable to `nil`. Default value is `true`
+    public var emptyStringIsNil: Bool = true
     
     /// A `Data` representation of the boarding pass barcode
     public var data: Data!
@@ -35,6 +37,12 @@ open class BoardingPassDecoder: NSObject {
                                encoding: String.Encoding.ascii)
         else { throw BoardingPassError.DataFailedStringDecoding }
         return str
+    }
+    
+    /// Helper function to apply emptyStringIsNil logic to optional strings
+    private func applyEmptyStringIsNil(_ value: String?) -> String? {
+        guard let value = value else { return nil }
+        return emptyStringIsNil && value.isEmpty ? nil : value
     }
     
     /// Decode to a Boarding Pass class
@@ -67,60 +75,103 @@ open class BoardingPassDecoder: NSObject {
     
     /// Breaks down the code/data and returns the boarding pass decoded. This is the mothership function
     private func breakdown() throws -> BoardingPass {
+        if debug { print("PARSING BOARDING PASS...") }
+        
         index = 0
         subConditional = 0
         endConditional = 0
-    
-        let info        = try parent()
-        endConditional  = info.conditionalSize
         
-        if debug
-        { print("Conditional Size: \(info.conditionalSize)") }
+        // BOARDING PASS HEADER INFO
+        let format          = try mandatory(1)
+        let numberOfLegs    = try readint(1)
+        let name            = try mandatory(20)
+        let ticketIndicator = try mandatory(1)
         
-        let _           = try conditional(1)
-        let version     = try conditional(1)
+        // INITIALIZE LEGS ARRAY
+        var legs: [BoardingPassLeg] = []
         
-        var main: BoardingPassMainSegment!
-        var segments: [BoardingPassSegment] = []
+        // BOARDING PASS LEG 1 DATA (Required)
+        var firstLeg = try repeatedMandatory(index: 0)
+        endConditional = firstLeg.conditionalSize
+        if debug { print("SET endConditional: \(endConditional)") }
         
-        for i in 0..<info.legs {
-            if i == 0 { main = try mainSegment() }
-            else { segments.append(try segment()) }
+        // BOARDING PASS UNIQUE CONDITIONAL (Optional data after the first leg's mandatory section)
+        let passInfo = try uniqueConditional()
+        
+        // BOARDING PASS LEG 1 CONDITIONAL DATA (Optional field size indicates data)
+        let firstLegConditional = try repeatedConditional()
+        firstLeg.conditionalData = firstLegConditional
+        legs.append(firstLeg)
+        
+        // LOOP THROUGH LEGS REMAINING
+        let legsRemaining = numberOfLegs - 1
+        if debug { print("LEGS REMAINING: \(legsRemaining)") }
+
+        if legsRemaining > 0 {
+            for i in 1..<numberOfLegs {
+                if debug { print("Looping for leg: \(i)") }
+                
+                var leg = try repeatedMandatory(index: i)
+                endConditional = leg.conditionalSize
+                if debug { print("SET endConditional: \(endConditional)") }
+
+                let legConditional = try repeatedConditional()
+                leg.conditionalData = legConditional
+                legs.append(leg)
+            }
         }
         
-        let beginSecurity = try? mandatory(1)
-        var typeSecurity: String!
-        var lengthSecurity: Int!
-        var data: String!
+        if debug { print("PARSING LEGS COMPLETE") }
+        // Ensure legs are sorted by legIndex in ascending order
+        legs.sort { $0.legIndex < $1.legIndex }
         
-        if beginSecurity == ">" {
-            typeSecurity = try mandatory(1)
-            lengthSecurity = try readhex(2, isMandatory: true)
-            
-            subConditional = lengthSecurity
-            data = try conditional(lengthSecurity)
-        } else {
-            subConditional = code.count - index
-            data = try conditional(subConditional)
+        var security: BoardingPassSecurityData?
+        var blob: String?
+
+        if index < data.count {
+            // Peek the next character without advancing the index
+            let firstCharData = data.subdata(in: index..<(index + 1))
+            let firstChar = String(data: firstCharData, encoding: .ascii)
+
+            if firstChar == "^" {
+                // Consume the '^' marker and parse security block
+                let beginSecurity = try mandatory(1)
+                let typeSecurity = try mandatory(1)
+                let lengthSecurity = try readhex(2, isMandatory: true)
+                let securityData = try mandatory(lengthSecurity)
+
+                security = BoardingPassSecurityData(
+                    beginSecurity: applyEmptyStringIsNil(beginSecurity),
+                    securityType: applyEmptyStringIsNil(typeSecurity),
+                    securitylength: lengthSecurity,
+                    securityData: applyEmptyStringIsNil(securityData)
+                )
+            }
+        }
+        
+        // After a valid security block, if there is any remaining data, capture it as the airline blob
+        if index < data.count {
+            let remaining = data.subdata(in: index..<data.count)
+            if let remainingString = String(data: remaining, encoding: .ascii) {
+                let processedString = trimWhitespace ? remainingString.trimmingCharacters(in: .whitespaces) : remainingString
+                blob = applyEmptyStringIsNil(processedString)
+            }
+            index = data.count
         }
         
         guard subConditional == 0
         else { throw NSError() }
         
-        let securityData = BoardingPassSecurityData(
-            beginSecurity: beginSecurity,
-            securityType: typeSecurity,
-            securitylength: lengthSecurity,
-            securityData: data
-        )
-        
         print("parsed boarding pass...")
         let pass = BoardingPass(
-            version: version,
-            info: info,
-            main: main,
-            segments: segments,
-            security: securityData,
+            format: format,
+            numberOfLegs: numberOfLegs,
+            passengerName: name,
+            ticketIndicator: ticketIndicator,
+            boardingPassLegs: legs,
+            passInfo: passInfo,
+            securityData: security,
+            airlineBlob: blob,
             code: code
         )
         
@@ -145,10 +196,9 @@ open class BoardingPassDecoder: NSObject {
         return string
     }
     
-    /// This returns a conditional field give it does not go over the length specified
+    /// This returns a conditional field given it does not go over the length specified
     private func conditional(_ length: Int) throws -> String {
-        if (data.count < index + length) &&
-           (endConditional > 0)
+        if (data.count < index + length) && (endConditional > 0)
         { throw BoardingPassError.ConditionalIndexInvalid(endConditional, subConditional) }
         
         if subConditional != 0
@@ -169,18 +219,23 @@ open class BoardingPassDecoder: NSObject {
         return string
     }
     
-    /// Read the next section of data of a given length and return the string value
+    /// Read the next section of data of a given length and return the `Int` value
     private func readint(_ length: Int) throws -> Int {
-        let rawString = try mandatory(length)
+        var rawString = try mandatory(length)
         if debug { print("RAW INT: \(rawString)") }
         
-        guard let number = Int(rawString.trimmingCharacters(in: .whitespaces))
+        // Apply leading zero trimming if enabled
+        if trimLeadingZeroes {
+            rawString = rawString.removeLeadingZeros()
+        }
+        
+        guard let number = Int(rawString)
         else { throw BoardingPassError.FieldValueNotRequiredInteger(value: rawString) }
         
         return number
     }
     
-    /// Read the next section of data of a given length and return the string value
+    /// Read the next section of data of a given length and return the `String` value
     private func readdata(_ length: Int) throws -> String {
         let subdata = data.subdata(in: index ..< (index + length))
         index += length
@@ -191,7 +246,7 @@ open class BoardingPassDecoder: NSObject {
     }
     
     
-    /// Read the next section of data of a given length and return the decimal hex value
+    /// Read the next section of data of a given length and return the decimal hex value as an `Int`
     private func readhex(_ length: Int, isMandatory: Bool! = true) throws -> Int {
         let str: String!
         
@@ -206,12 +261,9 @@ open class BoardingPassDecoder: NSObject {
     }
     
     /// Cycle through the boarding pass code and pull out the `BoardingPassParent` data
-    private func parent() throws -> BoardingPassParent {
+    private func repeatedMandatory(index: Int) throws -> BoardingPassLeg {
         do {
-            let format          = try mandatory(1)
-            let legs            = try readint(1)
-            let name            = try mandatory(20)
-            let ticketIndicator = try mandatory(1)
+            if debug { print("PARSING REPEATED MANDATORY") }
             let pnrCode         = try mandatory(7)
             let origin          = try mandatory(3)
             let destination     = try mandatory(3)
@@ -220,25 +272,18 @@ open class BoardingPassDecoder: NSObject {
             let julianDate      = try readint(3)
             let compartment     = try mandatory(1)
             var seatno          = try mandatory(4)
-            
-            guard format == "M" || format == "S"
-            else { throw BoardingPassError.InvalidPassFormat(format: format) }
-            
-            guard legs > 0
-            else { throw BoardingPassError.InvalidSegments(legs: legs) }
+            let checkIn         = try readint(5)
+            let passengerStatus = try mandatory(1)
+            let fieldSize       = try readhex(2)
             
             // TODO: Add more validation
-            
             if trimLeadingZeroes {
                 flightno = flightno.removeLeadingZeros()
                 seatno = seatno.removeLeadingZeros()
             }
             
-            return BoardingPassParent(
-                format:             format,
-                legs:               legs,
-                name:               name,
-                ticketIndicator:    ticketIndicator,
+            return BoardingPassLeg(
+                legIndex:           index,
                 pnrCode:            pnrCode,
                 origin:             origin,
                 destination:        destination,
@@ -247,180 +292,169 @@ open class BoardingPassDecoder: NSObject {
                 julianDate:         julianDate,
                 compartment:        compartment,
                 seatno:             seatno,
-                checkIn:            try readint(5),
-                passengerStatus:    try mandatory(1),
-                conditionalSize:    try readhex(2)
+                checkIn:            checkIn,
+                passengerStatus:    passengerStatus,
+                conditionalSize:    fieldSize
             )
         } catch { throw BoardingPassError.DataIsNotBoardingPass(error: error) }
     }
     
-    /// Cycle through the boarding pass code and pull out the `BoardingPassMainSegment` data
-    private func mainSegment() throws -> BoardingPassMainSegment {
-        let passStruct  = try readhex(2, isMandatory: false)
-        subConditional  = passStruct
-        
-        let desc        = try conditional(1)
-        let sourceCheck = try conditional(1)
-        let sourcePass  = try conditional(1)
-        let dateIssued  = try conditional(4)
-        let docType     = try conditional(1)
-        let airDesig    = try conditional(3)
-        let bagtag      = try conditional(13)
-        var bagtag2: String?
-        var bagtag3: String?
-        
-        if subConditional > 0 {
-            let tags = subConditional / 13
-            for i in 0..<tags {
-                if i == 0 { bagtag2 = try conditional(13) }
-                else if i == 1 { bagtag3 = try conditional(13) }
+    /// Cycle through the boarding pass code and pull out the unique conditionals
+    private func uniqueConditional() throws -> BoardingPassInfo {
+        do {
+            if debug { print("PARSING UNIQUE CONDITIONAL") }
+            
+            // The unique conditionals block begins with a marker and a version,
+            // followed by a 2-hex-length field that defines the size of this sub-block.
+            let beginningChar = try conditional(1)
+            let version       = try conditional(1)
+            
+            // Size (hex) of the remaining unique-conditional payload
+            let fieldSize     = try readhex(2, isMandatory: false)
+            
+            // Track remaining bytes in this unique-conditional section
+            subConditional = fieldSize
+            if debug { print("SET subConditional: \(subConditional)") }
+            
+            // Parse fixed fields defined by IATA BCBP for the Unique Section
+            var passDesc: String?    = try conditional(1)
+            var checkSource: String? = try conditional(1)
+            var passSource: String?  = try conditional(1)
+            var issueDate: String?   = try conditional(4)
+            var docType: String?     = try conditional(1)
+            let airlineCode: String  = try conditional(3)
+            
+            // Apply leading zero trimming to relevant fields
+            if trimLeadingZeroes {
+                issueDate = issueDate?.removeLeadingZeros()
             }
-        }
-        
-        guard subConditional == 0
-        else { throw BoardingPassError.MainSegmentBagConditionalInvalid }
-        
-        let airStruct   = try readhex(2, isMandatory: false)
-        subConditional  = airStruct
-        
-        let airlinecode = try conditional(3)
-        let docnumber   = try conditional(10)
-        let selectee    = try conditional(1)
-        let docVerify   = try conditional(1)
-        let opCarrier   = try conditional(3)
-        let ffAirline   = try conditional(3)
-        let ffNumber    = try conditional(16)
-        
-        var idIndicator: String?
-        if subConditional > 0
-        { idIndicator = try conditional(1) }
-        
-        var freeBags: String?
-        if subConditional > 0
-        { freeBags    = try conditional(3) }
-        
-        var fastTrack: String?
-        if subConditional > 0
-        { fastTrack   = try conditional(1) }
-        
-        var airlineUse: String?
-        if subConditional >= 0 && endConditional > 0
-        { airlineUse = try conditional(endConditional) }
-        
-        guard subConditional == 0 && endConditional == 0
-        else { throw BoardingPassError.MainSegmentSubConditionalInvalid }
-        
-        return BoardingPassMainSegment(
-            structSize: passStruct,
-            passengerDesc: desc,
-            checkInSource: sourceCheck,
-            passSource: sourcePass,
-            dateIssued: dateIssued,
-            documentType: docType,
-            passIssuer: airDesig,
-            bagtag1: bagtag,
-            bagtag2: bagtag2,
-            bagtag3: bagtag3,
-            nextSize: airStruct,
-            airlineCode: airlinecode,
-            ticketNumber: docnumber,
-            selectee: selectee,
-            internationalDoc: docVerify,
-            carrier: opCarrier,
-            ffCarrier: ffAirline,
-            ffNumber: ffNumber,
-            IDADIndicator: idIndicator,
-            freeBags: freeBags,
-            fastTrack: fastTrack,
-            airlineUse: airlineUse
-        )
+            
+            // Apply emptyStringIsNil logic to optional fields
+            passDesc = applyEmptyStringIsNil(passDesc)
+            checkSource = applyEmptyStringIsNil(checkSource)
+            passSource = applyEmptyStringIsNil(passSource)
+            issueDate = applyEmptyStringIsNil(issueDate)
+            docType = applyEmptyStringIsNil(docType)
+            
+            var bagTags: [String] = []
+            // Read any 13-character bag tag chunks remaining in this sub-conditional
+            while subConditional >= 13 {
+                let tag = try conditional(13)
+                if !tag.isEmpty && (!emptyStringIsNil || !tag.trimmingCharacters(in: .whitespaces).isEmpty) { 
+                    bagTags.append(tag) 
+                }
+            }
+            
+            // If any non-bag-tag padding remains, consume it defensively to avoid desync
+            if subConditional > 0 {
+                _ = try? conditional(subConditional)
+                subConditional = 0
+            }
+            
+            return BoardingPassInfo(
+                beginningChar: beginningChar,
+                version: version,
+                fieldSize: fieldSize,
+                passengerDescription: passDesc,
+                checkInSource: checkSource,
+                passSource: passSource,
+                issueDate: issueDate,
+                documentType: docType,
+                issuingAirline: airlineCode,
+                bagTags: bagTags
+            )
+        } catch { throw BoardingPassError.DataIsNotBoardingPass(error: error) }
     }
     
-    /// Cycle through the boarding pass code and pull out all the `BoardingPassSegment` data objects
-    private func segment() throws -> BoardingPassSegment {
-        let pnrCode = try conditional(7)
-        let origin = try conditional(3)
-        let destination = try conditional(3)
-        let carrier = try conditional(3)
-        let flightno = try conditional(5)
-        
-        // Parse julian date from conditional data (not mandatory for subsequent segments)
-        let julianDateStr = try conditional(3)
-        guard let julianDate = Int(julianDateStr.trimmingCharacters(in: .whitespaces))
-        else { throw BoardingPassError.FieldValueNotRequiredInteger(value: julianDateStr) }
-        
-        let compartment = try conditional(1)
-        let seatno = try conditional(4)
-        
-        // Parse check-in sequence from conditional data
-        let checkedinStr = try conditional(5)
-        guard let checkedin = Int(checkedinStr.trimmingCharacters(in: .whitespaces))
-        else { throw BoardingPassError.FieldValueNotRequiredInteger(value: checkedinStr) }
-        
-        let passengerStatus = try conditional(1)
-        let structSize = try readhex(2, isMandatory: false)
-        endConditional = structSize
-        
-        let segmentSize = try readhex(2, isMandatory: false)
-        subConditional  = segmentSize
-        
-        let airlineCode = try conditional(3)
-        let ticketNumber = try conditional(10)
-        let selectee = try conditional(1)
-        let internationalDoc = try conditional(1)
-        let opCarrier = try conditional(3)
-        let ffAirline = try conditional(3)
-        let ffNumber = try conditional(16)
-        
-        var idad: String?
-        if subConditional > 0
-        { idad = try conditional(1) }
-        
-        var freeBags: String?
-        if subConditional > 0
-        { freeBags = try conditional(3) }
-        
-        var fastTrack: String?
-        if subConditional > 0
-        { fastTrack = try conditional(1) }
-        
-        var airlineUse: String?
-        if subConditional >= 0 && endConditional > 0
-        { airlineUse = try conditional(endConditional) }
-        
-        guard subConditional == 0
-        else { throw BoardingPassError.SegmentSubConditionalInvalid }
-        
-        return BoardingPassSegment(
-            pnrCode: pnrCode,
-            origin: origin,
-            destination: destination,
-            carrier: carrier,
-            flightno: flightno,
-            julianDate: julianDate,
-            compartment: compartment,
-            seatno: seatno,
-            checkedin: checkedin,
-            passengerStatus: passengerStatus,
-            structSize: structSize,
-            segmentSize: segmentSize,
-            airlineCode: airlineCode,
-            ticketNumber: ticketNumber,
-            selectee: selectee,
-            internationalDoc: internationalDoc,
-            ticketingCarrier: opCarrier,
-            ffAirline: ffAirline,
-            ffNumber: ffNumber,
-            idAdIndicator: idad,
-            freeBags: freeBags,
-            fastTrack: fastTrack,
-            airlineUse: airlineUse
-        )
+    /// Parse the repeated conditional fields
+    private func repeatedConditional() throws -> BoardingPassLegData {
+        do {
+            if debug { print("PARSING REPEATED CONDITIONAL") }
+            // Size (hex) of the remaining unique-conditional payload
+            let fieldSize = try readhex(2, isMandatory: false)
+            subConditional = fieldSize
+            if debug { print("SET subConditional: \(subConditional)") }
+            
+            // Check that the sub conditional chars we have left is less than or equal to the end conditional chars left
+            guard subConditional <= endConditional
+            else { throw BoardingPassError.BoardingPassLegConditionalMismatch }
+            
+            if debug {
+                print()
+                print("Sub Conditional Check Passed: \(fieldSize)")
+                print()
+            }
+            
+            let airlineNumeric: String    = try conditional(3)
+            let documentNumber: String    = try conditional(10)
+            let selectee: String          = try conditional(1)
+            let internationalDoc: String  = try conditional(1)
+            let marketingCarrier: String  = try conditional(3)
+            
+            /// We subtrack the number of chars before freq flier info (18), plus the chars we know come after (5) to get the size of the freq flier data.
+            let ffFieldSize: Int = fieldSize - 23
+            
+            if debug {
+                print("Conditional chars left: \(subConditional)")
+                print("Freq Flyer size: \(ffFieldSize)")
+            }
+            
+            let ffInfo: String = try conditional(ffFieldSize)
+            // Parse Frequent Flyer fields from ffInfo
+            let parsedFFAirline: String = trimWhitespace 
+                ? String(ffInfo.prefix(3)).trimmingCharacters(in: .whitespaces)
+                : String(ffInfo.prefix(3))
+            let parsedFFNumber: String = ffInfo.count > 3
+                ? (trimWhitespace 
+                    ? String(ffInfo.dropFirst(3)).trimmingCharacters(in: .whitespaces)
+                    : String(ffInfo.dropFirst(3)))
+                : ""
+  
+            if debug {
+                print("FF Airline: \(parsedFFAirline)")
+                print("FF Number: \(parsedFFNumber)")
+                print()
+                print("Parsed Freq Flyer Info: \(ffInfo)")
+                print("Conditional chars left: \(subConditional)")
+            }
+            
+            var idAdIndicator: String? = try conditional(1)
+            var freeBags: String?      = try conditional(3)
+            var fastTrack: String?     = try conditional(1)
+            
+            var airlineUse: String?
+            let leftOver: Int = endConditional - subConditional
+            if leftOver > 0 { airlineUse = try conditional(leftOver) }
+            
+            // Apply emptyStringIsNil logic to optional fields
+            idAdIndicator = applyEmptyStringIsNil(idAdIndicator)
+            freeBags = applyEmptyStringIsNil(freeBags)
+            fastTrack = applyEmptyStringIsNil(fastTrack)
+            airlineUse = applyEmptyStringIsNil(airlineUse)
+            
+            guard endConditional == subConditional
+            else { throw BoardingPassError.BoardingPassLegConditionalMismatch }
+            
+            if debug {
+                print()
+                print("Sub Conditional Parsing Complete!")
+                print()
+            }
+            
+            return BoardingPassLegData(
+                segmentSize: fieldSize,
+                airlineCode: airlineNumeric,
+                ticketNumber: documentNumber,
+                selectee: selectee,
+                internationalDoc: internationalDoc,
+                ticketingCarrier: marketingCarrier,
+                ffAirline: parsedFFAirline,
+                ffNumber: parsedFFNumber,
+                idAdIndicator: idAdIndicator,
+                freeBags: freeBags,
+                fastTrack: fastTrack,
+                airlineUse: airlineUse
+            )
+        } catch { throw BoardingPassError.DataIsNotBoardingPass(error: error) }
     }
 }
-
-// TODO: Implement
-//extension String {
-//    func removeLeading() -> String
-//    { return replacingOccurrences(of: "^0+", with: "", options: .regularExpression) }
-//}

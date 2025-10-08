@@ -25,7 +25,7 @@ public enum BoardingPassError: Error {
     
     case ConditionalIndexInvalid(Int, Int)
     case MainSegmentBagConditionalInvalid
-    case MainSegmentSubConditionalInvalid
+    case BoardingPassLegConditionalMismatch
     case SegmentSubConditionalInvalid
     
     case unexpected(code: Int)
@@ -52,9 +52,14 @@ extension BoardingPassError: CustomStringConvertible {
         case .ConditionalIndexInvalid(let end, let sub):
             return "Conditional parsing failed due to endConditional \(end) or subConditional \(sub)"
             
-        case .MainSegmentBagConditionalInvalid:         return "Main segment conditional is invalid parsing after bag tags"
-        case .MainSegmentSubConditionalInvalid:         return "Final main segment conditional is invalid parsing index"
-        case .SegmentSubConditionalInvalid:             return "Segment sub conditional is invalid parsing index"
+        case .MainSegmentBagConditionalInvalid:         
+            return "Main segment conditional is invalid parsing after bag tags"
+            
+        case .BoardingPassLegConditionalMismatch:
+            return "Boarding pass leg conditional mismatches parsing index"
+        
+        case .SegmentSubConditionalInvalid:
+            return "Segment sub conditional is invalid parsing index"
             
         case .unexpected(let code): return "Error code \(code) occured."
         }
@@ -83,7 +88,7 @@ extension BoardingPassError: LocalizedError {
             
         case .ConditionalIndexInvalid:          key = "ConditionalIndexInvalid"
         case .MainSegmentBagConditionalInvalid: key = "MainSegmentBagConditionalInvalid"
-        case .MainSegmentSubConditionalInvalid: key = "MainSegmentSubConditionalInvalid"
+        case .BoardingPassLegConditionalMismatch: key = "BoardingPassLegConditionalInvalid"
         case .SegmentSubConditionalInvalid:     key = "SegmentSubConditionalInvalid"
             
         case .unexpected(_): key = "unexpected"
