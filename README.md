@@ -393,7 +393,65 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 Justin Ackermann
 
+## Migration Guide
+
+This version includes significant improvements over v1.0. Here's what's changed:
+
+### New Configuration Options
+
+The `BoardingPassDecoder` now includes three new configuration properties that provide better control over data processing:
+
+```swift
+// NEW: These properties are now available (all default to true)
+decoder.trimLeadingZeroes = true        // Remove leading zeros from fields
+decoder.trimWhitespace = true          // Remove whitespace from fields  
+decoder.emptyStringIsNil = true        // Convert empty strings to nil
+```
+
+### Breaking Changes
+
+**None** - This update is fully backward compatible. Existing code will continue to work without changes.
+
+### Migration Steps
+
+**For most users: No action required**
+- Your existing code will work exactly as before
+- The new features are enabled by default and improve data quality
+- No code changes needed
+
+**For users who want to preserve original formatting:**
+
+If you need to maintain the exact original field formatting from v1.0, you can disable the new features:
+
+```swift
+let decoder = BoardingPassDecoder()
+
+// Disable new data processing features to match v1.0 behavior
+decoder.trimLeadingZeroes = false
+decoder.trimWhitespace = false
+decoder.emptyStringIsNil = false
+```
+
+### What's Improved
+
+1. **Better Data Quality**: Leading zeros and whitespace are automatically cleaned
+2. **Cleaner Optional Fields**: Empty strings are converted to `nil` for better Swift integration
+3. **More Consistent Parsing**: All string fields now use consistent processing logic
+4. **Enhanced Debugging**: Improved logging and error handling
+
+### Version Comparison
+
+| Feature | v1.0 (Main) | v2.0 (Beta) |
+|---------|-------------|-------------|
+| Basic parsing | ✅ | ✅ |
+| Trim leading zeros | ❌ | ✅ (default) |
+| Trim whitespace | ❌ | ✅ (default) |
+| Empty string to nil | ❌ | ✅ (default) |
+| Configurable options | ❌ | ✅ |
+| Backward compatibility | N/A | ✅ |
+
 ## Acknowledgments
 
 - IATA Resolution 792 - BCBP Version 8 specification
-- SwiftDate library for date handling
+- [SwiftDate](https://github.com/malcommac/SwiftDate) library for date handling
+- [Flight Historian](https://www.flighthistorian.com) by Paul Bogard for boarding pass parsing inspiration
