@@ -69,7 +69,7 @@ Or add it to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.1.0")
+    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.1.1")
 ]
 ```
 
@@ -495,14 +495,23 @@ decoder.emptyStringIsNil = false
 
 ### Version Comparison
 
-| Feature | v1.0 (Main) | v2.1.0 (Stable) |
-|---------|-------------|-------------|
-| Basic parsing | ✅ | ✅ |
-| Trim leading zeros | ❌ | ✅ (default) |
-| Trim whitespace | ❌ | ✅ (default) |
-| Empty string to nil | ❌ | ✅ (default) |
-| Configurable options | ❌ | ✅ |
-| Backward compatibility | N/A | ✅ |
+| Feature | v1.0 (Main) | v2.1.0 (Stable) | v2.1.1 (Latest) |
+|---------|-------------|-------------|-------------|
+| Basic parsing | ✅ | ✅ | ✅ |
+| Trim leading zeros | ❌ | ✅ (default) | ✅ (default) |
+| Trim whitespace | ❌ | ✅ (default) | ✅ (default) |
+| Empty string to nil | ❌ | ✅ (default) | ✅ (default) |
+| Configurable options | ❌ | ✅ | ✅ |
+| Backward compatibility | N/A | ✅ | ✅ |
+| Fixed "0000" parsing issue | ❌ | ❌ | ✅ |
+
+## Version 2.1.1 (Latest)
+
+### Bug Fixes
+
+- **Fixed "0000" integer parsing issue**: Resolved a bug where boarding pass fields containing "0000" would fail to parse correctly. The `readint()` function now properly handles fields with all zeros, ensuring consistent parsing across all boarding pass formats.
+
+This patch release maintains full backward compatibility with v2.1.0.
 
 ## Acknowledgments
 
