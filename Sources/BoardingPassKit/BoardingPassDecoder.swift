@@ -98,11 +98,46 @@ open class BoardingPassDecoder: NSObject {
         endConditional = firstLeg.conditionalSize
         if debug { print("SET endConditional: \(endConditional)") }
         
-        // BOARDING PASS UNIQUE CONDITIONAL (Optional data after the first leg's mandatory section)
-        let passInfo = try uniqueConditional()
+        var passInfo: BoardingPassInfo
+        var firstLegConditional: BoardingPassLegData
         
-        // BOARDING PASS LEG 1 CONDITIONAL DATA (Optional field size indicates data)
-        let firstLegConditional = try repeatedConditional()
+        if endConditional > 0 {
+            // BOARDING PASS UNIQUE CONDITIONAL (Optional data after the first leg's mandatory section)
+            passInfo = try uniqueConditional()
+            
+            // BOARDING PASS LEG 1 CONDITIONAL DATA (Optional field size indicates data)
+            firstLegConditional = try repeatedConditional()
+        } else {
+            // No conditional data available - create empty objects
+            if debug { print("No conditional data available (endConditional = 0)") }
+            passInfo = BoardingPassInfo(
+                beginningChar: "",
+                version: "",
+                fieldSize: 0,
+                passengerDescription: nil,
+                checkInSource: nil,
+                passSource: nil,
+                issueDate: nil,
+                documentType: nil,
+                issuingAirline: "",
+                bagTags: []
+            )
+            firstLegConditional = BoardingPassLegData(
+                segmentSize: 0,
+                airlineCode: "",
+                ticketNumber: "",
+                selectee: "",
+                internationalDoc: "",
+                ticketingCarrier: "",
+                ffAirline: "",
+                ffNumber: "",
+                idAdIndicator: nil,
+                freeBags: nil,
+                fastTrack: nil,
+                airlineUse: nil
+            )
+        }
+        
         firstLeg.conditionalData = firstLegConditional
         legs.append(firstLeg)
         
@@ -118,7 +153,27 @@ open class BoardingPassDecoder: NSObject {
                 endConditional = leg.conditionalSize
                 if debug { print("SET endConditional: \(endConditional)") }
 
-                let legConditional = try repeatedConditional()
+                let legConditional: BoardingPassLegData
+                if endConditional > 0 {
+                    legConditional = try repeatedConditional()
+                } else {
+                    // No conditional data available for this leg
+                    if debug { print("No conditional data available for leg \(i) (endConditional = 0)") }
+                    legConditional = BoardingPassLegData(
+                        segmentSize: 0,
+                        airlineCode: "",
+                        ticketNumber: "",
+                        selectee: "",
+                        internationalDoc: "",
+                        ticketingCarrier: "",
+                        ffAirline: "",
+                        ffNumber: "",
+                        idAdIndicator: nil,
+                        freeBags: nil,
+                        fastTrack: nil,
+                        airlineUse: nil
+                    )
+                }
                 leg.conditionalData = legConditional
                 legs.append(leg)
             }
@@ -323,6 +378,23 @@ open class BoardingPassDecoder: NSObject {
             subConditional = fieldSize
             if debug { print("SET subConditional: \(subConditional)") }
             
+            // Handle case where fieldSize is 0 - return empty pass info
+            if fieldSize == 0 {
+                if debug { print("Unique conditional field size is 0, returning empty pass info") }
+                return BoardingPassInfo(
+                    beginningChar: beginningChar,
+                    version: version,
+                    fieldSize: fieldSize,
+                    passengerDescription: nil,
+                    checkInSource: nil,
+                    passSource: nil,
+                    issueDate: nil,
+                    documentType: nil,
+                    issuingAirline: "",
+                    bagTags: []
+                )
+            }
+            
             // Parse fixed fields defined by IATA BCBP for the Unique Section
             var passDesc: String?    = try conditional(1)
             var checkSource: String? = try conditional(1)
@@ -382,6 +454,25 @@ open class BoardingPassDecoder: NSObject {
             subConditional = fieldSize
             if debug { print("SET subConditional: \(subConditional)") }
             
+            // Handle case where fieldSize is 0 - return empty leg data
+            if fieldSize == 0 {
+                if debug { print("Field size is 0, returning empty leg data") }
+                return BoardingPassLegData(
+                    segmentSize: fieldSize,
+                    airlineCode: "",
+                    ticketNumber: "",
+                    selectee: "",
+                    internationalDoc: "",
+                    ticketingCarrier: "",
+                    ffAirline: "",
+                    ffNumber: "",
+                    idAdIndicator: nil,
+                    freeBags: nil,
+                    fastTrack: nil,
+                    airlineUse: nil
+                )
+            }
+            
             // Check that the sub conditional chars we have left is less than or equal to the end conditional chars left
             guard subConditional <= endConditional
             else { throw BoardingPassError.BoardingPassLegConditionalMismatch }
@@ -398,15 +489,15 @@ open class BoardingPassDecoder: NSObject {
             let internationalDoc: String  = try conditional(1)
             let marketingCarrier: String  = try conditional(3)
             
-            /// We subtrack the number of chars before freq flier info (18), plus the chars we know come after (5) to get the size of the freq flier data.
-            let ffFieldSize: Int = fieldSize - 23
+            /// We subtract the number of chars before freq flier info (18), plus the chars we know come after (5) to get the size of the freq flier data.
+            let ffFieldSize: Int = max(0, fieldSize - 23)
             
             if debug {
                 print("Conditional chars left: \(subConditional)")
                 print("Freq Flyer size: \(ffFieldSize)")
             }
             
-            let ffInfo: String = try conditional(ffFieldSize)
+            let ffInfo: String = ffFieldSize > 0 ? try conditional(ffFieldSize) : ""
             // Parse Frequent Flyer fields from ffInfo
             let parsedFFAirline: String = trimWhitespace 
                 ? String(ffInfo.prefix(3)).trimmingCharacters(in: .whitespaces)

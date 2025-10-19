@@ -13,7 +13,7 @@ let scan9 = "M1ACKERMANN/JUSTIN DAVEWHNSNI TPAPHXAA 1466 185R005A0056 14A>318   
 let scan10 = "M2ACKERMANN/JUSTIN DAVEWHFPBW TPASEAAS 0635 213L007A0000 148>2181MM    BAS              25             3    AA 76UXK84         1    WHFPBW SEAJNUAS 0555 213L007A0000 13125             3    AA 76UXK84         1    01010^460MEQCICRNjFGBPfJr84Ma6vMjxTQLtZ1z7uB0tUfO+fS/3vvuAiAReH4kY4ZcmXR+vD8Y+KoA1Dn1YKpr8YxCYbREeOYcsA=="
 let scan11 = "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 76UXK84             3"
 
-let githubIssue = "M2DOEDOED/JOHNJOH     ENBVZS7 ORYMRSAF 6000 151Y021A0106 336>60B        KL 2505760840335640    KL 5193929192      NBVZS7 MRSORYAF 6009 151Y021F0040 3272505760840335640    KL 5193929192      "
+let githubIssue = "M1ANA ANDRE           QLG4Z   DWCSIN6E 100  253Y1F  8    100"
 
 print("====================================")
 print("TESTING USER PROVIDED BOARDING PASS")
@@ -24,8 +24,7 @@ do {
     let decoder = BoardingPassDecoder()
     decoder.debug = true
     
-    let testScan = BoardingPass.DemoData.GithubIssue.string
-    let pass = try decoder.decode(code: testScan)
+    let pass = try decoder.decode(code: scan10)
     pass.printout()
     
 } catch {

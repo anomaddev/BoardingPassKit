@@ -69,7 +69,7 @@ Or add it to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.1.1")
+    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.1.2")
 ]
 ```
 
@@ -564,12 +564,17 @@ decoder.emptyStringIsNil = false
 | Trim whitespace | ❌ | ✅ (default) | ✅ (default) |
 | Empty string to nil | ❌ | ✅ (default) | ✅ (default) |
 | Configurable options | ❌ | ✅ | ✅ |
-| "0000" field parsing | ⚠️ | ⚠️ | ✅ Fixed in v2.1.1 |
+| "0000" field parsing | ⚠️ | ⚠️ | ✅ Fixed in v2.1.2 |
 | Conditional data parsing | ⚠️ Broken | ✅ Fixed | ✅ |
 
 ### Version History
 
-#### v2.1.1 (Latest - Recommended)
+#### v2.1.2 (Latest - Recommended)
+- **Fixed critical crash with Variable Size field of 0**: Resolved `EXC_BREAKPOINT` error when processing boarding passes with no conditional data
+- **Fixed "0000" integer parsing issue**: Resolved bug where fields containing "0000" failed to parse
+- Full backward compatibility with v2.1.1
+
+#### v2.1.1
 - **Fixed "0000" integer parsing issue**: Resolved bug where fields containing "0000" failed to parse
 - Full backward compatibility with v2.1.0
 
@@ -598,7 +603,7 @@ decoder.emptyStringIsNil = false
 
 ### Recommended Action
 
-**We strongly recommend upgrading to v2.1.1** for all users:
+**We strongly recommend upgrading to v2.1.2** for all users:
 - Critical bug fixes for multi-leg boarding passes
 - Full IATA Resolution 792 Version 8 compliance
 - Better data quality and error handling
