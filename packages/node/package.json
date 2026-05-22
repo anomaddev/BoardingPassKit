@@ -1,6 +1,6 @@
 {
   "name": "boarding-pass-kit",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "Parse IATA BCBP v8 boarding pass barcodes and QR codes",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -34,6 +34,15 @@
     "airline"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anomaddev/BoardingPassKit.git",
+    "directory": "packages/node"
+  },
+  "bugs": {
+    "url": "https://github.com/anomaddev/BoardingPassKit/issues"
+  },
+  "homepage": "https://github.com/anomaddev/BoardingPassKit/tree/main/packages/node#readme",
   "devDependencies": {
     "@types/node": "^22.15.21",
     "tsup": "^8.5.0",
