@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -28,6 +29,7 @@ jobs:
         run: npm ci
 
       - name: Verify tag matches package version
+        if: github.event_name == 'push'
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
           VERSION="${TAG#v}"
@@ -38,11 +40,24 @@ jobs:
           fi
           echo "Publishing boarding-pass-kit@$PKG_VERSION"
 
+      - name: Log publish version
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          PKG_VERSION=$(node -p "require('./packages/node/package.json').version")
+          echo "Manual publish of boarding-pass-kit@$PKG_VERSION"
+
       - name: Test
         run: npm test
 
       - name: Build
         run: npm run build
+
+      - name: Verify NPM_TOKEN is configured
+        run: |
+          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
+            echo "::error::NPM_TOKEN secret is not set. Add it at Settings → Secrets and variables → Actions."
+            exit 1
+          fi
 
       - name: Publish to npm
         run: npm publish -w boarding-pass-kit --provenance --access public
