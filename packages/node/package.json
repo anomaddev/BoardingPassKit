@@ -1,6 +1,6 @@
 {
   "name": "boarding-pass-kit",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Parse IATA BCBP v8 boarding pass barcodes and QR codes",
   "type": "module",
   "main": "./dist/index.cjs",
