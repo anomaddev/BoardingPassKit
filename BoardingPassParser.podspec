@@ -15,10 +15,8 @@ Pod::Spec.new do |spec|
   
   spec.source       = { :git => "https://github.com/anomaddev/BoardingPassKit.git", :tag => "#{spec.version}" }
   
-  spec.source_files = "Sources/BoardingPassKit/**/*.swift"
-  spec.exclude_files = "Sources/BoardingPassKit/BoardingPassKit.h"
-  
-  spec.dependency "SwiftDate", "~> 7.0"
+  spec.source_files = "packages/swift/Sources/BoardingPassKit/**/*.swift"
+  spec.exclude_files = "packages/swift/Sources/BoardingPassKit/BoardingPassKit.h"
   
   spec.frameworks = "Foundation"
   spec.ios.frameworks = "UIKit"

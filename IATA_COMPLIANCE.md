@@ -98,8 +98,8 @@ According to IATA Resolution 792, BCBP can be encoded in:
 ### ⚠️ Known Limitations
 
 1. **Field Validation:** The parser does not validate field values against IATA code tables (e.g., airport codes, carrier codes)
-2. **Date Conversion:** Julian dates are not automatically converted to calendar dates
-3. **Year Rollover:** End-of-year date handling (Dec 31 → Jan 1) may need special handling in your application
+2. **Date Conversion:** Julian day-of-year is converted to calendar dates via `JulianDateConverter` (Swift) or `julianToCalendarDate` (Node). Year must be supplied or inferred — BCBP does not encode the year.
+3. **Year Rollover:** Year inference uses a ±183-day heuristic; edge cases near year boundaries may need an explicit year from your application context.
 4. **Non-Standard Formats:** Some airlines may use proprietary variations that don't strictly follow IATA standard
 
 ### 🔧 Recent Updates

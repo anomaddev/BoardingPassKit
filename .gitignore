@@ -9,3 +9,6 @@ DerivedData/
 .netrc
 Package.resolved
 /*.code-workspace
+node_modules/
+packages/node/dist/
+*.tsbuildinfo
