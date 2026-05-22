@@ -1,0 +1,12 @@
+{
+  "name": "boarding-pass-kit-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/node"
+  ],
+  "scripts": {
+    "build": "npm run build -w boarding-pass-kit",
+    "test": "npm run test -w boarding-pass-kit",
+    "test:swift": "swift test"
+  }
+}
