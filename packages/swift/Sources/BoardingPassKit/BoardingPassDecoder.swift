@@ -486,11 +486,12 @@ open class BoardingPassDecoder: NSObject {
             let airlineNumeric: String    = try conditional(3)
             let documentNumber: String    = try conditional(10)
             let selectee: String          = try conditional(1)
-            let internationalDoc: String  = try conditional(1)
-            let marketingCarrier: String  = try conditional(3)
+            let internationalDoc: String  = subConditional >= 1 ? try conditional(1) : ""
+            let marketingCarrier: String  = subConditional >= 3 ? try conditional(3) : ""
             
-            /// We subtract the number of chars before freq flier info (18), plus the chars we know come after (5) to get the size of the freq flier data.
-            let ffFieldSize: Int = max(0, fieldSize - 23)
+            /// Calculate available space for frequent flyer info based on remaining conditional bytes,
+            /// reserving 5 bytes for the trailing fixed fields (idAd 1 + freeBags 3 + fastTrack 1)
+            let ffFieldSize: Int = max(0, subConditional - 5)
             
             if debug {
                 print("Conditional chars left: \(subConditional)")
@@ -516,9 +517,9 @@ open class BoardingPassDecoder: NSObject {
                 print("Conditional chars left: \(subConditional)")
             }
             
-            var idAdIndicator: String? = try conditional(1)
-            var freeBags: String?      = try conditional(3)
-            var fastTrack: String?     = try conditional(1)
+            var idAdIndicator: String? = subConditional >= 1 ? try conditional(1) : nil
+            var freeBags: String?      = subConditional >= 3 ? try conditional(3) : nil
+            var fastTrack: String?     = subConditional >= 1 ? try conditional(1) : nil
             
             var airlineUse: String?
             let leftOver: Int = endConditional - subConditional
