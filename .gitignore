@@ -17,6 +17,7 @@ packages/node/dist/
 /target/
 /.venv/
 packages/php/vendor/
+packages/php/.phpunit.result.cache
 packages/python/.venv/
 **/__pycache__/
 *.egg-info/
