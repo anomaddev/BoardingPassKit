@@ -33,6 +33,108 @@ jobs:
       - name: Test
         run: npm test
 
+  rust:
+    name: Rust
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Test core
+        run: cargo test -p boarding-pass-kit
+
+      - name: Build FFI
+        run: cargo build -p boarding-pass-kit-ffi --release
+
+  python:
+    name: Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install maturin and pytest
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          pip install -U pip maturin pytest
+
+      - name: Build and install extension
+        working-directory: packages/python
+        run: |
+          . ../../.venv/bin/activate
+          maturin develop
+
+      - name: Test
+        working-directory: packages/python
+        run: |
+          . ../../.venv/bin/activate
+          pytest
+
+  go:
+    name: Go
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build FFI
+        run: cargo build -p boarding-pass-kit-ffi --release
+
+      - name: Test
+        working-directory: packages/go
+        run: go test ./...
+
+  php:
+    name: PHP
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: ffi
+          tools: composer
+
+      - name: Build FFI
+        run: cargo build -p boarding-pass-kit-ffi --release
+
+      - name: Install dependencies
+        working-directory: packages/php
+        run: composer install --no-interaction
+
+      - name: Test
+        working-directory: packages/php
+        run: php -d ffi.enable=true ./vendor/bin/phpunit
+
   swift:
     name: Swift
     runs-on: macos-latest

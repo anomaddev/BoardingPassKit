@@ -2,10 +2,17 @@
 
 Monorepo for parsing airline boarding pass barcodes and QR codes that conform to the **IATA Bar Coded Boarding Pass (BCBP) standard** (Resolution 792, Version 8).
 
-| Package | Path | Install |
-|---------|------|---------|
+| Package | Path | Install / notes |
+|---------|------|-----------------|
 | **Swift** | [`packages/swift`](packages/swift) | Swift Package Manager / CocoaPods |
 | **Node.js** | [`packages/node`](packages/node) | `npm install boarding-pass-kit` |
+| **Rust** | [`packages/rust`](packages/rust) | Canonical core crate (`boarding-pass-kit`) |
+| **Python** | [`packages/python`](packages/python) | PyO3 bindings via maturin |
+| **Go** | [`packages/go`](packages/go) | cgo bindings over the C FFI |
+| **PHP** | [`packages/php`](packages/php) | PHP FFI bindings (`ext-ffi`) |
+| **C FFI** | [`packages/ffi`](packages/ffi) | Shared C ABI used by Go and PHP |
+
+Python, Go, and PHP share the Rust core. Swift and Node remain independent ports with the same public field names and demo fixtures.
 
 ## Features
 
@@ -14,16 +21,24 @@ Monorepo for parsing airline boarding pass barcodes and QR codes that conform to
 - Convert Julian day-of-year to calendar dates (with year inference)
 - Configurable trimming and empty-string handling
 - Built-in demo data for testing
+- Shared golden fixtures under [`testdata/`](testdata)
 
 ## Repository Layout
 
 ```
 BoardingPassKit/
 ├── packages/
+│   ├── rust/           # Canonical Rust decoder
+│   ├── ffi/            # C ABI (JSON decode results)
+│   ├── python/         # PyO3 / maturin package
+│   ├── go/             # Go cgo package
+│   ├── php/            # PHP FFI package
 │   ├── swift/          # BoardingPassKit Swift library
 │   └── node/           # boarding-pass-kit npm package
+├── testdata/           # Shared barcodes + expected JSON
 ├── apps/
 │   └── BoardingPassKitDemo/
+├── Cargo.toml          # Rust workspace
 ├── Package.swift       # Root SPM manifest (backward compatible)
 └── IATA_COMPLIANCE.md
 ```
@@ -98,6 +113,22 @@ const flightDate = pass.boardingPassLegs[0]!.flightDate();
 // or: julianToCalendarDate(14, 2025)
 ```
 
+## Rust / Python / Go / PHP
+
+Build the Rust workspace and FFI library from the repo root:
+
+```bash
+cargo test -p boarding-pass-kit
+cargo build -p boarding-pass-kit-ffi --release
+```
+
+Then follow each package README:
+
+- [`packages/rust/README.md`](packages/rust/README.md)
+- [`packages/python/README.md`](packages/python/README.md)
+- [`packages/go/README.md`](packages/go/README.md)
+- [`packages/php/README.md`](packages/php/README.md)
+
 ## Development
 
 ```bash
@@ -106,16 +137,29 @@ npm install
 npm run build
 npm test
 
-# Swift
+# Rust core + FFI
+cargo test -p boarding-pass-kit
+cargo build -p boarding-pass-kit-ffi --release
+
+# Python
+python3 -m venv .venv && . .venv/bin/activate
+pip install maturin pytest
+cd packages/python && maturin develop && pytest
+
+# Go
+cd packages/go && go test ./...
+
+# PHP
+cd packages/php && composer install && composer test
+
+# Swift (macOS)
 swift build
 swift test
-# or
-npm run test:swift
 ```
 
 ## Demo Data
 
-Both packages include the same test fixtures: `Simple`, `Historical`, `MultiLeg`, and `International`.
+All language packages include the same fixtures: `Simple`, `Historical`, `MultiLeg`, and `International`. Canonical golden expectations live in [`testdata/`](testdata).
 
 ## License
 

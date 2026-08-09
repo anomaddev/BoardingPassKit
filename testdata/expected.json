@@ -1,0 +1,245 @@
+{
+  "Simple": {
+    "format": "M",
+    "numberOfLegs": 1,
+    "passengerName": "ACKERMANN/JUSTIN DAV",
+    "ticketIndicator": "E",
+    "boardingPassLegs": [
+      {
+        "legIndex": 0,
+        "pnrCode": "JKLEAJ",
+        "origin": "MSY",
+        "destination": "PHX",
+        "operatingCarrier": "AA",
+        "flightno": "2819",
+        "julianDate": 14,
+        "compartment": "S",
+        "seatno": "8F",
+        "checkIn": 59,
+        "passengerStatus": "1",
+        "conditionalSize": 74,
+        "conditionalData": {
+          "segmentSize": 41,
+          "airlineCode": "001",
+          "ticketNumber": "7484425657",
+          "selectee": "3",
+          "internationalDoc": "",
+          "ticketingCarrier": "AA",
+          "ffAirline": "AA",
+          "ffNumber": "76UXK84",
+          "idAdIndicator": null,
+          "freeBags": null,
+          "fastTrack": null,
+          "airlineUse": "223"
+        }
+      }
+    ],
+    "passInfo": {
+      "beginningChar": ">",
+      "version": "3",
+      "fieldSize": 24,
+      "passengerDescription": null,
+      "checkInSource": null,
+      "passSource": null,
+      "issueDate": "14",
+      "documentType": "B",
+      "issuingAirline": "AA",
+      "bagTags": [
+        "0000000000000"
+      ]
+    },
+    "securityData": null,
+    "airlineBlob": null,
+    "code": "M1ACKERMANN/JUSTIN DAVEJKLEAJ MSYPHXAA 2819 014S008F0059 14A>318   0014BAA 00000000000002900174844256573 AA AA 76UXK84             223"
+  },
+  "Historical": {
+    "format": "M",
+    "numberOfLegs": 1,
+    "passengerName": "ACKERMANN/JUSTIN",
+    "ticketIndicator": "E",
+    "boardingPassLegs": [
+      {
+        "legIndex": 0,
+        "pnrCode": "TDPUPK",
+        "origin": "TPA",
+        "destination": "DFW",
+        "operatingCarrier": "AA",
+        "flightno": "1189",
+        "julianDate": 91,
+        "compartment": "R",
+        "seatno": "3A",
+        "checkIn": 33,
+        "passengerStatus": "1",
+        "conditionalSize": 74,
+        "conditionalData": {
+          "segmentSize": 41,
+          "airlineCode": "001",
+          "ticketNumber": "2123278270",
+          "selectee": "3",
+          "internationalDoc": "",
+          "ticketingCarrier": "AA",
+          "ffAirline": "AA",
+          "ffNumber": "76UXK84",
+          "idAdIndicator": null,
+          "freeBags": null,
+          "fastTrack": null,
+          "airlineUse": "2IN"
+        }
+      }
+    ],
+    "passInfo": {
+      "beginningChar": ">",
+      "version": "3",
+      "fieldSize": 24,
+      "passengerDescription": null,
+      "checkInSource": null,
+      "passSource": null,
+      "issueDate": "91",
+      "documentType": "B",
+      "issuingAirline": "AA",
+      "bagTags": [
+        "0000000000000"
+      ]
+    },
+    "securityData": null,
+    "airlineBlob": null,
+    "code": "M1ACKERMANN/JUSTIN    ETDPUPK TPADFWAA 1189 091R003A0033 14A>318   0091BAA 00000000000002900121232782703 AA AA 76UXK84             2IN"
+  },
+  "MultiLeg": {
+    "format": "M",
+    "numberOfLegs": 2,
+    "passengerName": "ACKERMANN/JUSTIN DAV",
+    "ticketIndicator": "E",
+    "boardingPassLegs": [
+      {
+        "legIndex": 0,
+        "pnrCode": "WHFPBW",
+        "origin": "TPA",
+        "destination": "SEA",
+        "operatingCarrier": "AS",
+        "flightno": "635",
+        "julianDate": 213,
+        "compartment": "L",
+        "seatno": "7A",
+        "checkIn": null,
+        "passengerStatus": "1",
+        "conditionalSize": 72,
+        "conditionalData": {
+          "segmentSize": 37,
+          "airlineCode": "",
+          "ticketNumber": "",
+          "selectee": "3",
+          "internationalDoc": "",
+          "ticketingCarrier": "",
+          "ffAirline": "AA",
+          "ffNumber": "76UXK84",
+          "idAdIndicator": null,
+          "freeBags": null,
+          "fastTrack": null,
+          "airlineUse": "1"
+        }
+      },
+      {
+        "legIndex": 1,
+        "pnrCode": "WHFPBW",
+        "origin": "SEA",
+        "destination": "JNU",
+        "operatingCarrier": "AS",
+        "flightno": "555",
+        "julianDate": 213,
+        "compartment": "L",
+        "seatno": "7A",
+        "checkIn": null,
+        "passengerStatus": "1",
+        "conditionalSize": 49,
+        "conditionalData": {
+          "segmentSize": 37,
+          "airlineCode": "",
+          "ticketNumber": "",
+          "selectee": "3",
+          "internationalDoc": "",
+          "ticketingCarrier": "",
+          "ffAirline": "AA",
+          "ffNumber": "76UXK84",
+          "idAdIndicator": null,
+          "freeBags": null,
+          "fastTrack": null,
+          "airlineUse": "1    01010"
+        }
+      }
+    ],
+    "passInfo": {
+      "beginningChar": ">",
+      "version": "2",
+      "fieldSize": 24,
+      "passengerDescription": "1",
+      "checkInSource": "M",
+      "passSource": "M",
+      "issueDate": null,
+      "documentType": "B",
+      "issuingAirline": "AS",
+      "bagTags": []
+    },
+    "securityData": {
+      "beginSecurity": "^",
+      "securityType": "4",
+      "securitylength": 96,
+      "securityData": "MEQCICRNjFGBPfJr84Ma6vMjxTQLtZ1z7uB0tUfO+fS/3vvuAiAReH4kY4ZcmXR+vD8Y+KoA1Dn1YKpr8YxCYbREeOYcsA=="
+    },
+    "airlineBlob": null,
+    "code": "M2ACKERMANN/JUSTIN DAVEWHFPBW TPASEAAS 0635 213L007A0000 148>2181MM    BAS              25             3    AA 76UXK84         1    WHFPBW SEAJNUAS 0555 213L007A0000 13125             3    AA 76UXK84         1    01010^460MEQCICRNjFGBPfJr84Ma6vMjxTQLtZ1z7uB0tUfO+fS/3vvuAiAReH4kY4ZcmXR+vD8Y+KoA1Dn1YKpr8YxCYbREeOYcsA=="
+  },
+  "International": {
+    "format": "M",
+    "numberOfLegs": 1,
+    "passengerName": "ACKERMANN/JUSTIN DAV",
+    "ticketIndicator": "E",
+    "boardingPassLegs": [
+      {
+        "legIndex": 0,
+        "pnrCode": "JPYKJI",
+        "origin": "SIN",
+        "destination": "NRT",
+        "operatingCarrier": "JL",
+        "flightno": "712",
+        "julianDate": 336,
+        "compartment": "Y",
+        "seatno": "25C",
+        "checkIn": 231,
+        "passengerStatus": "3",
+        "conditionalSize": 72,
+        "conditionalData": {
+          "segmentSize": 41,
+          "airlineCode": "001",
+          "ticketNumber": "7460111872",
+          "selectee": "0",
+          "internationalDoc": "",
+          "ticketingCarrier": "JL",
+          "ffAirline": "AA",
+          "ffNumber": "76UXK84",
+          "idAdIndicator": null,
+          "freeBags": null,
+          "fastTrack": null,
+          "airlineUse": "3"
+        }
+      }
+    ],
+    "passInfo": {
+      "beginningChar": ">",
+      "version": "3",
+      "fieldSize": 24,
+      "passengerDescription": "0",
+      "checkInSource": null,
+      "passSource": "O",
+      "issueDate": "9335",
+      "documentType": "B",
+      "issuingAirline": "JL",
+      "bagTags": [
+        "0131536170001"
+      ]
+    },
+    "securityData": null,
+    "airlineBlob": null,
+    "code": "M1ACKERMANN/JUSTIN DAVEJPYKJI SINNRTJL 0712 336Y025C0231 348>3180 O9335BJL 01315361700012900174601118720 JL AA 76UXK84             3"
+  }
+}
