@@ -150,7 +150,7 @@ cd packages/python && maturin develop && pytest
 cd packages/go && go test ./...
 
 # PHP
-cd packages/php && composer install && ./vendor/bin/phpunit
+cd packages/php && composer install && composer test
 
 # Swift (macOS)
 swift build

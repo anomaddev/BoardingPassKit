@@ -46,8 +46,8 @@ impl BoardingPassDecoder {
 
     pub fn decode_bytes(&mut self, input: &[u8]) -> Result<BoardingPass, BoardingPassError> {
         self.data = input.to_vec();
-        self.code = String::from_utf8(self.data.clone())
-            .map_err(|_| BoardingPassError::data_failed_string_decoding())?;
+        // Latin-1 mapping matches Node's ability to accept non-UTF8 byte payloads.
+        self.code = input.iter().map(|&b| b as char).collect();
         self.breakdown()
     }
 
@@ -146,7 +146,10 @@ impl BoardingPassDecoder {
         }
 
         if self.index < self.data.len() {
-            let mut remaining = String::from_utf8_lossy(&self.data[self.index..]).into_owned();
+            let mut remaining: String = self.data[self.index..]
+                .iter()
+                .map(|&b| b as char)
+                .collect();
             if self.trim_whitespace {
                 remaining = remaining.trim().to_string();
             }
@@ -243,13 +246,19 @@ impl BoardingPassDecoder {
     }
 
     fn readdata(&mut self, length: usize) -> Result<String, BoardingPassError> {
-        let end = self.index + length;
-        let subdata = &self.data[self.index..end];
-        self.index = end;
+        // Match Node Buffer.subarray: clamp to available bytes, but always advance
+        // the cursor by the requested length (may move past EOF).
+        let available_end = self.data.len().min(self.index.saturating_add(length));
+        let subdata = if self.index < self.data.len() {
+            &self.data[self.index..available_end]
+        } else {
+            &[][..]
+        };
+        self.index = self.index.saturating_add(length);
 
-        std::str::from_utf8(subdata)
-            .map(|s| s.to_string())
-            .map_err(|_| BoardingPassError::data_failed_string_decoding())
+        // Treat input as Latin-1 / raw bytes (Node .toString('ascii') strips the high bit;
+        // for BCBP we map each byte to a Unicode scalar 0..=255 so non-UTF8 payloads decode).
+        Ok(subdata.iter().map(|&b| b as char).collect())
     }
 
     fn readhex(&mut self, length: usize, is_mandatory: bool) -> Result<i32, BoardingPassError> {

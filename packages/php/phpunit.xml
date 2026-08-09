@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="vendor/autoload.php" colors="true">
-  <php>
-    <ini name="ffi.enable" value="true"/>
-  </php>
+  <!-- ffi.enable is PHP_INI_SYSTEM; use `composer test` or `php -d ffi.enable=true vendor/bin/phpunit`. -->
   <testsuites>
     <testsuite name="BoardingPassKit">
       <directory>tests</directory>

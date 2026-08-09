@@ -26,10 +26,10 @@ typedef struct BpkOptions {
     int empty_string_is_nil;
 } BpkOptions;
 
-char *bpk_decode(const char *barcode, const BpkOptions *options);
-char *bpk_julian_to_date(int day_of_year, int year, int64_t relative_to_ms);
-const char *bpk_last_error(void);
+char *bpk_decode(const char *barcode, const BpkOptions *options, char **error_out);
+char *bpk_julian_to_date(int day_of_year, int year, int64_t relative_to_ms, char **error_out);
+const char *bpk_last_error(void); /* borrowed TLS; do not free */
 void bpk_free_string(char *ptr);
 ```
 
-Callers must free strings returned by `bpk_decode` / `bpk_julian_to_date` with `bpk_free_string`.
+Callers must free strings returned by `bpk_decode` / `bpk_julian_to_date` and any `*error_out` with `bpk_free_string`. Prefer `error_out` over `bpk_last_error` in multi-threaded hosts.

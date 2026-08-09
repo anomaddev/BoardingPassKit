@@ -75,6 +75,11 @@ impl BoardingPassLeg {
             julian_to_calendar_date(self.julian_date, None, options.relative_to)
         }
     }
+
+    /// Node/Swift-style helper that returns `None` instead of an error on invalid days.
+    pub fn flight_date_opt(&self, options: FlightDateOptions) -> Option<NaiveDate> {
+        self.flight_date(options).ok()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -15,10 +15,13 @@ Override the library path with `BPK_FFI_LIB` if needed.
 
 ## Install / test
 
+`ffi.enable` is a system INI setting — enable it on the CLI command line:
+
 ```bash
 cd packages/php
 composer install
-./vendor/bin/phpunit
+composer test
+# equivalent: php -d ffi.enable=true vendor/bin/phpunit
 ```
 
 ## Quick start

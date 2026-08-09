@@ -24,8 +24,8 @@ typedef struct BpkOptions {
     int empty_string_is_nil;
 } BpkOptions;
 
-char *bpk_decode(const char *barcode, const BpkOptions *options);
-char *bpk_julian_to_date(int day_of_year, int year, int64_t relative_to_ms);
+char *bpk_decode(const char *barcode, const BpkOptions *options, char **error_out);
+char *bpk_julian_to_date(int day_of_year, int year, int64_t relative_to_ms, char **error_out);
 const char *bpk_last_error(void);
 void bpk_free_string(char *ptr);
 CDEF;
@@ -79,10 +79,14 @@ CDEF;
         $opts->trim_whitespace = $this->trimWhitespace ? 1 : 0;
         $opts->empty_string_is_nil = $this->emptyStringIsNil ? 1 : 0;
 
-        $result = $ffi->bpk_decode($barcode, FFI::addr($opts));
+        $errorOut = $ffi->new('char*');
+        $result = $ffi->bpk_decode($barcode, FFI::addr($opts), FFI::addr($errorOut));
         if ($result === null) {
-            $err = $ffi->bpk_last_error();
-            $message = is_string($err) ? $err : 'decode failed';
+            $message = 'decode failed';
+            if (!FFI::isnull($errorOut)) {
+                $message = FFI::string($errorOut);
+                $ffi->bpk_free_string($errorOut);
+            }
             throw new RuntimeException($message !== '' ? $message : 'decode failed');
         }
 
@@ -102,10 +106,14 @@ CDEF;
     public static function julianToDate(int $dayOfYear, ?int $year = null, int $relativeToMs = 0): string
     {
         $ffi = self::ffi();
-        $result = $ffi->bpk_julian_to_date($dayOfYear, $year ?? 0, $relativeToMs);
+        $errorOut = $ffi->new('char*');
+        $result = $ffi->bpk_julian_to_date($dayOfYear, $year ?? 0, $relativeToMs, FFI::addr($errorOut));
         if ($result === null) {
-            $err = $ffi->bpk_last_error();
-            $message = is_string($err) ? $err : 'julian conversion failed';
+            $message = 'julian conversion failed';
+            if (!FFI::isnull($errorOut)) {
+                $message = FFI::string($errorOut);
+                $ffi->bpk_free_string($errorOut);
+            }
             throw new RuntimeException($message !== '' ? $message : 'julian conversion failed');
         }
         try {

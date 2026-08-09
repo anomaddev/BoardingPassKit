@@ -25,6 +25,12 @@ fn main() -> Result<(), boarding_pass_kit::BoardingPassError> {
 }
 ```
 
+## Notes
+
+- Julian year inference uses the **UTC** year of the reference instant (Node uses local `getFullYear()`). Pass an explicit `year` for civil-year control.
+- Byte payloads are decoded as Latin-1 (each byte → `char`), matching Node’s ability to accept non-UTF-8 inputs without panicking.
+- Short conditional reads clamp like Node `Buffer.subarray` and return errors instead of panicking.
+
 ## Test
 
 From the repository root:

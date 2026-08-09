@@ -2,7 +2,9 @@ package boardingpasskit
 
 /*
 #cgo CFLAGS: -I${SRCDIR}/../ffi/include
-#cgo LDFLAGS: ${SRCDIR}/../../target/release/libboarding_pass_kit_ffi.a -ldl -lm -lpthread
+#cgo linux LDFLAGS: -L${SRCDIR}/../../target/release -L${SRCDIR}/../../target/debug -l:libboarding_pass_kit_ffi.a -ldl -lm -lpthread
+#cgo darwin LDFLAGS: ${SRCDIR}/../../target/release/libboarding_pass_kit_ffi.a -ldl -lm -lpthread
+#cgo !linux,!darwin LDFLAGS: -L${SRCDIR}/../../target/release -L${SRCDIR}/../../target/debug -lboarding_pass_kit_ffi -ldl -lm -lpthread
 
 #include "boarding_pass_kit.h"
 #include <stdlib.h>
@@ -12,6 +14,7 @@ import "C"
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 	"unsafe"
 )
 
@@ -42,30 +45,34 @@ var DemoData = map[string]string{
 }
 
 // Decode parses a BCBP barcode into a generic JSON map.
+// Numeric fields are decoded as json.Number to avoid float64 golden-test drift.
 func Decode(barcode string, opts Options) (map[string]any, error) {
 	cBarcode := C.CString(barcode)
 	defer C.free(unsafe.Pointer(cBarcode))
 
 	cOpts := C.BpkOptions{
-		debug:              boolToInt(opts.Debug),
+		debug:               boolToInt(opts.Debug),
 		trim_leading_zeroes: boolToInt(opts.TrimLeadingZeroes),
-		trim_whitespace:    boolToInt(opts.TrimWhitespace),
+		trim_whitespace:     boolToInt(opts.TrimWhitespace),
 		empty_string_is_nil: boolToInt(opts.EmptyStringIsNil),
 	}
 
-	result := C.bpk_decode(cBarcode, &cOpts)
+	var errOut *C.char
+	result := C.bpk_decode(cBarcode, &cOpts, &errOut)
 	if result == nil {
-		errMsg := C.GoString(C.bpk_last_error())
-		if errMsg == "" {
-			errMsg = "decode failed"
+		msg := "decode failed"
+		if errOut != nil {
+			msg = C.GoString(errOut)
+			C.bpk_free_string(errOut)
 		}
-		return nil, errors.New(errMsg)
+		return nil, errors.New(msg)
 	}
 	defer C.bpk_free_string(result)
 
-	jsonStr := C.GoString(result)
+	dec := json.NewDecoder(strings.NewReader(C.GoString(result)))
+	dec.UseNumber()
 	var out map[string]any
-	if err := json.Unmarshal([]byte(jsonStr), &out); err != nil {
+	if err := dec.Decode(&out); err != nil {
 		return nil, err
 	}
 	return out, nil
@@ -74,13 +81,15 @@ func Decode(barcode string, opts Options) (map[string]any, error) {
 // JulianToDate converts a day-of-year to YYYY-MM-DD.
 // Pass year=0 to infer from relativeToMs (0 means now).
 func JulianToDate(dayOfYear int, year int, relativeToMs int64) (string, error) {
-	result := C.bpk_julian_to_date(C.int(dayOfYear), C.int(year), C.int64_t(relativeToMs))
+	var errOut *C.char
+	result := C.bpk_julian_to_date(C.int(dayOfYear), C.int(year), C.int64_t(relativeToMs), &errOut)
 	if result == nil {
-		errMsg := C.GoString(C.bpk_last_error())
-		if errMsg == "" {
-			errMsg = "julian conversion failed"
+		msg := "julian conversion failed"
+		if errOut != nil {
+			msg = C.GoString(errOut)
+			C.bpk_free_string(errOut)
 		}
-		return "", errors.New(errMsg)
+		return "", errors.New(msg)
 	}
 	defer C.bpk_free_string(result)
 	return C.GoString(result), nil

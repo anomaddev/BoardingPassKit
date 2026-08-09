@@ -19,5 +19,8 @@
     "psr-4": {
       "BoardingPassKit\\Tests\\": "tests/"
     }
+  },
+  "scripts": {
+    "test": "php -d ffi.enable=true vendor/bin/phpunit"
   }
 }
