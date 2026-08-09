@@ -4,10 +4,11 @@ Go bindings for the Rust `boarding-pass-kit` core via the C FFI library.
 
 ## Prerequisites
 
-Build the FFI library from the repository root:
+Build the FFI library from the repository root (release **or** debug):
 
 ```bash
 cargo build -p boarding-pass-kit-ffi --release
+# or: cargo build -p boarding-pass-kit-ffi
 ```
 
 ## Test
@@ -17,7 +18,7 @@ cd packages/go
 go test ./...
 ```
 
-The cgo linker looks for `libboarding_pass_kit_ffi` under `target/release` or `target/debug`.
+On Linux, cgo statically links `libboarding_pass_kit_ffi.a` from `target/release` or `target/debug`.
 
 ## Quick start
 
