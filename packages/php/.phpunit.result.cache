@@ -1,0 +1,1 @@
+{"version":2,"defects":{"BoardingPassKit\\Tests\\DecoderTest::testTruncatedThrows":7},"times":{"BoardingPassKit\\Tests\\DecoderTest::testGoldenFixtures":0.002,"BoardingPassKit\\Tests\\DecoderTest::testTruncatedThrows":0,"BoardingPassKit\\Tests\\DecoderTest::testJulianToDate":0}}

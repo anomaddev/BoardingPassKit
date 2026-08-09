@@ -1,0 +1,20 @@
+[package]
+name = "boarding-pass-kit"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "IATA BCBP (Resolution 792, v8) boarding pass barcode decoder"
+readme = "README.md"
+keywords = ["iata", "bcbp", "boarding-pass", "barcode", "airline"]
+categories = ["encoding", "parser-implementations"]
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

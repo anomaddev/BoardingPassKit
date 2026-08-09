@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php" colors="true">
+  <php>
+    <ini name="ffi.enable" value="true"/>
+  </php>
+  <testsuites>
+    <testsuite name="BoardingPassKit">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

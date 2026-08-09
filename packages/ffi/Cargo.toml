@@ -1,0 +1,18 @@
+[package]
+name = "boarding-pass-kit-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "C ABI for boarding-pass-kit (JSON decode results)"
+publish = false
+
+[lib]
+name = "boarding_pass_kit_ffi"
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+boarding-pass-kit = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }

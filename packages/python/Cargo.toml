@@ -1,0 +1,16 @@
+[package]
+name = "boarding-pass-kit-python"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lib]
+name = "boarding_pass_kit"
+crate-type = ["cdylib"]
+
+[dependencies]
+boarding-pass-kit = { workspace = true }
+pyo3 = { version = "0.23", features = ["extension-module"] }
+serde_json = { workspace = true }
+chrono = { workspace = true }
