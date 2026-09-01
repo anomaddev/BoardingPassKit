@@ -1,7 +1,7 @@
 {
   "name": "boarding-pass-kit",
-  "version": "2.1.7",
-  "description": "Parse IATA BCBP v8 boarding pass barcodes and QR codes",
+  "version": "2.3.0",
+  "description": "Parse IATA BCBP v8 boarding pass barcodes and QR codes from strings or PNG/JPEG/HEIC images",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -31,6 +31,8 @@
     "bcbp",
     "iata",
     "barcode",
+    "qr-code",
+    "heic",
     "airline"
   ],
   "license": "MIT",
@@ -43,8 +45,15 @@
     "url": "https://github.com/anomaddev/BoardingPassKit/issues"
   },
   "homepage": "https://github.com/anomaddev/BoardingPassKit/tree/main/packages/node#readme",
+  "dependencies": {
+    "heic-decode": "^2.1.0",
+    "jpeg-js": "^0.4.4",
+    "jsqr": "^1.4.0",
+    "pngjs": "^7.0.0"
+  },
   "devDependencies": {
     "@types/node": "^22.15.21",
+    "@types/pngjs": "^6.0.5",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
     "vitest": "^3.1.4"

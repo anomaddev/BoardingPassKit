@@ -1,4 +1,5 @@
 import { BoardingPassError } from '../errors/BoardingPassError.js';
+import { extractQrPayload, type ImageInput } from '../qr/extractQrPayload.js';
 import type {
   BoardingPass,
   BoardingPassInfo,
@@ -80,6 +81,11 @@ export class BoardingPassDecoder {
       this.code = this.raw(this.data);
     }
     return this.breakdown();
+  }
+
+  async decodeFromImage(image: ImageInput): Promise<BoardingPass> {
+    const payload = await extractQrPayload(image);
+    return this.decode(payload);
   }
 
   private raw(data: Buffer): string {

@@ -72,6 +72,12 @@ open class BoardingPassDecoder: NSObject {
         self.code = code
         return try breakdown()
     }
+
+    /// Extract a QR payload from PNG/JPEG/HEIC image bytes, then decode it as BCBP.
+    public func decode(imageData: Data) throws -> BoardingPass {
+        let payload = try BoardingPassQRExtractor.payload(from: imageData)
+        return try decode(code: payload)
+    }
     
     /// Breaks down the code/data and returns the boarding pass decoded. This is the mothership function
     private func breakdown() throws -> BoardingPass {

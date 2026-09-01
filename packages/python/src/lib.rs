@@ -1,6 +1,6 @@
 use ::boarding_pass_kit::{
-    demo_data, demo_keys, julian_to_calendar_date, BoardingPass, BoardingPassDecoder,
-    BoardingPassError,
+    demo_data, demo_keys, extract_qr_payload as extract_qr_payload_rs, julian_to_calendar_date,
+    BoardingPass, BoardingPassDecoder, BoardingPassError,
 };
 use chrono::{TimeZone, Utc};
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
@@ -78,6 +78,19 @@ impl PyBoardingPassDecoder {
         let pass = self.inner.decode(barcode).map_err(to_py_err)?;
         pass_to_dict(py, &pass)
     }
+
+    /// Extract a QR payload from image bytes, then decode it as BCBP.
+    fn decode_from_image(&mut self, py: Python<'_>, image: &[u8]) -> PyResult<PyObject> {
+        let pass = self.inner.decode_from_image(image).map_err(to_py_err)?;
+        pass_to_dict(py, &pass)
+    }
+}
+
+/// Extract the first QR payload from PNG, JPEG, or HEIC image bytes.
+#[pyfunction]
+#[pyo3(name = "extract_qr_payload")]
+fn extract_qr_payload(image: &[u8]) -> PyResult<String> {
+    extract_qr_payload_rs(image).map_err(to_py_err)
 }
 
 #[pyfunction]
@@ -112,6 +125,7 @@ fn boarding_pass_kit(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(julian_to_date, m)?)?;
     m.add_function(wrap_pyfunction!(get_demo_data, m)?)?;
     m.add_function(wrap_pyfunction!(list_demo_keys, m)?)?;
+    m.add_function(wrap_pyfunction!(extract_qr_payload, m)?)?;
 
     let demo = PyDict::new(m.py());
     for key in demo_keys() {

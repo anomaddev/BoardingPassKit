@@ -68,7 +68,7 @@ According to IATA Resolution 792, BCBP can be encoded in:
 - [x] QR Code
 - [x] Data Matrix
 
-**Note:** This library decodes the ASCII data structure regardless of the barcode symbology used.
+**Note:** The BCBP parser decodes the ASCII data structure regardless of the barcode symbology used. Node, Swift, Rust, and the Python/Go/PHP bindings can also read that ASCII payload from a **QR code** in PNG, JPEG, or HEIC images (`extractQrPayload` / `extract_qr_payload` / `BoardingPassQRExtractor`). PDF417, Aztec, and Data Matrix image scanning are not implemented — those still require an external scanner.
 
 ### 📋 Version Information
 
@@ -124,14 +124,21 @@ The library includes test cases for:
 - Various airlines and formats
 - Security data variations
 - Conditional items edge cases
+- QR extraction from PNG, JPEG, and HEIC fixtures under `testdata/images/`
 
 To run tests:
 ```bash
-swift test
+npm test
+cargo test -p boarding-pass-kit
+swift test   # macOS
 ```
 
 ## Version History
 
+- **2.3.0 / Rust 0.2.0** - Image QR extraction
+  - Extract a QR payload from PNG, JPEG, or HEIC and feed it to the existing BCBP decoder
+  - Node (`extractQrPayload` / `decodeFromImage`), Swift (`BoardingPassQRExtractor`), Rust (`extract_qr_payload`), FFI (`bpk_extract_qr`), Python / Go / PHP wrappers
+  - Rust HEIC support is gated on the `heic` Cargo feature (system libheif)
 - **2.0.2** - CocoaPods naming update
   - Renamed CocoaPods pod from BoardingPassKit to BoardingPassParser to avoid conflicts
   - Swift Package Manager remains as BoardingPassKit

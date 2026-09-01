@@ -13,6 +13,9 @@ pub enum BoardingPassErrorCode {
     ConditionalIndexInvalid,
     BoardingPassLegConditionalMismatch,
     InvalidJulianDay,
+    QRCodeNotFound,
+    UnsupportedImageFormat,
+    ImageDecodeFailed,
     Unexpected,
 }
 
@@ -114,6 +117,27 @@ impl BoardingPassError {
         Self::new(
             BoardingPassErrorCode::Unexpected,
             format!("Error code {code} occured."),
+        )
+    }
+
+    pub fn qr_code_not_found() -> Self {
+        Self::new(
+            BoardingPassErrorCode::QRCodeNotFound,
+            "No QR code was found in the image",
+        )
+    }
+
+    pub fn unsupported_image_format(detail: impl Into<String>) -> Self {
+        Self::new(
+            BoardingPassErrorCode::UnsupportedImageFormat,
+            format!("Unsupported image format: {}", detail.into()),
+        )
+    }
+
+    pub fn image_decode_failed(detail: impl Into<String>) -> Self {
+        Self::new(
+            BoardingPassErrorCode::ImageDecodeFailed,
+            format!("Failed to decode image: {}", detail.into()),
         )
     }
 }

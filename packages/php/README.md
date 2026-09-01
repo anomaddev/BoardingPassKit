@@ -34,4 +34,10 @@ use BoardingPassKit\DemoData;
 $decoder = new BoardingPassDecoder();
 $pass = $decoder->decode(DemoData::Simple);
 echo $pass['passengerName'], PHP_EOL;
+
+$image = file_get_contents('pass.png');
+$payload = BoardingPassDecoder::extractQR($image);
+$passFromImage = $decoder->decodeFromImage($image);
 ```
+
+`extractQR` reads PNG/JPEG bytes (and HEIC when the FFI library is built with `--features heic`).

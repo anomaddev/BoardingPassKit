@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -76,5 +77,71 @@ func TestJulian(t *testing.T) {
 	}
 	if date != "2025-01-14" {
 		t.Fatalf("got %s", date)
+	}
+}
+
+func readImage(t *testing.T, name string) []byte {
+	t.Helper()
+	data, err := os.ReadFile(testdataPath(filepath.Join("images", name)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return data
+}
+
+func TestExtractQRPng(t *testing.T) {
+	payload, err := ExtractQR(readImage(t, "simple.png"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if payload != DemoData["Simple"] {
+		t.Fatalf("got %q", payload)
+	}
+}
+
+func TestExtractQRJpeg(t *testing.T) {
+	payload, err := ExtractQR(readImage(t, "simple.jpg"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if payload != DemoData["Simple"] {
+		t.Fatalf("got %q", payload)
+	}
+}
+
+func TestDecodeFromImagePng(t *testing.T) {
+	pass, err := DecodeFromImage(readImage(t, "simple.png"), DefaultOptions())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pass["code"] != DemoData["Simple"] {
+		t.Fatalf("unexpected code %v", pass["code"])
+	}
+}
+
+func TestExtractQRNoCode(t *testing.T) {
+	_, err := ExtractQR(readImage(t, "no_qr.png"))
+	if err == nil {
+		t.Fatal("expected error")
+	}
+}
+
+func TestExtractQRNotAnImage(t *testing.T) {
+	_, err := ExtractQR(readImage(t, "not_an_image.bin"))
+	if err == nil {
+		t.Fatal("expected error")
+	}
+}
+
+func TestExtractQRHeic(t *testing.T) {
+	payload, err := ExtractQR(readImage(t, "simple.heic"))
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "heic") {
+			t.Skip(err.Error())
+		}
+		t.Fatal(err)
+	}
+	if payload != DemoData["Simple"] {
+		t.Fatalf("got %q", payload)
 	}
 }

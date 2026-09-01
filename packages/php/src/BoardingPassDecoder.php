@@ -17,6 +17,10 @@ final class BoardingPassDecoder
     private static ?FFI $ffi = null;
 
     private const CDEF = <<<'CDEF'
+typedef unsigned char uint8_t;
+typedef unsigned long size_t;
+typedef long int64_t;
+
 typedef struct BpkOptions {
     int debug;
     int trim_leading_zeroes;
@@ -25,6 +29,7 @@ typedef struct BpkOptions {
 } BpkOptions;
 
 char *bpk_decode(const char *barcode, const BpkOptions *options, char **error_out);
+char *bpk_extract_qr(const uint8_t *data, size_t len, char **error_out);
 char *bpk_julian_to_date(int day_of_year, int year, int64_t relative_to_ms, char **error_out);
 const char *bpk_last_error(void);
 void bpk_free_string(char *ptr);
@@ -101,6 +106,43 @@ CDEF;
             throw new RuntimeException('Unexpected decode JSON shape');
         }
         return $decoded;
+    }
+
+    public static function extractQR(string $imageBytes): string
+    {
+        $ffi = self::ffi();
+        $len = strlen($imageBytes);
+        if ($len === 0) {
+            throw new RuntimeException('image is empty');
+        }
+
+        $buffer = $ffi->new('uint8_t[' . $len . ']');
+        FFI::memcpy($buffer, $imageBytes, $len);
+
+        $errorOut = $ffi->new('char*');
+        $result = $ffi->bpk_extract_qr($buffer, $len, FFI::addr($errorOut));
+        if ($result === null) {
+            $message = 'QR extraction failed';
+            if (!FFI::isnull($errorOut)) {
+                $message = FFI::string($errorOut);
+                $ffi->bpk_free_string($errorOut);
+            }
+            throw new RuntimeException($message !== '' ? $message : 'QR extraction failed');
+        }
+
+        try {
+            return FFI::string($result);
+        } finally {
+            $ffi->bpk_free_string($result);
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function decodeFromImage(string $imageBytes): array
+    {
+        return $this->decode(self::extractQR($imageBytes));
     }
 
     public static function julianToDate(int $dayOfYear, ?int $year = null, int $relativeToMs = 0): string

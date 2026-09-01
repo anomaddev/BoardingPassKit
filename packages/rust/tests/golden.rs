@@ -1,4 +1,4 @@
-use boarding_pass_kit::{demo_data, BoardingPassDecoder};
+use boarding_pass_kit::{demo_data, extract_qr_payload, BoardingPassDecoder, BoardingPassErrorCode};
 use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
@@ -62,4 +62,57 @@ fn short_conditional_read_does_not_panic() {
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| decoder.decode(&barcode)));
     assert!(result.is_ok(), "decode panicked on short conditional read");
     assert!(result.unwrap().is_err(), "expected a decode error, not success");
+}
+
+fn testdata_image(name: &str) -> Vec<u8> {
+    fs::read(testdata_dir().join("images").join(name)).unwrap_or_else(|e| panic!("{name}: {e}"))
+}
+
+#[test]
+fn extract_qr_from_png() {
+    let payload = extract_qr_payload(&testdata_image("simple.png")).expect("png qr");
+    assert_eq!(payload, demo_data("Simple").unwrap());
+}
+
+#[test]
+fn extract_qr_from_jpeg() {
+    let payload = extract_qr_payload(&testdata_image("simple.jpg")).expect("jpeg qr");
+    assert_eq!(payload, demo_data("Simple").unwrap());
+}
+
+#[test]
+fn decode_from_image_png() {
+    let mut decoder = BoardingPassDecoder::new();
+    decoder.debug = false;
+    let pass = decoder
+        .decode_from_image(&testdata_image("simple.png"))
+        .expect("decode from png");
+    assert_eq!(pass.boarding_pass_legs[0].origin, "MSY");
+    assert_eq!(pass.code, demo_data("Simple").unwrap());
+}
+
+#[test]
+fn extract_qr_missing_code() {
+    let err = extract_qr_payload(&testdata_image("no_qr.png")).unwrap_err();
+    assert_eq!(err.code, BoardingPassErrorCode::QRCodeNotFound);
+}
+
+#[test]
+fn extract_qr_not_an_image() {
+    let err = extract_qr_payload(&testdata_image("not_an_image.bin")).unwrap_err();
+    assert_eq!(err.code, BoardingPassErrorCode::UnsupportedImageFormat);
+}
+
+#[cfg(feature = "heic")]
+#[test]
+fn extract_qr_from_heic() {
+    let payload = extract_qr_payload(&testdata_image("simple.heic")).expect("heic qr");
+    assert_eq!(payload, demo_data("Simple").unwrap());
+}
+
+#[cfg(not(feature = "heic"))]
+#[test]
+fn extract_qr_heic_requires_feature() {
+    let err = extract_qr_payload(&testdata_image("simple.heic")).unwrap_err();
+    assert_eq!(err.code, BoardingPassErrorCode::UnsupportedImageFormat);
 }

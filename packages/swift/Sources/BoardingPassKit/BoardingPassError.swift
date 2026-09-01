@@ -29,6 +29,10 @@ public enum BoardingPassError: Error {
     case SegmentSubConditionalInvalid
     
     case unexpected(code: Int)
+
+    case QRCodeNotFound
+    case UnsupportedImageFormat
+    case ImageDecodeFailed
 }
 
 extension BoardingPassError: CustomStringConvertible {
@@ -62,6 +66,10 @@ extension BoardingPassError: CustomStringConvertible {
             return "Segment sub conditional is invalid parsing index"
             
         case .unexpected(let code): return "Error code \(code) occured."
+            
+        case .QRCodeNotFound:                       return "No QR code was found in the image"
+        case .UnsupportedImageFormat:               return "Unsupported image format: expected PNG, JPEG, or HEIC"
+        case .ImageDecodeFailed:                    return "Failed to decode image"
         }
     }
 }
@@ -92,6 +100,10 @@ extension BoardingPassError: LocalizedError {
         case .SegmentSubConditionalInvalid:     key = "SegmentSubConditionalInvalid"
             
         case .unexpected(_): key = "unexpected"
+            
+        case .QRCodeNotFound:                       key = "QRCodeNotFound"
+        case .UnsupportedImageFormat:               key = "UnsupportedImageFormat"
+        case .ImageDecodeFailed:                    key = "ImageDecodeFailed"
         }
         
         return NSLocalizedString(key, comment: self.description)
