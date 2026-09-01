@@ -32,6 +32,7 @@ GitHub Actions runs tests, builds, and publishes via the `Publish` workflow usin
 - Organization or user: `anomaddev`
 - Repository: `BoardingPassKit`
 - Workflow filename: `publish.yml` (no path)
+- Environment: `build-env`
 
 ## Quick Start
 
