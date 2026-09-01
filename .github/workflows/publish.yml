@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -32,7 +34,7 @@ jobs:
         run: npm ci
 
       - name: Verify tag matches package version
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
           VERSION="${TAG#v}"
@@ -44,10 +46,10 @@ jobs:
           echo "Publishing boarding-pass-kit@$PKG_VERSION"
 
       - name: Log publish version
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name != 'push' || github.ref == 'refs/heads/main'
         run: |
           PKG_VERSION=$(node -p "require('./packages/node/package.json').version")
-          echo "Manual publish of boarding-pass-kit@$PKG_VERSION"
+          echo "Publishing boarding-pass-kit@$PKG_VERSION from ${GITHUB_REF}"
 
       - name: Test
         run: npm test
