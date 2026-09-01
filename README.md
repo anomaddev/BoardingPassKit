@@ -57,7 +57,7 @@ BoardingPassKit/
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.3.1")
+    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.3.3")
 ]
 ```
 
