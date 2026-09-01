@@ -33,7 +33,7 @@ const char *bpk_last_error(void); /* borrowed TLS; do not free */
 void bpk_free_string(char *ptr);
 ```
 
-`bpk_extract_qr` reads PNG/JPEG bytes (and HEIC when the crate is built with `--features heic`) and returns the QR payload string. Callers must free strings returned by `bpk_decode` / `bpk_extract_qr` / `bpk_julian_to_date` and any `*error_out` with `bpk_free_string`. Prefer `error_out` over `bpk_last_error` in multi-threaded hosts.
+`bpk_extract_qr` reads PNG/JPEG bytes (and HEIC when the crate is built with `--features heic`) and returns the first QR, Aztec, or PDF417 payload string. Callers must free strings returned by `bpk_decode` / `bpk_extract_qr` / `bpk_julian_to_date` and any `*error_out` with `bpk_free_string`. Prefer `error_out` over `bpk_last_error` in multi-threaded hosts.
 
 HEIC support:
 

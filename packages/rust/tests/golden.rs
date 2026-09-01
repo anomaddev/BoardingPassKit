@@ -92,6 +92,18 @@ fn decode_from_image_png() {
 }
 
 #[test]
+fn extract_aztec_from_png() {
+    let payload = extract_qr_payload(&testdata_image("simple_aztec.png")).expect("png aztec");
+    assert_eq!(payload, demo_data("Simple").unwrap());
+}
+
+#[test]
+fn extract_pdf417_from_png() {
+    let payload = extract_qr_payload(&testdata_image("simple_pdf417.png")).expect("png pdf417");
+    assert_eq!(payload, demo_data("Simple").unwrap());
+}
+
+#[test]
 fn extract_qr_missing_code() {
     let err = extract_qr_payload(&testdata_image("no_qr.png")).unwrap_err();
     assert_eq!(err.code, BoardingPassErrorCode::QRCodeNotFound);

@@ -67,7 +67,7 @@ extension BoardingPassError: CustomStringConvertible {
             
         case .unexpected(let code): return "Error code \(code) occured."
             
-        case .QRCodeNotFound:                       return "No QR code was found in the image"
+        case .QRCodeNotFound:                       return "No QR, Aztec, or PDF417 barcode was found in the image"
         case .UnsupportedImageFormat:               return "Unsupported image format: expected PNG, JPEG, or HEIC"
         case .ImageDecodeFailed:                    return "Failed to decode image"
         }

@@ -1,7 +1,7 @@
 {
   "name": "boarding-pass-kit",
-  "version": "2.3.0",
-  "description": "Parse IATA BCBP v8 boarding pass barcodes and QR codes from strings or PNG/JPEG/HEIC images",
+  "version": "2.3.3",
+  "description": "Parse IATA BCBP v8 boarding pass barcodes from strings or PNG/JPEG/HEIC images (QR, Aztec, PDF417)",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -46,6 +46,7 @@
   },
   "homepage": "https://github.com/anomaddev/BoardingPassKit/tree/main/packages/node#readme",
   "dependencies": {
+    "@zxing/library": "^0.21.3",
     "heic-decode": "^2.1.0",
     "jpeg-js": "^0.4.4",
     "jsqr": "^1.4.0",

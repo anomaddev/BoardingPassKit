@@ -21,6 +21,8 @@ thiserror = { workspace = true }
 chrono = { workspace = true }
 image = { version = "0.24.9", default-features = false, features = ["png", "jpeg"] }
 rqrr = { version = "0.7.1", default-features = false }
+# 0.8+ needs rustc 1.85+ (edition 2024). 0.7.1 decodes Aztec/PDF417 on rustc 1.83.
+rxing = { version = "0.7.1", default-features = false }
 libheif-rs = { version = "2.1.0", optional = true, default-features = false, features = ["v1_17"] }
 
 [dev-dependencies]

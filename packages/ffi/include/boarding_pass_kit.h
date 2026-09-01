@@ -23,7 +23,7 @@ typedef struct BpkOptions {
 char *bpk_decode(const char *barcode, const BpkOptions *options, char **error_out);
 
 /*
- * Extract the first QR payload from PNG/JPEG/HEIC image bytes.
+ * Extract the first QR, Aztec, or PDF417 payload from PNG/JPEG/HEIC image bytes.
  * Caller must free the return value with bpk_free_string.
  * Same error_out ownership rules as bpk_decode.
  */

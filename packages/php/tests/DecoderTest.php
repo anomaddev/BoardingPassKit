@@ -58,6 +58,18 @@ final class DecoderTest extends TestCase
         $this->assertSame('MSY', $pass['boardingPassLegs'][0]['origin']);
     }
 
+    public function testExtractAztecPng(): void
+    {
+        $image = file_get_contents(dirname(__DIR__, 3) . '/testdata/images/simple_aztec.png');
+        $this->assertSame(DemoData::Simple, BoardingPassDecoder::extractQR($image));
+    }
+
+    public function testExtractPDF417Png(): void
+    {
+        $image = file_get_contents(dirname(__DIR__, 3) . '/testdata/images/simple_pdf417.png');
+        $this->assertSame(DemoData::Simple, BoardingPassDecoder::extractQR($image));
+    }
+
     public function testExtractQRNoCode(): void
     {
         $image = file_get_contents(dirname(__DIR__, 3) . '/testdata/images/no_qr.png');

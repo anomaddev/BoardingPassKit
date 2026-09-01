@@ -131,6 +131,16 @@ final class BoardingPassKitTests: XCTestCase {
         XCTAssertEqual(pass.code, BoardingPass.DemoData.Simple.string)
     }
 
+    func testExtractAztecFromPNG() throws {
+        let payload = try BoardingPassQRExtractor.payload(from: testdataImage("simple_aztec.png"))
+        XCTAssertEqual(payload, BoardingPass.DemoData.Simple.string)
+    }
+
+    func testExtractPDF417FromPNG() throws {
+        let payload = try BoardingPassQRExtractor.payload(from: testdataImage("simple_pdf417.png"))
+        XCTAssertEqual(payload, BoardingPass.DemoData.Simple.string)
+    }
+
     func testExtractQRMissingCode() {
         XCTAssertThrowsError(try BoardingPassQRExtractor.payload(from: testdataImage("no_qr.png"))) { error in
             guard case BoardingPassError.QRCodeNotFound = error else {

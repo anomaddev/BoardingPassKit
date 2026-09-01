@@ -10,6 +10,7 @@ mod utils;
 pub use decoder::BoardingPassDecoder;
 pub use demo::{demo_data, demo_keys, DemoDataKey, DEMO_DATA};
 pub use error::{BoardingPassError, BoardingPassErrorCode};
+/// Extract a QR, Aztec, or PDF417 payload from PNG, JPEG, or HEIC image bytes.
 pub use qr::extract_qr_payload;
 pub use types::{
     BoardingPass, BoardingPassInfo, BoardingPassLeg, BoardingPassLegData, BoardingPassSecurityData,

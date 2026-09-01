@@ -1,8 +1,13 @@
+use std::collections::HashSet;
 use std::io::Cursor;
 
 use image::io::Reader as ImageReader;
 use image::{DynamicImage, GrayImage};
 use rqrr::PreparedImage;
+use rxing::{
+    BarcodeFormat, BinaryBitmap, DecodeHints, Luma8LuminanceSource, MultiFormatReader, Reader,
+};
+use rxing::common::HybridBinarizer;
 
 use crate::BoardingPassError;
 
@@ -13,7 +18,7 @@ enum ImageKind {
     Heic,
 }
 
-/// Extract the first QR payload from PNG, JPEG, or HEIC image bytes.
+/// Extract the first QR, Aztec, or PDF417 payload from PNG, JPEG, or HEIC image bytes.
 ///
 /// HEIC requires the `heic` Cargo feature (system `libheif`).
 pub fn extract_qr_payload(bytes: &[u8]) -> Result<String, BoardingPassError> {
@@ -22,7 +27,7 @@ pub fn extract_qr_payload(bytes: &[u8]) -> Result<String, BoardingPassError> {
         ImageKind::Png | ImageKind::Jpeg => decode_raster_luma(bytes)?,
         ImageKind::Heic => decode_heic_luma(bytes)?,
     };
-    find_qr_payload(luma)
+    find_barcode_payload(luma)
 }
 
 fn detect_format(bytes: &[u8]) -> Result<ImageKind, BoardingPassError> {
@@ -124,10 +129,13 @@ fn decode_heic_luma(_bytes: &[u8]) -> Result<GrayImage, BoardingPassError> {
     ))
 }
 
-fn find_qr_payload(luma: GrayImage) -> Result<String, BoardingPassError> {
+fn find_barcode_payload(luma: GrayImage) -> Result<String, BoardingPassError> {
     let mut current = luma;
     for _ in 0..4 {
         if let Some(payload) = decode_qr_once(&current) {
+            return Ok(payload);
+        }
+        if let Some(payload) = decode_zxing_once(&current) {
             return Ok(payload);
         }
         current = image::imageops::rotate90(&current);
@@ -149,4 +157,33 @@ fn decode_qr_once(luma: &GrayImage) -> Option<String> {
         }
     }
     None
+}
+
+fn decode_zxing_once(luma: &GrayImage) -> Option<String> {
+    let width = luma.width();
+    let height = luma.height();
+    let source = Luma8LuminanceSource::new(luma.as_raw().clone(), width, height);
+    let mut bitmap = BinaryBitmap::new(HybridBinarizer::new(source));
+    let hints = DecodeHints {
+        PossibleFormats: Some(HashSet::from([
+            BarcodeFormat::AZTEC,
+            BarcodeFormat::PDF_417,
+        ])),
+        TryHarder: Some(true),
+        AlsoInverted: Some(true),
+        CharacterSet: Some("ISO-8859-1".into()),
+        ..DecodeHints::default()
+    };
+    let mut reader = MultiFormatReader::default();
+    match reader.decode_with_hints(&mut bitmap, &hints) {
+        Ok(result) => {
+            let text = result.getText().to_string();
+            if text.is_empty() {
+                None
+            } else {
+                Some(text)
+            }
+        }
+        Err(_) => None,
+    }
 }

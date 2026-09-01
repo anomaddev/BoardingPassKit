@@ -78,7 +78,7 @@ func Decode(barcode string, opts Options) (map[string]any, error) {
 	return out, nil
 }
 
-// ExtractQR returns the first QR payload from PNG, JPEG, or HEIC image bytes.
+// ExtractQR returns the first QR, Aztec, or PDF417 payload from PNG, JPEG, or HEIC image bytes.
 func ExtractQR(image []byte) (string, error) {
 	if len(image) == 0 {
 		return "", errors.New("image is empty")
@@ -98,7 +98,7 @@ func ExtractQR(image []byte) (string, error) {
 	return C.GoString(result), nil
 }
 
-// DecodeFromImage extracts a QR payload from image bytes and decodes it as BCBP.
+// DecodeFromImage extracts a QR, Aztec, or PDF417 payload from image bytes and decodes it as BCBP.
 func DecodeFromImage(image []byte, opts Options) (map[string]any, error) {
 	payload, err := ExtractQR(image)
 	if err != nil {
