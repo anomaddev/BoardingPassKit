@@ -135,7 +135,7 @@ swift test   # macOS
 
 ## Version History
 
-- **2.2.0 / Rust 0.2.0** - Image QR extraction
+- **2.3.0 / Rust 0.2.0** - Image QR extraction
   - Extract a QR payload from PNG, JPEG, or HEIC and feed it to the existing BCBP decoder
   - Node (`extractQrPayload` / `decodeFromImage`), Swift (`BoardingPassQRExtractor`), Rust (`extract_qr_payload`), FFI (`bpk_extract_qr`), Python / Go / PHP wrappers
   - Rust HEIC support is gated on the `heic` Cargo feature (system libheif)

@@ -21,8 +21,8 @@ Releases are published to npm automatically when a version tag is pushed.
 3. Create and push a matching tag:
 
 ```bash
-git tag v2.2.0
-git push origin v2.2.0
+git tag v2.3.0
+git push origin v2.3.0
 ```
 
 GitHub Actions runs tests, builds, and publishes via the `Publish` workflow.
