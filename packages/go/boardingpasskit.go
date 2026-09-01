@@ -78,6 +78,35 @@ func Decode(barcode string, opts Options) (map[string]any, error) {
 	return out, nil
 }
 
+// ExtractQR returns the first QR payload from PNG, JPEG, or HEIC image bytes.
+func ExtractQR(image []byte) (string, error) {
+	if len(image) == 0 {
+		return "", errors.New("image is empty")
+	}
+
+	var errOut *C.char
+	result := C.bpk_extract_qr((*C.uint8_t)(unsafe.Pointer(&image[0])), C.size_t(len(image)), &errOut)
+	if result == nil {
+		msg := "QR extraction failed"
+		if errOut != nil {
+			msg = C.GoString(errOut)
+			C.bpk_free_string(errOut)
+		}
+		return "", errors.New(msg)
+	}
+	defer C.bpk_free_string(result)
+	return C.GoString(result), nil
+}
+
+// DecodeFromImage extracts a QR payload from image bytes and decodes it as BCBP.
+func DecodeFromImage(image []byte, opts Options) (map[string]any, error) {
+	payload, err := ExtractQR(image)
+	if err != nil {
+		return nil, err
+	}
+	return Decode(payload, opts)
+}
+
 // JulianToDate converts a day-of-year to YYYY-MM-DD.
 // Pass year=0 to infer from relativeToMs (0 means now).
 func JulianToDate(dayOfYear int, year int, relativeToMs int64) (string, error) {

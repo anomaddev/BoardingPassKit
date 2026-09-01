@@ -36,4 +36,46 @@ final class DecoderTest extends TestCase
     {
         $this->assertSame('2025-01-14', BoardingPassDecoder::julianToDate(14, 2025));
     }
+
+    public function testExtractQRPng(): void
+    {
+        $image = file_get_contents(dirname(__DIR__, 3) . '/testdata/images/simple.png');
+        $this->assertSame(DemoData::Simple, BoardingPassDecoder::extractQR($image));
+    }
+
+    public function testExtractQRJpeg(): void
+    {
+        $image = file_get_contents(dirname(__DIR__, 3) . '/testdata/images/simple.jpg');
+        $this->assertSame(DemoData::Simple, BoardingPassDecoder::extractQR($image));
+    }
+
+    public function testDecodeFromImagePng(): void
+    {
+        $image = file_get_contents(dirname(__DIR__, 3) . '/testdata/images/simple.png');
+        $decoder = new BoardingPassDecoder();
+        $pass = $decoder->decodeFromImage($image);
+        $this->assertSame(DemoData::Simple, $pass['code']);
+        $this->assertSame('MSY', $pass['boardingPassLegs'][0]['origin']);
+    }
+
+    public function testExtractQRNoCode(): void
+    {
+        $image = file_get_contents(dirname(__DIR__, 3) . '/testdata/images/no_qr.png');
+        $this->expectException(RuntimeException::class);
+        BoardingPassDecoder::extractQR($image);
+    }
+
+    public function testExtractQRHeic(): void
+    {
+        $image = file_get_contents(dirname(__DIR__, 3) . '/testdata/images/simple.heic');
+        try {
+            $payload = BoardingPassDecoder::extractQR($image);
+        } catch (RuntimeException $e) {
+            if (stripos($e->getMessage(), 'heic') !== false) {
+                $this->markTestSkipped($e->getMessage());
+            }
+            throw $e;
+        }
+        $this->assertSame(DemoData::Simple, $payload);
+    }
 }

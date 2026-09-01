@@ -18,7 +18,12 @@ let package = Package(
     targets: [
         .target(
             name: "BoardingPassKit",
-            path: "packages/swift/Sources/BoardingPassKit"),
+            path: "packages/swift/Sources/BoardingPassKit",
+            linkerSettings: [
+                .linkedFramework("Vision"),
+                .linkedFramework("ImageIO"),
+                .linkedFramework("CoreGraphics"),
+            ]),
         .testTarget(
             name: "BoardingPassKitTests",
             dependencies: ["BoardingPassKit"],

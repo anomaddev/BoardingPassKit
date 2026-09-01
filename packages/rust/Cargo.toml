@@ -10,11 +10,18 @@ readme = "README.md"
 keywords = ["iata", "bcbp", "boarding-pass", "barcode", "airline"]
 categories = ["encoding", "parser-implementations"]
 
+[features]
+default = []
+heic = ["dep:libheif-rs"]
+
 [dependencies]
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 chrono = { workspace = true }
+image = { version = "0.24.9", default-features = false, features = ["png", "jpeg"] }
+rqrr = { version = "0.7.1", default-features = false }
+libheif-rs = { version = "2.1.0", optional = true, default-features = false, features = ["v1_17"] }
 
 [dev-dependencies]
 serde_json = { workspace = true }

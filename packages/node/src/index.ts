@@ -12,3 +12,5 @@ export { DemoData, randomDemoData } from './demo/DemoData.js';
 export type { DemoDataKey } from './demo/DemoData.js';
 export { removeLeadingZeros } from './utils/removeLeadingZeros.js';
 export { julianToCalendarDate } from './utils/julianDate.js';
+export { extractQrPayload } from './qr/extractQrPayload.js';
+export type { ImageInput } from './qr/extractQrPayload.js';

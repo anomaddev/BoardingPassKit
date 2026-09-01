@@ -46,11 +46,17 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
+      - name: Install libheif
+        run: sudo apt-get update && sudo apt-get install -y libheif-dev libheif-plugin-libde265
+
       - name: Test core
         run: cargo test -p boarding-pass-kit
 
+      - name: Test core with HEIC
+        run: cargo test -p boarding-pass-kit --features heic
+
       - name: Build FFI
-        run: cargo build -p boarding-pass-kit-ffi --release
+        run: cargo build -p boarding-pass-kit-ffi --release --features heic
 
   python:
     name: Python
@@ -67,6 +73,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install libheif
+        run: sudo apt-get update && sudo apt-get install -y libheif-dev libheif-plugin-libde265
+
       - name: Install maturin and pytest
         run: |
           python -m venv .venv
@@ -77,7 +86,7 @@ jobs:
         working-directory: packages/python
         run: |
           . ../../.venv/bin/activate
-          maturin develop
+          maturin develop --features heic
 
       - name: Test
         working-directory: packages/python
@@ -100,12 +109,15 @@ jobs:
         with:
           go-version: '1.22'
 
+      - name: Install libheif
+        run: sudo apt-get update && sudo apt-get install -y libheif-dev libheif-plugin-libde265
+
       - name: Build FFI
-        run: cargo build -p boarding-pass-kit-ffi --release
+        run: cargo build -p boarding-pass-kit-ffi --release --features heic
 
       - name: Test
         working-directory: packages/go
-        run: go test ./...
+        run: CGO_LDFLAGS="-lheif" go test ./...
 
   php:
     name: PHP
@@ -124,8 +136,11 @@ jobs:
           extensions: ffi
           tools: composer
 
+      - name: Install libheif
+        run: sudo apt-get update && sudo apt-get install -y libheif-dev libheif-plugin-libde265
+
       - name: Build FFI
-        run: cargo build -p boarding-pass-kit-ffi --release
+        run: cargo build -p boarding-pass-kit-ffi --release --features heic
 
       - name: Install dependencies
         working-directory: packages/php

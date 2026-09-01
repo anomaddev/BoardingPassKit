@@ -12,6 +12,10 @@ publish = false
 name = "boarding_pass_kit_ffi"
 crate-type = ["cdylib", "staticlib"]
 
+[features]
+default = []
+heic = ["boarding-pass-kit/heic"]
+
 [dependencies]
 boarding-pass-kit = { workspace = true }
 serde_json = { workspace = true }

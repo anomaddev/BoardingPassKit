@@ -9,7 +9,7 @@ use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int};
 use std::ptr;
 
-use boarding_pass_kit::{julian_to_calendar_date, BoardingPassDecoder};
+use boarding_pass_kit::{extract_qr_payload, julian_to_calendar_date, BoardingPassDecoder};
 use chrono::{TimeZone, Utc};
 
 thread_local! {
@@ -128,6 +128,44 @@ pub unsafe extern "C" fn bpk_decode(
                 ptr::null_mut()
             }
         },
+        Err(e) => {
+            let msg = e.to_string();
+            set_last_error(&msg);
+            write_error_out(error_out, &msg);
+            ptr::null_mut()
+        }
+    }
+}
+
+/// Extract the first QR payload from PNG/JPEG/HEIC image bytes.
+///
+/// Returns a heap-allocated UTF-8 C string on success, or null on failure.
+/// Same `error_out` ownership rules as [`bpk_decode`].
+///
+/// # Safety
+/// `data` must be valid for `len` bytes when non-null.
+/// `error_out` may be null.
+#[no_mangle]
+pub unsafe extern "C" fn bpk_extract_qr(
+    data: *const u8,
+    len: usize,
+    error_out: *mut *mut c_char,
+) -> *mut c_char {
+    clear_last_error();
+    if !error_out.is_null() {
+        *error_out = ptr::null_mut();
+    }
+
+    if data.is_null() || len == 0 {
+        let msg = "image pointer is null or empty";
+        set_last_error(msg);
+        write_error_out(error_out, msg);
+        return ptr::null_mut();
+    }
+
+    let slice = std::slice::from_raw_parts(data, len);
+    match extract_qr_payload(slice) {
+        Ok(payload) => to_c_string(payload),
         Err(e) => {
             let msg = e.to_string();
             set_last_error(&msg);

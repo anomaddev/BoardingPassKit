@@ -1,6 +1,7 @@
 #ifndef BOARDING_PASS_KIT_H
 #define BOARDING_PASS_KIT_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -20,6 +21,13 @@ typedef struct BpkOptions {
  * writes an owned error string into *error_out (also free with bpk_free_string).
  */
 char *bpk_decode(const char *barcode, const BpkOptions *options, char **error_out);
+
+/*
+ * Extract the first QR payload from PNG/JPEG/HEIC image bytes.
+ * Caller must free the return value with bpk_free_string.
+ * Same error_out ownership rules as bpk_decode.
+ */
+char *bpk_extract_qr(const uint8_t *data, size_t len, char **error_out);
 
 /*
  * ISO date YYYY-MM-DD. year==0 infers from relative_to_ms (0 => now).

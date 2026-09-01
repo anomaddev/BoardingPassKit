@@ -3,12 +3,14 @@
 mod decoder;
 mod demo;
 mod error;
+mod qr;
 mod types;
 mod utils;
 
 pub use decoder::BoardingPassDecoder;
 pub use demo::{demo_data, demo_keys, DemoDataKey, DEMO_DATA};
 pub use error::{BoardingPassError, BoardingPassErrorCode};
+pub use qr::extract_qr_payload;
 pub use types::{
     BoardingPass, BoardingPassInfo, BoardingPassLeg, BoardingPassLegData, BoardingPassSecurityData,
     FlightDateOptions,

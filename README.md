@@ -17,11 +17,12 @@ Python, Go, and PHP share the Rust core. Swift and Node remain independent ports
 ## Features
 
 - Parse IATA BCBP v8 ASCII payloads (single and multi-leg)
+- Extract a QR payload from PNG, JPEG, or HEIC images, then decode it as BCBP
 - Extract bag tags, frequent flyer info, and security data
 - Convert Julian day-of-year to calendar dates (with year inference)
 - Configurable trimming and empty-string handling
 - Built-in demo data for testing
-- Shared golden fixtures under [`testdata/`](testdata)
+- Shared golden fixtures under [`testdata/`](testdata) (including [`testdata/images/`](testdata/images))
 
 ## Repository Layout
 
@@ -56,7 +57,7 @@ BoardingPassKit/
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.1.2")
+    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.2.0")
 ]
 ```
 
@@ -77,6 +78,10 @@ decoder.debug = false
 let pass = try decoder.decode(code: barcodeString)
 print(pass.passengerName)
 print(pass.boardingPassLegs.first?.origin ?? "")
+
+// PNG / JPEG / HEIC → QR string → boarding pass
+let qrString = try BoardingPassQRExtractor.payload(from: imageData)
+let passFromImage = try decoder.decode(imageData: imageData)
 
 // Julian day-of-year → calendar date
 if let flightDate = pass.boardingPassLegs.first?.flightDate() {
@@ -111,6 +116,11 @@ console.log(pass.passengerName);
 
 const flightDate = pass.boardingPassLegs[0]!.flightDate();
 // or: julianToCalendarDate(14, 2025)
+
+import { extractQrPayload } from 'boarding-pass-kit';
+
+const payload = await extractQrPayload('./pass.png'); // PNG, JPEG, or HEIC
+const passFromImage = await decoder.decodeFromImage('./pass.heic');
 ```
 
 ## Rust / Python / Go / PHP

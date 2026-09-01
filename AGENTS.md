@@ -9,8 +9,10 @@ This repo is a monorepo for **BoardingPassKit**, a client-side IATA BCBP (Resolu
 - `apps/BoardingPassKitDemo` — iOS demo app (Xcode).
 
 ### Scope on this Linux VM
-- Only the **Node package** builds, tests, and runs here. The Swift package and iOS demo require **macOS + Xcode** (no Swift toolchain is installed on this Linux VM), so `swift build` / `swift test` / `npm run test:swift` and the demo app are out of scope in Cloud.
-- There are **no servers, databases, ports, or environment variables**. This is a pure library — "running" it means building it and executing a decode against the bundled `DemoData` fixtures (`Simple`, `Historical`, `MultiLeg`, `International`).
+- The **Node package** builds, tests, and runs here, including PNG/JPEG/HEIC QR extraction (`extractQrPayload` / `decodeFromImage`). HEIC uses the WASM `heic-decode` package — no system libheif is required for Node.
+- Rust / Python / Go / PHP can be built here when those toolchains are present. Rust HEIC support needs the `heic` feature plus system `libheif` (`libheif-dev` and `libheif-plugin-libde265`).
+- The Swift package and iOS demo require **macOS + Xcode** (no Swift toolchain is installed on this Linux VM), so `swift build` / `swift test` / `npm run test:swift` and the demo app are out of scope in Cloud.
+- There are **no servers, databases, ports, or environment variables**. This is a pure library — "running" it means building it and executing a decode against the bundled `DemoData` fixtures (`Simple`, `Historical`, `MultiLeg`, `International`) or the QR images under `testdata/images/`.
 
 ### Commands (run from repo root, standard scripts — see `README.md` "Development")
 - Build: `npm run build` (delegates to `tsup` in `packages/node`).
@@ -20,3 +22,4 @@ This repo is a monorepo for **BoardingPassKit**, a client-side IATA BCBP (Resolu
 - **No linter is configured** — there is no ESLint/Prettier/SwiftLint config and no `lint` script. CI (`.github/workflows/ci.yml`) only runs build + test. Do not expect a lint step to exist.
 - The package is ESM (`"type": "module"`). When smoke-testing the built output directly, import from `packages/node/dist/index.js` after `npm run build`.
 - Leg fields use short names: `flightno` and `seatno` (not `flightNumber`/`seatNumber`).
+- Image QR extraction is QR-only (not PDF417 / Aztec / Data Matrix). Shared fixtures: `testdata/images/simple.{png,jpg,heic}`, `no_qr.png`, `not_an_image.bin`.

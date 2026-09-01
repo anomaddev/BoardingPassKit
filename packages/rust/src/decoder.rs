@@ -51,6 +51,12 @@ impl BoardingPassDecoder {
         self.breakdown()
     }
 
+    /// Extract a QR payload from PNG/JPEG/HEIC bytes, then decode it as BCBP.
+    pub fn decode_from_image(&mut self, image: &[u8]) -> Result<BoardingPass, BoardingPassError> {
+        let payload = crate::extract_qr_payload(image)?;
+        self.decode(&payload)
+    }
+
     fn apply_empty_string_is_nil(&self, value: Option<String>) -> Option<String> {
         match value {
             None => None,

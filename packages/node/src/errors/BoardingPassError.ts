@@ -14,6 +14,9 @@ export enum BoardingPassErrorCode {
   BoardingPassLegConditionalMismatch = 'BoardingPassLegConditionalMismatch',
   SegmentSubConditionalInvalid = 'SegmentSubConditionalInvalid',
   InvalidJulianDay = 'InvalidJulianDay',
+  QRCodeNotFound = 'QRCodeNotFound',
+  UnsupportedImageFormat = 'UnsupportedImageFormat',
+  ImageDecodeFailed = 'ImageDecodeFailed',
   Unexpected = 'unexpected',
 }
 
@@ -137,6 +140,27 @@ export class BoardingPassError extends Error {
       BoardingPassErrorCode.Unexpected,
       `Error code ${code} occured.`,
       { unexpectedCode: code },
+    );
+  }
+
+  static qrCodeNotFound(): BoardingPassError {
+    return new BoardingPassError(
+      BoardingPassErrorCode.QRCodeNotFound,
+      'No QR code was found in the image',
+    );
+  }
+
+  static unsupportedImageFormat(detail: string): BoardingPassError {
+    return new BoardingPassError(
+      BoardingPassErrorCode.UnsupportedImageFormat,
+      `Unsupported image format: ${detail}`,
+    );
+  }
+
+  static imageDecodeFailed(detail: string): BoardingPassError {
+    return new BoardingPassError(
+      BoardingPassErrorCode.ImageDecodeFailed,
+      `Failed to decode image: ${detail}`,
     );
   }
 }

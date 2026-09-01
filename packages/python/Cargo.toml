@@ -9,6 +9,10 @@ publish = false
 name = "boarding_pass_kit"
 crate-type = ["cdylib"]
 
+[features]
+default = []
+heic = ["boarding-pass-kit/heic"]
+
 [dependencies]
 boarding-pass-kit = { workspace = true }
 pyo3 = { version = "0.23", features = ["extension-module"] }

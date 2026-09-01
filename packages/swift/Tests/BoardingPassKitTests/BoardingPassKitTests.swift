@@ -94,4 +94,56 @@ final class BoardingPassKitTests: XCTestCase {
         XCTAssertNotNil(flightDate)
         XCTAssertEqual(calendar.component(.year, from: flightDate!), 2025)
     }
+
+    func testdataImagesDir() -> URL {
+        var url = URL(fileURLWithPath: #filePath)
+        while url.path != "/" && url.lastPathComponent != "packages" {
+            url.deleteLastPathComponent()
+        }
+        url.deleteLastPathComponent()
+        return url.appendingPathComponent("testdata/images")
+    }
+
+    func testdataImage(_ name: String) throws -> Data {
+        try Data(contentsOf: testdataImagesDir().appendingPathComponent(name))
+    }
+
+    func testExtractQRFromPNG() throws {
+        let payload = try BoardingPassQRExtractor.payload(from: testdataImage("simple.png"))
+        XCTAssertEqual(payload, BoardingPass.DemoData.Simple.string)
+    }
+
+    func testExtractQRFromJPEG() throws {
+        let payload = try BoardingPassQRExtractor.payload(from: testdataImage("simple.jpg"))
+        XCTAssertEqual(payload, BoardingPass.DemoData.Simple.string)
+    }
+
+    func testExtractQRFromHEIC() throws {
+        let payload = try BoardingPassQRExtractor.payload(from: testdataImage("simple.heic"))
+        XCTAssertEqual(payload, BoardingPass.DemoData.Simple.string)
+    }
+
+    func testDecodeFromImagePNG() throws {
+        let decoder = BoardingPassDecoder()
+        decoder.debug = false
+        let pass = try decoder.decode(imageData: testdataImage("simple.png"))
+        XCTAssertEqual(pass.boardingPassLegs[0].origin, "MSY")
+        XCTAssertEqual(pass.code, BoardingPass.DemoData.Simple.string)
+    }
+
+    func testExtractQRMissingCode() {
+        XCTAssertThrowsError(try BoardingPassQRExtractor.payload(from: testdataImage("no_qr.png"))) { error in
+            guard case BoardingPassError.QRCodeNotFound = error else {
+                return XCTFail("expected QRCodeNotFound, got \(error)")
+            }
+        }
+    }
+
+    func testExtractQRUnsupportedFormat() {
+        XCTAssertThrowsError(try BoardingPassQRExtractor.payload(from: testdataImage("not_an_image.bin"))) { error in
+            guard case BoardingPassError.UnsupportedImageFormat = error else {
+                return XCTFail("expected UnsupportedImageFormat, got \(error)")
+            }
+        }
+    }
 }
