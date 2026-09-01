@@ -25,9 +25,13 @@ git tag v2.3.0
 git push origin v2.3.0
 ```
 
-GitHub Actions runs tests, builds, and publishes via the `Publish` workflow.
+GitHub Actions runs tests, builds, and publishes via the `Publish` workflow using [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) (OIDC). Do not set `NODE_AUTH_TOKEN` / `NPM_TOKEN` on that job — a stale token produces a misleading `404` on publish.
 
-**One-time setup:** add an npm [access token](https://www.npmjs.com/settings/~yourusername/tokens) as the `NPM_TOKEN` repository secret (Settings → Secrets and variables → Actions). Use an **Automation** or **Publish** token if you have 2FA enabled.
+**One-time setup** on [npmjs.com](https://www.npmjs.com/package/boarding-pass-kit) → package Settings → Trusted Publisher:
+
+- Organization or user: `anomaddev`
+- Repository: `BoardingPassKit`
+- Workflow filename: `publish.yml` (no path)
 
 ## Quick Start
 
