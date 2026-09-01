@@ -29,7 +29,17 @@ describe('extractQrPayload', () => {
     expect(payload).toBe(DemoData.Simple);
   });
 
-  it('throws QRCodeNotFound when the image has no QR', async () => {
+  it('reads an Aztec payload from PNG bytes', async () => {
+    const payload = await extractQrPayload(readImage('simple_aztec.png'));
+    expect(payload).toBe(DemoData.Simple);
+  });
+
+  it('reads a PDF417 payload from PNG bytes', async () => {
+    const payload = await extractQrPayload(readImage('simple_pdf417.png'));
+    expect(payload).toBe(DemoData.Simple);
+  });
+
+  it('throws QRCodeNotFound when the image has no barcode', async () => {
     await expect(extractQrPayload(readImage('no_qr.png'))).rejects.toMatchObject({
       code: BoardingPassErrorCode.QRCodeNotFound,
     });
@@ -52,6 +62,20 @@ describe('BoardingPassDecoder.decodeFromImage', () => {
     const pass = await decoder.decodeFromImage(readImage('simple.png'));
     expect(pass.passengerName).toBe('ACKERMANN/JUSTIN DAV');
     expect(pass.boardingPassLegs[0]!.origin).toBe('MSY');
+    expect(pass.code).toBe(DemoData.Simple);
+  });
+
+  it('decodes a boarding pass from a PNG Aztec image', async () => {
+    const decoder = new BoardingPassDecoder();
+    decoder.debug = false;
+    const pass = await decoder.decodeFromImage(readImage('simple_aztec.png'));
+    expect(pass.code).toBe(DemoData.Simple);
+  });
+
+  it('decodes a boarding pass from a PNG PDF417 image', async () => {
+    const decoder = new BoardingPassDecoder();
+    decoder.debug = false;
+    const pass = await decoder.decodeFromImage(readImage('simple_pdf417.png'));
     expect(pass.code).toBe(DemoData.Simple);
   });
 });

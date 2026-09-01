@@ -146,7 +146,7 @@ export class BoardingPassError extends Error {
   static qrCodeNotFound(): BoardingPassError {
     return new BoardingPassError(
       BoardingPassErrorCode.QRCodeNotFound,
-      'No QR code was found in the image',
+      'No QR, Aztec, or PDF417 barcode was found in the image',
     );
   }
 

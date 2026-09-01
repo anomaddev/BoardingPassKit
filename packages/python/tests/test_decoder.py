@@ -52,8 +52,18 @@ def test_decode_from_image_png(decoder):
     assert pass_dict["code"] == DemoData["Simple"]
 
 
+def test_extract_aztec_png():
+    payload = extract_qr_payload((TESTDATA / "images" / "simple_aztec.png").read_bytes())
+    assert payload == DemoData["Simple"]
+
+
+def test_extract_pdf417_png():
+    payload = extract_qr_payload((TESTDATA / "images" / "simple_pdf417.png").read_bytes())
+    assert payload == DemoData["Simple"]
+
+
 def test_extract_qr_no_code():
-    with pytest.raises(ValueError, match="No QR code"):
+    with pytest.raises(ValueError, match="No QR, Aztec, or PDF417"):
         extract_qr_payload((TESTDATA / "images" / "no_qr.png").read_bytes())
 
 

@@ -1,4 +1,12 @@
 import { readFile } from 'node:fs/promises';
+import {
+  BarcodeFormat,
+  BinaryBitmap,
+  DecodeHintType,
+  HybridBinarizer,
+  MultiFormatReader,
+  RGBLuminanceSource,
+} from '@zxing/library';
 import heicDecode from 'heic-decode';
 import jpeg from 'jpeg-js';
 import jsQR from 'jsqr';
@@ -15,13 +23,23 @@ type RgbaImage = {
 
 const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
+const ZXING_HINTS = new Map<DecodeHintType, unknown>();
+ZXING_HINTS.set(DecodeHintType.POSSIBLE_FORMATS, [
+  BarcodeFormat.QR_CODE,
+  BarcodeFormat.AZTEC,
+  BarcodeFormat.PDF_417,
+]);
+ZXING_HINTS.set(DecodeHintType.TRY_HARDER, true);
+ZXING_HINTS.set(DecodeHintType.CHARACTER_SET, 'ISO-8859-1');
+
 /**
- * Read PNG, JPEG, or HEIC bytes (or a file path) and return the first QR payload.
+ * Read PNG, JPEG, or HEIC bytes (or a file path) and return the first
+ * QR, Aztec, or PDF417 payload.
  */
 export async function extractQrPayload(image: ImageInput): Promise<string> {
   const bytes = await toBuffer(image);
   const rgba = await decodeImage(bytes);
-  return findQrPayload(rgba);
+  return findBarcodePayload(rgba);
 }
 
 async function toBuffer(image: ImageInput): Promise<Buffer> {
@@ -101,18 +119,47 @@ function heifBrand(brand: string): boolean {
   return ['heic', 'heix', 'heif', 'hevc', 'hevx', 'mif1', 'msf1'].includes(brand);
 }
 
-function findQrPayload(image: RgbaImage): string {
+function findBarcodePayload(image: RgbaImage): string {
   let current = image;
   for (let i = 0; i < 4; i += 1) {
-    const result = jsQR(current.data, current.width, current.height, {
+    const qr = jsQR(current.data, current.width, current.height, {
       inversionAttempts: 'attemptBoth',
     });
-    if (result?.data) {
-      return result.data;
+    if (qr?.data) {
+      return qr.data;
+    }
+    const zxing = decodeWithZxing(current);
+    if (zxing) {
+      return zxing;
     }
     current = rotateRgba90(current);
   }
   throw BoardingPassError.qrCodeNotFound();
+}
+
+function decodeWithZxing(image: RgbaImage): string | null {
+  const source = new RGBLuminanceSource(rgbaToLuma(image), image.width, image.height);
+  const bitmap = new BinaryBitmap(new HybridBinarizer(source));
+  const reader = new MultiFormatReader();
+  try {
+    const result = reader.decode(bitmap, ZXING_HINTS);
+    return result.getText() || null;
+  } catch {
+    return null;
+  }
+}
+
+function rgbaToLuma(image: RgbaImage): Uint8ClampedArray {
+  const { data, width, height } = image;
+  const luma = new Uint8ClampedArray(width * height);
+  for (let i = 0; i < luma.length; i += 1) {
+    const offset = i * 4;
+    const r = data[offset]!;
+    const g = data[offset + 1]!;
+    const b = data[offset + 2]!;
+    luma[i] = (r * 77 + g * 150 + b * 29) >> 8;
+  }
+  return luma;
 }
 
 function rotateRgba90(image: RgbaImage): RgbaImage {

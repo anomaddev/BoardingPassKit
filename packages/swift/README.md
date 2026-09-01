@@ -8,7 +8,7 @@ IATA BCBP (Resolution 792, Version 8) boarding pass decoder for iOS 15+ and macO
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.3.0")
+    .package(url: "https://github.com/anomaddev/BoardingPassKit.git", from: "2.3.1")
 ]
 ```
 
@@ -31,19 +31,19 @@ print(pass.passengerName)
 print(pass.boardingPassLegs.first?.origin ?? "")
 ```
 
-## Image QR extraction
+## Image barcode extraction
 
-Read a boarding-pass QR from PNG, JPEG, or HEIC bytes, then decode it:
+Read a boarding-pass QR, Aztec, or PDF417 barcode from PNG, JPEG, or HEIC bytes, then decode it:
 
 ```swift
-let qrString = try BoardingPassQRExtractor.payload(from: imageData)
-let pass = try decoder.decode(code: qrString)
+let barcodeString = try BoardingPassQRExtractor.payload(from: imageData)
+let pass = try decoder.decode(code: barcodeString)
 
 // or in one step
 let passFromImage = try decoder.decode(imageData: imageData)
 ```
 
-On iOS, `BoardingPassQRExtractor.payload(from:)` also accepts `UIImage`. Scanning uses Vision and is limited to QR codes (not PDF417 / Aztec / Data Matrix).
+On iOS, `BoardingPassQRExtractor.payload(from:)` also accepts `UIImage`. Scanning uses Vision and reads QR, Aztec, and PDF417 (not Data Matrix).
 
 ## Demo data
 

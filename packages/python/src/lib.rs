@@ -79,14 +79,14 @@ impl PyBoardingPassDecoder {
         pass_to_dict(py, &pass)
     }
 
-    /// Extract a QR payload from image bytes, then decode it as BCBP.
+    /// Extract a QR, Aztec, or PDF417 payload from image bytes, then decode it as BCBP.
     fn decode_from_image(&mut self, py: Python<'_>, image: &[u8]) -> PyResult<PyObject> {
         let pass = self.inner.decode_from_image(image).map_err(to_py_err)?;
         pass_to_dict(py, &pass)
     }
 }
 
-/// Extract the first QR payload from PNG, JPEG, or HEIC image bytes.
+/// Extract the first QR, Aztec, or PDF417 payload from PNG, JPEG, or HEIC image bytes.
 #[pyfunction]
 #[pyo3(name = "extract_qr_payload")]
 fn extract_qr_payload(image: &[u8]) -> PyResult<String> {

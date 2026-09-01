@@ -40,4 +40,4 @@ $payload = BoardingPassDecoder::extractQR($image);
 $passFromImage = $decoder->decodeFromImage($image);
 ```
 
-`extractQR` reads PNG/JPEG bytes (and HEIC when the FFI library is built with `--features heic`).
+`extractQR` reads a QR, Aztec, or PDF417 payload from PNG/JPEG bytes (and HEIC when the FFI library is built with `--features heic`).

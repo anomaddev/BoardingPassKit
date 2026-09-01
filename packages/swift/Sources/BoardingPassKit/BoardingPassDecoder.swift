@@ -73,7 +73,7 @@ open class BoardingPassDecoder: NSObject {
         return try breakdown()
     }
 
-    /// Extract a QR payload from PNG/JPEG/HEIC image bytes, then decode it as BCBP.
+    /// Extract a QR, Aztec, or PDF417 payload from PNG/JPEG/HEIC image bytes, then decode it as BCBP.
     public func decode(imageData: Data) throws -> BoardingPass {
         let payload = try BoardingPassQRExtractor.payload(from: imageData)
         return try decode(code: payload)

@@ -83,6 +83,7 @@ export class BoardingPassDecoder {
     return this.breakdown();
   }
 
+  /** Extract a QR, Aztec, or PDF417 payload from PNG/JPEG/HEIC, then decode it as BCBP. */
   async decodeFromImage(image: ImageInput): Promise<BoardingPass> {
     const payload = await extractQrPayload(image);
     return this.decode(payload);

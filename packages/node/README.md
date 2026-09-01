@@ -1,6 +1,6 @@
 # boarding-pass-kit
 
-TypeScript/Node.js library for parsing **IATA BCBP v8** boarding pass barcodes and QR codes, including QR codes in PNG, JPEG, and HEIC images.
+TypeScript/Node.js library for parsing **IATA BCBP v8** boarding pass barcodes, including QR, Aztec, and PDF417 codes in PNG, JPEG, and HEIC images.
 
 **Compliance:** IATA Resolution 792 - BCBP Version 8 (Effective June 1, 2020)
 
@@ -21,8 +21,8 @@ Releases are published to npm automatically when a version tag is pushed.
 3. Create and push a matching tag:
 
 ```bash
-git tag v2.3.0
-git push origin v2.3.0
+git tag v2.3.1
+git push origin v2.3.1
 ```
 
 GitHub Actions runs tests, builds, and publishes via the `Publish` workflow using [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) (OIDC). Do not set `NODE_AUTH_TOKEN` / `NPM_TOKEN` on that job — a stale token produces a misleading `404` on publish.
@@ -56,9 +56,9 @@ Decode from a `Buffer`:
 const pass = decoder.decode(Buffer.from(barcodeString, 'ascii'));
 ```
 
-## Image QR extraction
+## Image barcode extraction
 
-Read a boarding-pass QR from a PNG, JPEG, or HEIC image and get the BCBP string. Pass that string to `decode()`, or use `decodeFromImage()` to do both steps.
+Read a boarding-pass QR, Aztec, or PDF417 barcode from a PNG, JPEG, or HEIC image and get the BCBP string. Pass that string to `decode()`, or use `decodeFromImage()` to do both steps.
 
 ```typescript
 import { BoardingPassDecoder, extractQrPayload } from 'boarding-pass-kit';
@@ -72,7 +72,7 @@ const pass = decoder.decode(payload);
 const passFromImage = await decoder.decodeFromImage('./pass.heic');
 ```
 
-`extractQrPayload` looks for the first QR code. If none is found it retries 90/180/270° rotations (common with camera EXIF). PDF417, Aztec, and Data Matrix are not scanned.
+`extractQrPayload` looks for the first QR, Aztec, or PDF417 barcode. If none is found it retries 90/180/270° rotations (common with camera EXIF). Data Matrix is not scanned.
 
 ## Configuration
 
@@ -128,9 +128,9 @@ const pass = decoder.decode(DemoData[key]);
 |--------|-------------|
 | `decode(code: string)` | Parse an ASCII barcode string |
 | `decode(data: Buffer \| Uint8Array)` | Parse raw bytes |
-| `decodeFromImage(image)` | Extract a QR payload from PNG/JPEG/HEIC, then decode |
+| `decodeFromImage(image)` | Extract a QR, Aztec, or PDF417 payload from PNG/JPEG/HEIC, then decode |
 
-`extractQrPayload(image)` is a standalone export that returns only the QR string.
+`extractQrPayload(image)` is a standalone export that returns only the barcode string.
 
 ### Types
 
@@ -150,7 +150,7 @@ Throws `BoardingPassError` with a `code` from `BoardingPassErrorCode`:
 - `BoardingPassLegConditionalMismatch` — Conditional section size mismatch
 - `InvalidJulianDay` — Day-of-year out of range
 - `DataIsNotBoardingPass` — Wrapper for inner parse errors
-- `QRCodeNotFound` — Image decoded but no QR was found
+- `QRCodeNotFound` — Image decoded but no QR, Aztec, or PDF417 barcode was found
 - `UnsupportedImageFormat` — Not PNG, JPEG, or HEIC
 - `ImageDecodeFailed` — Image bytes were a supported type but could not be rasterized
 

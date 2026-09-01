@@ -31,15 +31,15 @@ fn main() -> Result<(), boarding_pass_kit::BoardingPassError> {
 }
 ```
 
-## Image QR extraction
+## Image barcode extraction
 
-`extract_qr_payload(&[u8])` reads the first QR payload from PNG or JPEG bytes. HEIC requires the optional `heic` feature and a system `libheif` (plus a HEVC decoder plugin such as `libheif-plugin-libde265`):
+`extract_qr_payload(&[u8])` reads the first QR, Aztec, or PDF417 payload from PNG or JPEG bytes. HEIC requires the optional `heic` feature and a system `libheif` (plus a HEVC decoder plugin such as `libheif-plugin-libde265`):
 
 ```toml
 boarding-pass-kit = { version = "0.2", features = ["heic"] }
 ```
 
-`BoardingPassDecoder::decode_from_image` extracts the QR string and then runs the existing BCBP parser.
+`BoardingPassDecoder::decode_from_image` extracts the barcode string and then runs the existing BCBP parser.
 
 ## Notes
 

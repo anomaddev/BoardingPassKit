@@ -137,7 +137,7 @@ pub unsafe extern "C" fn bpk_decode(
     }
 }
 
-/// Extract the first QR payload from PNG/JPEG/HEIC image bytes.
+/// Extract the first QR, Aztec, or PDF417 payload from PNG/JPEG/HEIC image bytes.
 ///
 /// Returns a heap-allocated UTF-8 C string on success, or null on failure.
 /// Same `error_out` ownership rules as [`bpk_decode`].

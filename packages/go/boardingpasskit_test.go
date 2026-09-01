@@ -119,6 +119,26 @@ func TestDecodeFromImagePng(t *testing.T) {
 	}
 }
 
+func TestExtractAztecPng(t *testing.T) {
+	payload, err := ExtractQR(readImage(t, "simple_aztec.png"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if payload != DemoData["Simple"] {
+		t.Fatalf("got %q", payload)
+	}
+}
+
+func TestExtractPDF417Png(t *testing.T) {
+	payload, err := ExtractQR(readImage(t, "simple_pdf417.png"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if payload != DemoData["Simple"] {
+		t.Fatalf("got %q", payload)
+	}
+}
+
 func TestExtractQRNoCode(t *testing.T) {
 	_, err := ExtractQR(readImage(t, "no_qr.png"))
 	if err == nil {

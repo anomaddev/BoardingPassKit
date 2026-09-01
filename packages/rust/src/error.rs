@@ -123,7 +123,7 @@ impl BoardingPassError {
     pub fn qr_code_not_found() -> Self {
         Self::new(
             BoardingPassErrorCode::QRCodeNotFound,
-            "No QR code was found in the image",
+            "No QR, Aztec, or PDF417 barcode was found in the image",
         )
     }
 

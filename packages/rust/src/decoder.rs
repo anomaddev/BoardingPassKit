@@ -51,7 +51,7 @@ impl BoardingPassDecoder {
         self.breakdown()
     }
 
-    /// Extract a QR payload from PNG/JPEG/HEIC bytes, then decode it as BCBP.
+    /// Extract a QR, Aztec, or PDF417 payload from PNG/JPEG/HEIC bytes, then decode it as BCBP.
     pub fn decode_from_image(&mut self, image: &[u8]) -> Result<BoardingPass, BoardingPassError> {
         let payload = crate::extract_qr_payload(image)?;
         self.decode(&payload)

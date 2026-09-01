@@ -1,7 +1,7 @@
 //
 //  BoardingPassQRExtractor.swift
 //
-//  Reads a QR payload from PNG, JPEG, or HEIC image data.
+//  Reads a QR, Aztec, or PDF417 payload from PNG, JPEG, or HEIC image data.
 //
 
 import CoreGraphics
@@ -15,7 +15,7 @@ import UIKit
 
 public enum BoardingPassQRExtractor {
 
-    /// Extract the first QR payload from PNG, JPEG, or HEIC bytes.
+    /// Extract the first QR, Aztec, or PDF417 payload from PNG, JPEG, or HEIC bytes.
     public static func payload(from imageData: Data) throws -> String {
         try validateImageFormat(imageData)
         guard
@@ -27,10 +27,10 @@ public enum BoardingPassQRExtractor {
         return try payload(from: cgImage)
     }
 
-    /// Extract the first QR payload from a `CGImage`.
+    /// Extract the first QR, Aztec, or PDF417 payload from a `CGImage`.
     public static func payload(from image: CGImage) throws -> String {
         let request = VNDetectBarcodesRequest()
-        request.symbologies = [.qr]
+        request.symbologies = [.qr, .aztec, .pdf417]
         let handler = VNImageRequestHandler(cgImage: image, options: [:])
         do {
             try handler.perform([request])
@@ -50,7 +50,7 @@ public enum BoardingPassQRExtractor {
     }
 
     #if os(iOS)
-    /// Extract the first QR payload from a `UIImage`.
+    /// Extract the first QR, Aztec, or PDF417 payload from a `UIImage`.
     public static func payload(from image: UIImage) throws -> String {
         guard let cgImage = image.cgImage else {
             throw BoardingPassError.ImageDecodeFailed

@@ -55,4 +55,4 @@ func main() {
 }
 ```
 
-`ExtractQR` reads PNG/JPEG bytes (and HEIC when the FFI library is built with `--features heic`). When linking a HEIC-enabled static library on Linux, pass `CGO_LDFLAGS="-lheif"`.
+`ExtractQR` reads a QR, Aztec, or PDF417 payload from PNG/JPEG bytes (and HEIC when the FFI library is built with `--features heic`). When linking a HEIC-enabled static library on Linux, pass `CGO_LDFLAGS="-lheif"`.
