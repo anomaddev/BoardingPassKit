@@ -258,10 +258,6 @@ export class BoardingPassDecoder {
   }
 
   private conditional(length: number): string {
-    if (this.data!.length < this.index + length && this.endConditional > 0) {
-      throw BoardingPassError.conditionalIndexInvalid(this.endConditional, this.subConditional);
-    }
-
     if (this.subConditional !== 0) {
       this.subConditional -= length;
     }
@@ -271,6 +267,12 @@ export class BoardingPassDecoder {
     }
 
     let string = this.readdata(length);
+    // IATA BCBP pads optional trailing fields with spaces. Copy/paste, JSON, and
+    // some scanners strip those spaces, so treat a short read as space padding
+    // instead of failing the whole pass.
+    if (string.length < length) {
+      string = string.padEnd(length, ' ');
+    }
     if (this.debug) {
       console.log(`CONDITIONAL: ${string}`);
       console.log(`SUB-CONDITIONAL: ${this.subConditional}`);
@@ -504,10 +506,11 @@ export class BoardingPassDecoder {
       const airlineNumeric = this.conditional(3);
       const documentNumber = this.conditional(10);
       const selectee = this.conditional(1);
-      const internationalDoc = this.conditional(1);
-      const marketingCarrier = this.conditional(3);
+      const internationalDoc = this.subConditional >= 1 ? this.conditional(1) : '';
+      const marketingCarrier = this.subConditional >= 3 ? this.conditional(3) : '';
 
-      const ffFieldSize = Math.max(0, fieldSize - 23);
+      // Reserve 5 bytes for trailing fixed fields (idAd 1 + freeBags 3 + fastTrack 1)
+      const ffFieldSize = Math.max(0, this.subConditional - 5);
 
       if (this.debug) {
         console.log(`Conditional chars left: ${this.subConditional}`);
@@ -531,9 +534,9 @@ export class BoardingPassDecoder {
         console.log(`Conditional chars left: ${this.subConditional}`);
       }
 
-      let idAdIndicator: string | null = this.conditional(1);
-      let freeBags: string | null = this.conditional(3);
-      let fastTrack: string | null = this.conditional(1);
+      let idAdIndicator: string | null = this.subConditional >= 1 ? this.conditional(1) : null;
+      let freeBags: string | null = this.subConditional >= 3 ? this.conditional(3) : null;
+      let fastTrack: string | null = this.subConditional >= 1 ? this.conditional(1) : null;
 
       let airlineUse: string | null = null;
       const leftOver = this.endConditional - this.subConditional;

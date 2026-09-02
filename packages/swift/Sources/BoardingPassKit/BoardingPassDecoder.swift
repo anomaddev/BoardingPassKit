@@ -262,9 +262,6 @@ open class BoardingPassDecoder: NSObject {
     
     /// This returns a conditional field given it does not go over the length specified
     private func conditional(_ length: Int) throws -> String {
-        if (data.count < index + length) && (endConditional > 0)
-        { throw BoardingPassError.ConditionalIndexInvalid(endConditional, subConditional) }
-        
         if subConditional != 0
         { subConditional -= length }
         
@@ -272,6 +269,12 @@ open class BoardingPassDecoder: NSObject {
         { endConditional -= length }
         
         var string: String = try readdata(length)
+        // IATA BCBP pads optional trailing fields with spaces. Copy/paste, JSON, and
+        // some scanners strip those spaces, so treat a short read as space padding
+        // instead of failing the whole pass.
+        if string.count < length {
+            string = string.padding(toLength: length, withPad: " ", startingAt: 0)
+        }
         if debug {
             print("CONDITIONAL: " + string)
             print("SUB-CONDITIONAL: \(subConditional)")
@@ -302,7 +305,16 @@ open class BoardingPassDecoder: NSObject {
     
     /// Read the next section of data of a given length and return the `String` value
     private func readdata(_ length: Int) throws -> String {
-        let subdata = data.subdata(in: index ..< (index + length))
+        // Match Node Buffer.subarray: clamp to available bytes, but always advance
+        // the cursor by the requested length (may move past EOF).
+        let start = index
+        let end = min(start + length, data.count)
+        let subdata: Data
+        if start >= data.count || start >= end {
+            subdata = Data()
+        } else {
+            subdata = data.subdata(in: start ..< end)
+        }
         index += length
         
         guard let rawString = String(data: subdata, encoding: String.Encoding.ascii)

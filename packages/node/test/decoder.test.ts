@@ -54,6 +54,40 @@ describe('BoardingPassDecoder', () => {
     const pass = decoder.decode(Buffer.from(DemoData.Simple, 'ascii'));
     expect(pass.format).toBe('M');
   });
+
+  // AA YUL-PHL: IATA space-pads FF / ID-AD / bags / fast-track. Copy/paste and
+  // some scanners strip those trailing spaces, which used to throw
+  // ConditionalIndexInvalid (endConditional 23 / subConditional 23).
+  const yulPhlVisible =
+    'M1ACKERMANN/JUSTIN DAVESWMUYT YULPHLAA 5717 176Y002A0034 147>1180RO4176BAA              29001701407985430   AA 76UXK84';
+  const yulPhlPadded = yulPhlVisible.padEnd(60 + 0x47, ' ');
+
+  function expectYulPhl(pass: ReturnType<BoardingPassDecoder['decode']>) {
+    expect(pass.format).toBe('M');
+    expect(pass.numberOfLegs).toBe(1);
+    expect(pass.passengerName).toBe('ACKERMANN/JUSTIN DAV');
+    expect(pass.boardingPassLegs).toHaveLength(1);
+    const leg = pass.boardingPassLegs[0]!;
+    expect(leg.origin).toBe('YUL');
+    expect(leg.destination).toBe('PHL');
+    expect(leg.operatingCarrier).toBe('AA');
+    expect(leg.flightno).toBe('5717');
+    expect(leg.julianDate).toBe(176);
+    expect(leg.seatno).toBe('2A');
+    expect(leg.conditionalData?.ticketNumber).toBe('7014079854');
+    expect(leg.conditionalData?.ffAirline).toBe('AA');
+    expect(leg.conditionalData?.ffNumber).toBe('76UXK84');
+  }
+
+  it('decodes an AA YUL-PHL pass with trailing IATA space padding', () => {
+    expect(yulPhlPadded).toHaveLength(131);
+    expectYulPhl(decoder.decode(yulPhlPadded));
+  });
+
+  it('decodes an AA YUL-PHL pass after trailing spaces are stripped', () => {
+    expect(yulPhlVisible).toHaveLength(118);
+    expectYulPhl(decoder.decode(yulPhlVisible));
+  });
 });
 
 describe('BoardingPassDecoder errors', () => {

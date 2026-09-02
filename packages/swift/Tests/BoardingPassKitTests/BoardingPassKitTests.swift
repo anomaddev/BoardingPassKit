@@ -21,6 +21,26 @@ final class BoardingPassKitTests: XCTestCase {
         XCTAssertEqual("0ABC".removeLeadingZeros(), "ABC")
     }
 
+    func testDecodeYulPhlAfterTrailingSpacesStripped() throws {
+        let visible = "M1ACKERMANN/JUSTIN DAVESWMUYT YULPHLAA 5717 176Y002A0034 147>1180RO4176BAA              29001701407985430   AA 76UXK84"
+        XCTAssertEqual(visible.count, 118)
+
+        let decoder = BoardingPassDecoder()
+        decoder.debug = false
+        let pass = try decoder.decode(code: visible)
+
+        XCTAssertEqual(pass.format, "M")
+        XCTAssertEqual(pass.numberOfLegs, 1)
+        XCTAssertEqual(pass.boardingPassLegs.count, 1)
+        XCTAssertEqual(pass.boardingPassLegs[0].origin, "YUL")
+        XCTAssertEqual(pass.boardingPassLegs[0].destination, "PHL")
+        XCTAssertEqual(pass.boardingPassLegs[0].flightno, "5717")
+        XCTAssertEqual(pass.boardingPassLegs[0].julianDate, 176)
+        XCTAssertEqual(pass.boardingPassLegs[0].conditionalData?.ticketNumber, "7014079854")
+        XCTAssertEqual(pass.boardingPassLegs[0].conditionalData?.ffAirline, "AA")
+        XCTAssertEqual(pass.boardingPassLegs[0].conditionalData?.ffNumber, "76UXK84")
+    }
+
     func testDecodeSimpleDemoData() throws {
         let decoder = BoardingPassDecoder()
         decoder.debug = false
