@@ -21,8 +21,8 @@ Releases are published to npm automatically when a version tag is pushed.
 3. Create and push a matching tag:
 
 ```bash
-git tag v2.3.3
-git push origin v2.3.3
+git tag v2.3.4
+git push origin v2.3.4
 ```
 
 GitHub Actions runs tests, builds, and publishes via the `Publish` workflow using [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) (OIDC). Do not set `NODE_AUTH_TOKEN` / `NPM_TOKEN` on that job — a stale token produces a misleading `404` on publish.
@@ -73,6 +73,8 @@ const passFromImage = await decoder.decodeFromImage('./pass.heic');
 ```
 
 `extractQrPayload` looks for the first QR, Aztec, or PDF417 barcode. If none is found it retries 90/180/270° rotations (common with camera EXIF). Data Matrix is not scanned.
+
+Difficult photos and wallet screenshots — low-contrast or washed-out modules, or a barcode sitting on a strong colored background — are retried internally (bright-range stretch and extra binarizers). Callers do not preprocess the image.
 
 ## Configuration
 
