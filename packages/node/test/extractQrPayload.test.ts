@@ -39,6 +39,12 @@ describe('extractQrPayload', () => {
     expect(payload).toBe(DemoData.Simple);
   });
 
+  it('reads a washed-out wallet Aztec without caller-side preprocessing', async () => {
+    const payload = await extractQrPayload(readImage('wallet_aztec_low_contrast.png'));
+    expect(payload.startsWith('M1ACKERMANN/JUSTINDAVIEIG866Y SFOTPAUA 2836')).toBe(true);
+    expect(payload).toContain('022A');
+  });
+
   it('throws QRCodeNotFound when the image has no barcode', async () => {
     await expect(extractQrPayload(readImage('no_qr.png'))).rejects.toMatchObject({
       code: BoardingPassErrorCode.QRCodeNotFound,
@@ -77,5 +83,17 @@ describe('BoardingPassDecoder.decodeFromImage', () => {
     decoder.debug = false;
     const pass = await decoder.decodeFromImage(readImage('simple_pdf417.png'));
     expect(pass.code).toBe(DemoData.Simple);
+  });
+
+  it('decodes a washed-out wallet Aztec via decodeFromImage', async () => {
+    const decoder = new BoardingPassDecoder();
+    decoder.debug = false;
+    const pass = await decoder.decodeFromImage(readImage('wallet_aztec_low_contrast.png'));
+    expect(pass.passengerName).toMatch(/ACKERMANN/);
+    expect(pass.boardingPassLegs[0]!.origin).toBe('SFO');
+    expect(pass.boardingPassLegs[0]!.destination).toBe('TPA');
+    expect(pass.boardingPassLegs[0]!.operatingCarrier.trim()).toBe('UA');
+    expect(pass.boardingPassLegs[0]!.flightno).toBe('2836');
+    expect(pass.boardingPassLegs[0]!.seatno).toBe('22A');
   });
 });

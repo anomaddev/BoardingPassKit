@@ -3,6 +3,7 @@ import {
   BarcodeFormat,
   BinaryBitmap,
   DecodeHintType,
+  GlobalHistogramBinarizer,
   HybridBinarizer,
   MultiFormatReader,
   RGBLuminanceSource,
@@ -23,14 +24,18 @@ type RgbaImage = {
 
 const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
+const ZXING_FORMATS = [BarcodeFormat.QR_CODE, BarcodeFormat.AZTEC, BarcodeFormat.PDF_417];
+
 const ZXING_HINTS = new Map<DecodeHintType, unknown>();
-ZXING_HINTS.set(DecodeHintType.POSSIBLE_FORMATS, [
-  BarcodeFormat.QR_CODE,
-  BarcodeFormat.AZTEC,
-  BarcodeFormat.PDF_417,
-]);
+ZXING_HINTS.set(DecodeHintType.POSSIBLE_FORMATS, ZXING_FORMATS);
 ZXING_HINTS.set(DecodeHintType.TRY_HARDER, true);
 ZXING_HINTS.set(DecodeHintType.CHARACTER_SET, 'ISO-8859-1');
+
+const ZXING_HINTS_PURE = new Map<DecodeHintType, unknown>(ZXING_HINTS);
+ZXING_HINTS_PURE.set(DecodeHintType.PURE_BARCODE, true);
+
+const BRIGHT_LUMA_FLOOR = 180;
+const BRIGHT_RANGE_MIN_SPAN = 8;
 
 /**
  * Read PNG, JPEG, or HEIC bytes (or a file path) and return the first
@@ -120,6 +125,40 @@ function heifBrand(brand: string): boolean {
 }
 
 function findBarcodePayload(image: RgbaImage): string {
+  // First pass stays hybrid-only so high-contrast QR / Aztec / PDF417 are unchanged.
+  const first = scanBarcodePayload(image, { hybridOnly: true });
+  if (first) {
+    return first;
+  }
+
+  const stretched = stretchBrightRange(image);
+  if (stretched) {
+    const retry = scanBarcodePayload(stretched);
+    if (retry) {
+      return retry;
+    }
+
+    const inverted = invertRgba(stretched);
+    const invertedHit = scanBarcodePayload(inverted);
+    if (invertedHit) {
+      return invertedHit;
+    }
+
+    const pure = scanBarcodePayload(stretched, { pureBarcode: true });
+    if (pure) {
+      return pure;
+    }
+  }
+
+  throw BoardingPassError.qrCodeNotFound();
+}
+
+type ScanOptions = {
+  hybridOnly?: boolean;
+  pureBarcode?: boolean;
+};
+
+function scanBarcodePayload(image: RgbaImage, options?: ScanOptions): string | null {
   let current = image;
   for (let i = 0; i < 4; i += 1) {
     const qr = jsQR(current.data, current.width, current.height, {
@@ -128,25 +167,79 @@ function findBarcodePayload(image: RgbaImage): string {
     if (qr?.data) {
       return qr.data;
     }
-    const zxing = decodeWithZxing(current);
+    const zxing = decodeWithZxing(current, options);
     if (zxing) {
       return zxing;
     }
     current = rotateRgba90(current);
   }
-  throw BoardingPassError.qrCodeNotFound();
+  return null;
 }
 
-function decodeWithZxing(image: RgbaImage): string | null {
+function decodeWithZxing(image: RgbaImage, options?: ScanOptions): string | null {
   const source = new RGBLuminanceSource(rgbaToLuma(image), image.width, image.height);
-  const bitmap = new BinaryBitmap(new HybridBinarizer(source));
-  const reader = new MultiFormatReader();
-  try {
-    const result = reader.decode(bitmap, ZXING_HINTS);
-    return result.getText() || null;
-  } catch {
+  const hints = options?.pureBarcode ? ZXING_HINTS_PURE : ZXING_HINTS;
+  const binarizers = options?.hybridOnly
+    ? [HybridBinarizer]
+    : [HybridBinarizer, GlobalHistogramBinarizer];
+  for (const BinarizerType of binarizers) {
+    const reader = new MultiFormatReader();
+    try {
+      const result = reader.decode(new BinaryBitmap(new BinarizerType(source)), hints);
+      const text = result.getText();
+      if (text) {
+        return text;
+      }
+    } catch {
+      // try the next binarizer
+    }
+  }
+  return null;
+}
+
+/** Stretch bright pixels so a washed-out barcode on a colored card is readable. */
+function stretchBrightRange(image: RgbaImage): RgbaImage | null {
+  const luma = rgbaToLuma(image);
+  let min = 255;
+  let max = 0;
+  for (let i = 0; i < luma.length; i += 1) {
+    const value = luma[i]!;
+    if (value >= BRIGHT_LUMA_FLOOR) {
+      if (value < min) {
+        min = value;
+      }
+      if (value > max) {
+        max = value;
+      }
+    }
+  }
+  if (max - min < BRIGHT_RANGE_MIN_SPAN) {
     return null;
   }
+
+  const range = max - min;
+  const { data, width, height } = image;
+  const stretched = new Uint8ClampedArray(data.length);
+  for (let i = 0; i < luma.length; i += 1) {
+    const offset = i * 4;
+    const value = luma[i]!;
+    const out = value >= BRIGHT_LUMA_FLOOR ? ((value - min) * 255) / range : 0;
+    stretched[offset] = out;
+    stretched[offset + 1] = out;
+    stretched[offset + 2] = out;
+    stretched[offset + 3] = data[offset + 3]!;
+  }
+  return { data: stretched, width, height };
+}
+
+function invertRgba(image: RgbaImage): RgbaImage {
+  const data = new Uint8ClampedArray(image.data);
+  for (let i = 0; i < data.length; i += 4) {
+    data[i] = 255 - data[i]!;
+    data[i + 1] = 255 - data[i + 1]!;
+    data[i + 2] = 255 - data[i + 2]!;
+  }
+  return { data, width: image.width, height: image.height };
 }
 
 function rgbaToLuma(image: RgbaImage): Uint8ClampedArray {
