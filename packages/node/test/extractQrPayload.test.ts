@@ -41,7 +41,7 @@ describe('extractQrPayload', () => {
 
   it('reads a washed-out wallet Aztec without caller-side preprocessing', async () => {
     const payload = await extractQrPayload(readImage('wallet_aztec_low_contrast.png'));
-    expect(payload).toContain('SFOTPAUA 2836');
+    expect(payload.startsWith('M1ACKERMANN/JUSTINDAVIEIG866Y SFOTPAUA 2836')).toBe(true);
     expect(payload).toContain('022A');
   });
 
@@ -92,6 +92,7 @@ describe('BoardingPassDecoder.decodeFromImage', () => {
     expect(pass.passengerName).toMatch(/ACKERMANN/);
     expect(pass.boardingPassLegs[0]!.origin).toBe('SFO');
     expect(pass.boardingPassLegs[0]!.destination).toBe('TPA');
+    expect(pass.boardingPassLegs[0]!.operatingCarrier.trim()).toBe('UA');
     expect(pass.boardingPassLegs[0]!.flightno).toBe('2836');
     expect(pass.boardingPassLegs[0]!.seatno).toBe('22A');
   });
