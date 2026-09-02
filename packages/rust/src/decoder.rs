@@ -203,13 +203,6 @@ impl BoardingPassDecoder {
     }
 
     fn conditional(&mut self, length: usize) -> Result<String, BoardingPassError> {
-        if self.data.len() < self.index + length && self.end_conditional > 0 {
-            return Err(BoardingPassError::conditional_index_invalid(
-                self.end_conditional,
-                self.sub_conditional,
-            ));
-        }
-
         if self.sub_conditional != 0 {
             self.sub_conditional -= length as i32;
         }
@@ -218,6 +211,13 @@ impl BoardingPassDecoder {
         }
 
         let mut string = self.readdata(length)?;
+        // IATA BCBP pads optional trailing fields with spaces. Copy/paste, JSON, and
+        // some scanners strip those spaces, so treat a short read as space padding
+        // instead of failing the whole pass.
+        let char_count = string.chars().count();
+        if char_count < length {
+            string.extend(std::iter::repeat(' ').take(length - char_count));
+        }
         self.log(format!("CONDITIONAL: {string}"));
         self.log(format!("SUB-CONDITIONAL: {}", self.sub_conditional));
         self.log(format!("END CONDITIONAL: {}", self.end_conditional));
@@ -414,10 +414,19 @@ impl BoardingPassDecoder {
         let airline_numeric = self.conditional(3)?;
         let document_number = self.conditional(10)?;
         let selectee = self.conditional(1)?;
-        let international_doc = self.conditional(1)?;
-        let marketing_carrier = self.conditional(3)?;
+        let international_doc = if self.sub_conditional >= 1 {
+            self.conditional(1)?
+        } else {
+            String::new()
+        };
+        let marketing_carrier = if self.sub_conditional >= 3 {
+            self.conditional(3)?
+        } else {
+            String::new()
+        };
 
-        let ff_field_size = (field_size - 23).max(0);
+        // Reserve 5 bytes for trailing fixed fields (idAd 1 + freeBags 3 + fastTrack 1)
+        let ff_field_size = (self.sub_conditional - 5).max(0);
 
         self.log(format!("Conditional chars left: {}", self.sub_conditional));
         self.log(format!("Freq Flyer size: {ff_field_size}"));
@@ -458,9 +467,21 @@ impl BoardingPassDecoder {
         self.log(format!("Parsed Freq Flyer Info: {ff_info}"));
         self.log(format!("Conditional chars left: {}", self.sub_conditional));
 
-        let mut id_ad_indicator = Some(self.conditional(1)?);
-        let mut free_bags = Some(self.conditional(3)?);
-        let mut fast_track = Some(self.conditional(1)?);
+        let mut id_ad_indicator = if self.sub_conditional >= 1 {
+            Some(self.conditional(1)?)
+        } else {
+            None
+        };
+        let mut free_bags = if self.sub_conditional >= 3 {
+            Some(self.conditional(3)?)
+        } else {
+            None
+        };
+        let mut fast_track = if self.sub_conditional >= 1 {
+            Some(self.conditional(1)?)
+        } else {
+            None
+        };
 
         let mut airline_use = None;
         let left_over = self.end_conditional - self.sub_conditional;

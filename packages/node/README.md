@@ -21,8 +21,8 @@ Releases are published to npm automatically when a version tag is pushed.
 3. Create and push a matching tag:
 
 ```bash
-git tag v2.3.4
-git push origin v2.3.4
+git tag v2.3.5
+git push origin v2.3.5
 ```
 
 GitHub Actions runs tests, builds, and publishes via the `Publish` workflow using [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) (OIDC). Do not set `NODE_AUTH_TOKEN` / `NPM_TOKEN` on that job — a stale token produces a misleading `404` on publish.
