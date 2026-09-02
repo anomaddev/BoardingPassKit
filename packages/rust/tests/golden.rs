@@ -41,25 +41,46 @@ fn truncated_input_errors() {
 
 #[test]
 fn trailing_space_padding_may_be_stripped() {
-    // AA YUL-PHL: declared conditional size is 0x47 (71), but copy/paste often
-    // drops the trailing IATA space padding on FF / ID-AD / bags / fast-track.
-    let visible = "M1ACKERMANN/JUSTIN DAVESWMUYT YULPHLAA 5717 176Y002A0034 147>1180RO4176BAA              29001701407985430   AA 76UXK84";
-    assert_eq!(visible.len(), 118);
+    // AA version-1 passes declare conditional size 0x47 (71), but copy/paste
+    // often drops the trailing IATA space padding on FF / ID-AD / bags / fast-track.
+    let cases: &[(&str, &str, &str, &str, i32, &str)] = &[
+        (
+            "M1ACKERMANN/JUSTIN DAVESWMUYT YULPHLAA 5717 176Y002A0034 147>1180RO4176BAA              29001701407985430   AA 76UXK84",
+            "YUL",
+            "PHL",
+            "5717",
+            176,
+            "7014079854",
+        ),
+        (
+            "M1ACKERMANN/JUSTIN DAVEYALLND TPADCAAA 0374 196Y008A0062 147>1180RO4196BAA              29001707442252231   AA 76UXK84",
+            "TPA",
+            "DCA",
+            "374",
+            196,
+            "7074422522",
+        ),
+    ];
 
-    let mut decoder = BoardingPassDecoder::new();
-    decoder.debug = false;
-    let pass = decoder.decode(visible).expect("stripped trailing spaces should still decode");
-    assert_eq!(pass.boarding_pass_legs[0].origin, "YUL");
-    assert_eq!(pass.boarding_pass_legs[0].destination, "PHL");
-    assert_eq!(pass.boarding_pass_legs[0].flightno, "5717");
-    assert_eq!(pass.boarding_pass_legs[0].julian_date, 176);
-    let cond = pass.boarding_pass_legs[0]
-        .conditional_data
-        .as_ref()
-        .expect("conditional data");
-    assert_eq!(cond.ticket_number, "7014079854");
-    assert_eq!(cond.ff_airline, "AA");
-    assert_eq!(cond.ff_number, "76UXK84");
+    for (visible, origin, destination, flightno, julian, ticket) in cases {
+        assert_eq!(visible.len(), 118);
+        let mut decoder = BoardingPassDecoder::new();
+        decoder.debug = false;
+        let pass = decoder
+            .decode(visible)
+            .expect("stripped trailing spaces should still decode");
+        assert_eq!(pass.boarding_pass_legs[0].origin, *origin);
+        assert_eq!(pass.boarding_pass_legs[0].destination, *destination);
+        assert_eq!(pass.boarding_pass_legs[0].flightno, *flightno);
+        assert_eq!(pass.boarding_pass_legs[0].julian_date, *julian);
+        let cond = pass.boarding_pass_legs[0]
+            .conditional_data
+            .as_ref()
+            .expect("conditional data");
+        assert_eq!(cond.ticket_number, *ticket);
+        assert_eq!(cond.ff_airline, "AA");
+        assert_eq!(cond.ff_number, "76UXK84");
+    }
 }
 
 #[test]
