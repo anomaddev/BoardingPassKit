@@ -16,4 +16,4 @@ pub use types::{
     BoardingPass, BoardingPassInfo, BoardingPassLeg, BoardingPassLegData, BoardingPassSecurityData,
     FlightDateOptions,
 };
-pub use utils::{julian_to_calendar_date, remove_leading_zeros};
+pub use utils::{flight_year_from_issue_date, julian_to_calendar_date, remove_leading_zeros};

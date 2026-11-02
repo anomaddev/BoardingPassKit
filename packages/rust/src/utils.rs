@@ -39,6 +39,54 @@ fn round_diff_days(ms: i64) -> i64 {
     days.round() as i64
 }
 
+/// Last digit of the issue year plus Julian day (`YDDD`) → flight calendar year.
+///
+/// A flight day earlier than the issue day belongs to the following calendar year.
+/// Among years ending in that digit, the issue date closest to `relative_to` is used.
+pub fn flight_year_from_issue_date(
+    issue_date: &str,
+    flight_day_of_year: i32,
+    relative_to: DateTime<Utc>,
+) -> Option<i32> {
+    let bytes = issue_date.as_bytes();
+    if bytes.len() != 4 || !bytes.iter().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    let year_digit = (bytes[0] - b'0') as i32;
+    let issue_day: i32 = issue_date[1..].parse().ok()?;
+    if !(1..=366).contains(&issue_day) {
+        return None;
+    }
+
+    let ref_year = relative_to.year();
+    let base = (ref_year / 10) * 10 + year_digit;
+    let ref_ms = relative_to.timestamp_millis();
+
+    let mut best: Option<(i32, i64)> = None;
+    for issue_year in [base - 10, base, base + 10] {
+        if issue_day > max_day_of_year(issue_year) {
+            continue;
+        }
+        let flight_year = if flight_day_of_year >= issue_day {
+            issue_year
+        } else {
+            issue_year + 1
+        };
+        if flight_day_of_year < 1 || flight_day_of_year > max_day_of_year(flight_year) {
+            continue;
+        }
+        let issue_ms = NaiveDate::from_yo_opt(issue_year, issue_day as u32)?
+            .and_hms_opt(0, 0, 0)?
+            .and_utc()
+            .timestamp_millis();
+        let distance = (issue_ms - ref_ms).abs();
+        if best.map(|(_, d)| distance < d).unwrap_or(true) {
+            best = Some((flight_year, distance));
+        }
+    }
+    best.map(|(year, _)| year)
+}
+
 /// Convert a BCBP Julian day-of-year to a calendar date.
 ///
 /// Provide either an explicit `year`, or omit it to infer from `relative_to`
@@ -116,6 +164,21 @@ mod tests {
             + Duration::milliseconds((183.6 * 86_400_000.0) as i64);
         let date = julian_to_calendar_date(1, None, Some(relative)).unwrap();
         assert_eq!(date, NaiveDate::from_ymd_opt(2025, 1, 1).unwrap());
+    }
+
+    #[test]
+    fn issue_date_year_digit_same_julian_day() {
+        let relative = Utc.with_ymd_and_hms(2026, 11, 2, 0, 0, 0).unwrap();
+        let year = flight_year_from_issue_date("5209", 209, relative).unwrap();
+        assert_eq!(year, 2025);
+        let date = julian_to_calendar_date(209, Some(year), None).unwrap();
+        assert_eq!(date, NaiveDate::from_ymd_opt(2025, 7, 28).unwrap());
+    }
+
+    #[test]
+    fn issue_date_rolls_into_next_year() {
+        let relative = Utc.with_ymd_and_hms(2026, 1, 10, 0, 0, 0).unwrap();
+        assert_eq!(flight_year_from_issue_date("5360", 14, relative), Some(2026));
     }
 
     #[test]

@@ -21,6 +21,22 @@ describe('BoardingPassDecoder', () => {
     expect(pass.code).toBe(DemoData.Simple);
   });
 
+  it('resolves flight year from the date-of-issue digit', () => {
+    const code =
+      'M1ACKERMANN/JUSTIN    EN4T28C ORDYOWUA 4574 209Y012B0033 177>8320OO5209BUA                                        2A01472748148223 AC                        N*30601    09';
+    const pass = decoder.decode(code);
+    const scannedOn = new Date(Date.UTC(2026, 10, 2));
+    const flightDate = pass.boardingPassLegs[0]!.flightDate({ relativeTo: scannedOn });
+    expect(pass.passInfo.issueDate).toBe('5209');
+    expect(pass.boardingPassLegs[0]!.julianDate).toBe(209);
+    expect(flightDate).not.toBeNull();
+    expect(flightDate!.getUTCFullYear()).toBe(2025);
+    expect(flightDate!.getUTCMonth()).toBe(6);
+    expect(flightDate!.getUTCDate()).toBe(28);
+    const forced = pass.boardingPassLegs[0]!.flightDate({ year: 2026 });
+    expect(forced!.getUTCFullYear()).toBe(2026);
+  });
+
   it('decodes Historical demo data', () => {
     const pass = decoder.decode(DemoData.Historical);
     expect(pass.numberOfLegs).toBe(1);

@@ -32,6 +32,30 @@ public enum JulianDateConverter {
         return date
     }
 
+    /// `YDDD` date of issue → flight calendar year. Nil when the field is not four digits.
+    public static func flightYear(issueDate: String, flightDayOfYear: Int, relativeTo reference: Date = Date(), calendar: Calendar = .current) -> Int? {
+        guard issueDate.count == 4, issueDate.allSatisfy(\.isNumber),
+              let yearDigit = Int(String(issueDate.prefix(1))),
+              let issueDay = Int(issueDate.suffix(3)),
+              (1...366).contains(issueDay)
+        else { return nil }
+
+        let refYear = calendar.component(.year, from: reference)
+        let base = (refYear / 10) * 10 + yearDigit
+        var best: (year: Int, distance: TimeInterval)?
+        for issueYear in [base - 10, base, base + 10] {
+            guard issueDay <= maxDayOfYear(issueYear, calendar: calendar) else { continue }
+            let flightYear = flightDayOfYear >= issueDay ? issueYear : issueYear + 1
+            guard flightDayOfYear >= 1, flightDayOfYear <= maxDayOfYear(flightYear, calendar: calendar) else { continue }
+            guard let issued = try? toCalendarDate(dayOfYear: issueDay, year: issueYear, calendar: calendar) else { continue }
+            let distance = abs(issued.timeIntervalSince(reference))
+            if best == nil || distance < best!.distance {
+                best = (flightYear, distance)
+            }
+        }
+        return best?.year
+    }
+
     public static func toCalendarDate(dayOfYear: Int, relativeTo reference: Date = Date(), calendar: Calendar = .current) throws -> Date {
         let refYear = calendar.component(.year, from: reference)
         try validate(dayOfYear: dayOfYear, year: refYear, calendar: calendar)
@@ -72,7 +96,11 @@ public enum JulianDateConverter {
 public extension BoardingPassLeg {
 
     func flightDate(relativeTo reference: Date = Date(), calendar: Calendar = .current) -> Date? {
-        try? JulianDateConverter.toCalendarDate(dayOfYear: julianDate, relativeTo: reference, calendar: calendar)
+        if let raw = dateOfIssue,
+           let year = JulianDateConverter.flightYear(issueDate: raw, flightDayOfYear: julianDate, relativeTo: reference, calendar: calendar) {
+            return try? JulianDateConverter.toCalendarDate(dayOfYear: julianDate, year: year, calendar: calendar)
+        }
+        return try? JulianDateConverter.toCalendarDate(dayOfYear: julianDate, relativeTo: reference, calendar: calendar)
     }
 
     func flightDate(year: Int, calendar: Calendar = .current) -> Date? {

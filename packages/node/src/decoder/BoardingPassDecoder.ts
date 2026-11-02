@@ -8,7 +8,7 @@ import type {
   BoardingPassSecurityData,
   FlightDateOptions,
 } from '../types/index.js';
-import { julianToCalendarDate } from '../utils/julianDate.js';
+import { flightYearFromIssueDate, julianToCalendarDate } from '../utils/julianDate.js';
 import { removeLeadingZeros } from '../utils/removeLeadingZeros.js';
 
 function emptyLegData(): BoardingPassLegData {
@@ -43,13 +43,24 @@ function emptyPassInfo(): BoardingPassInfo {
   };
 }
 
-function attachFlightDate(leg: Omit<BoardingPassLeg, 'flightDate'>): BoardingPassLeg {
+function attachFlightDate(
+  leg: Omit<BoardingPassLeg, 'flightDate'>,
+  issueDate: { value: string | null },
+): BoardingPassLeg {
   return {
     ...leg,
     flightDate(options?: FlightDateOptions): Date | null {
       try {
         if (options?.year !== undefined) {
           return julianToCalendarDate(this.julianDate, options.year);
+        }
+        const reference = options?.relativeTo ?? new Date();
+        const rawIssue = issueDate.value;
+        if (rawIssue) {
+          const year = flightYearFromIssueDate(rawIssue, this.julianDate, reference);
+          if (year != null) {
+            return julianToCalendarDate(this.julianDate, year);
+          }
         }
         return julianToCalendarDate(this.julianDate, options?.relativeTo);
       } catch {
@@ -125,8 +136,9 @@ export class BoardingPassDecoder {
     }
 
     const legs: BoardingPassLeg[] = [];
+    const issueDateForYear = { value: null as string | null };
 
-    let firstLeg = this.repeatedMandatory(0);
+    let firstLeg = this.repeatedMandatory(0, issueDateForYear);
     this.endConditional = firstLeg.conditionalSize;
     if (this.debug) {
       console.log(`SET endConditional: ${this.endConditional}`);
@@ -136,7 +148,7 @@ export class BoardingPassDecoder {
     let firstLegConditional: BoardingPassLegData;
 
     if (this.endConditional > 0) {
-      passInfo = this.uniqueConditional();
+      passInfo = this.uniqueConditional(issueDateForYear);
       firstLegConditional = this.repeatedConditional();
     } else {
       if (this.debug) {
@@ -160,7 +172,7 @@ export class BoardingPassDecoder {
           console.log(`Looping for leg: ${i}`);
         }
 
-        let leg = this.repeatedMandatory(i);
+        let leg = this.repeatedMandatory(i, issueDateForYear);
         this.endConditional = leg.conditionalSize;
         if (this.debug) {
           console.log(`SET endConditional: ${this.endConditional}`);
@@ -337,7 +349,10 @@ export class BoardingPassDecoder {
     return int;
   }
 
-  private repeatedMandatory(legIndex: number): BoardingPassLeg {
+  private repeatedMandatory(
+    legIndex: number,
+    issueDateForYear: { value: string | null },
+  ): BoardingPassLeg {
     try {
       if (this.debug) {
         console.log('PARSING REPEATED MANDATORY');
@@ -364,21 +379,24 @@ export class BoardingPassDecoder {
         throw BoardingPassError.dataFailedValidation('Julian Date is nil');
       }
 
-      return attachFlightDate({
-        legIndex,
-        pnrCode,
-        origin,
-        destination,
-        operatingCarrier: opCarrier,
-        flightno,
-        julianDate,
-        compartment,
-        seatno,
-        checkIn,
-        passengerStatus,
-        conditionalSize: fieldSize,
-        conditionalData: null,
-      });
+      return attachFlightDate(
+        {
+          legIndex,
+          pnrCode,
+          origin,
+          destination,
+          operatingCarrier: opCarrier,
+          flightno,
+          julianDate,
+          compartment,
+          seatno,
+          checkIn,
+          passengerStatus,
+          conditionalSize: fieldSize,
+          conditionalData: null,
+        },
+        issueDateForYear,
+      );
     } catch (error) {
       if (error instanceof BoardingPassError) {
         throw error;
@@ -387,7 +405,7 @@ export class BoardingPassDecoder {
     }
   }
 
-  private uniqueConditional(): BoardingPassInfo {
+  private uniqueConditional(issueDateForYear: { value: string | null }): BoardingPassInfo {
     try {
       if (this.debug) {
         console.log('PARSING UNIQUE CONDITIONAL');
@@ -426,6 +444,11 @@ export class BoardingPassDecoder {
       let issueDate: string | null = this.conditional(4);
       let docType: string | null = this.conditional(1);
       const airlineCode = this.conditional(3);
+
+      // Keep the year digit. `trimLeadingZeroes` would turn "0360" into "360".
+      if (issueDate != null && /^\d{4}$/.test(issueDate)) {
+        issueDateForYear.value = issueDate;
+      }
 
       if (this.trimLeadingZeroes && issueDate != null) {
         issueDate = removeLeadingZeros(issueDate);
