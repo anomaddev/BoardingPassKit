@@ -76,6 +76,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@anomaddev'
 
       - name: Install and build
         run: |
@@ -83,11 +85,8 @@ jobs:
           npm run build
 
       - name: Publish @anomaddev/boarding-pass-kit to GitHub Packages
-        working-directory: packages/node
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "@anomaddev:registry=https://npm.pkg.github.com" > .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
-          node -e "const f='package.json',p=require('./'+f);p.name='@anomaddev/boarding-pass-kit';p.repository={type:'git',url:'https://github.com/anomaddev/BoardingPassKit.git'};p.publishConfig={registry:'https://npm.pkg.github.com'};require('fs').writeFileSync(f,JSON.stringify(p,null,2))"
-          npm publish
+          node -e "const f='packages/node/package.json',p=require('./'+f);p.name='@anomaddev/boarding-pass-kit';p.repository={type:'git',url:'https://github.com/anomaddev/BoardingPassKit.git'};p.publishConfig={registry:'https://npm.pkg.github.com'};require('fs').writeFileSync(f,JSON.stringify(p,null,2))"
+          npm publish -w packages/node
