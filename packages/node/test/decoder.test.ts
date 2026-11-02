@@ -18,6 +18,13 @@ describe('BoardingPassDecoder', () => {
     expect(pass.boardingPassLegs[0]!.operatingCarrier).toBe('AA');
     expect(pass.boardingPassLegs[0]!.flightno).toBe('2819');
     expect(pass.boardingPassLegs[0]!.julianDate).toBe(14);
+    expect(pass.passInfo.issueDate).toBe('14');
+    const simpleDate = pass.boardingPassLegs[0]!.flightDate({
+      relativeTo: new Date(Date.UTC(2024, 7, 1)),
+    });
+    expect(simpleDate!.getUTCFullYear()).toBe(2020);
+    expect(simpleDate!.getUTCMonth()).toBe(0);
+    expect(simpleDate!.getUTCDate()).toBe(14);
     expect(pass.code).toBe(DemoData.Simple);
   });
 

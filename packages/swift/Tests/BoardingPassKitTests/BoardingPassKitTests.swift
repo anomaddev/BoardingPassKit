@@ -124,7 +124,11 @@ final class BoardingPassKitTests: XCTestCase {
 
         let flightDate = pass.boardingPassLegs[0].flightDate(relativeTo: reference, calendar: calendar)
         XCTAssertNotNil(flightDate)
-        XCTAssertEqual(calendar.component(.year, from: flightDate!), 2025)
+        // Simple's date of issue is 0014 (year digit 0, day 14). The flight day matches,
+        // so the year is the closest year ending in 0 to the reference: 2020-01-14.
+        XCTAssertEqual(calendar.component(.year, from: flightDate!), 2020)
+        XCTAssertEqual(calendar.component(.month, from: flightDate!), 1)
+        XCTAssertEqual(calendar.component(.day, from: flightDate!), 14)
     }
 
     func testdataImagesDir() -> URL {
