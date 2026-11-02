@@ -59,3 +59,34 @@ jobs:
         run: |
           npm install -g npm@latest
           npm publish -w boarding-pass-kit --provenance --access public
+
+  publish-github:
+    name: Publish to GitHub Packages
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://npm.pkg.github.com
+          scope: '@anomaddev'
+
+      - name: Install and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Publish @anomaddev/boarding-pass-kit to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node -e "const f='packages/node/package.json',p=require('./'+f);p.name='@anomaddev/boarding-pass-kit';p.repository={type:'git',url:'https://github.com/anomaddev/BoardingPassKit.git'};p.publishConfig={registry:'https://npm.pkg.github.com'};require('fs').writeFileSync(f,JSON.stringify(p,null,2))"
+          npm publish -w packages/node
