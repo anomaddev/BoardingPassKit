@@ -91,7 +91,7 @@ if let flightDate = pass.boardingPassLegs.first?.flightDate() {
 
 ### Julian Date Conversion
 
-BCBP stores flight date as a 3-digit **day-of-year** (001–366). Use `JulianDateConverter` or `BoardingPassLeg.flightDate()`:
+BCBP stores the flight date as a 3-digit **day-of-year** (001–366). The date of issue (`YDDD`) supplies the last digit of the year, and `flightDate()` uses it when present. Use `JulianDateConverter` or `BoardingPassLeg.flightDate()`:
 
 ```swift
 // Explicit year

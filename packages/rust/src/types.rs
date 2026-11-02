@@ -1,7 +1,7 @@
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::utils::julian_to_calendar_date;
+use crate::utils::{flight_year_from_issue_date, julian_to_calendar_date};
 use crate::BoardingPassError;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -56,6 +56,9 @@ pub struct BoardingPassLeg {
     pub passenger_status: String,
     pub conditional_size: i32,
     pub conditional_data: Option<BoardingPassLegData>,
+    /// Untrimmed BCBP date of issue (`YDDD`), copied from the unique conditional.
+    #[serde(skip)]
+    pub issue_date_raw: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -71,6 +74,13 @@ impl BoardingPassLeg {
     ) -> Result<NaiveDate, BoardingPassError> {
         if let Some(year) = options.year {
             julian_to_calendar_date(self.julian_date, Some(year), None)
+        } else if let Some(raw) = self.issue_date_raw.as_deref() {
+            let reference = options.relative_to.unwrap_or_else(Utc::now);
+            if let Some(year) = flight_year_from_issue_date(raw, self.julian_date, reference) {
+                julian_to_calendar_date(self.julian_date, Some(year), None)
+            } else {
+                julian_to_calendar_date(self.julian_date, None, options.relative_to)
+            }
         } else {
             julian_to_calendar_date(self.julian_date, None, options.relative_to)
         }

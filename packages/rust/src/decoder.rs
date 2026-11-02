@@ -15,6 +15,7 @@ pub struct BoardingPassDecoder {
     pub trim_leading_zeroes: bool,
     pub trim_whitespace: bool,
     pub empty_string_is_nil: bool,
+    issue_date_raw: Option<String>,
 }
 
 impl Default for BoardingPassDecoder {
@@ -35,6 +36,7 @@ impl BoardingPassDecoder {
             trim_leading_zeroes: true,
             trim_whitespace: true,
             empty_string_is_nil: true,
+            issue_date_raw: None,
         }
     }
 
@@ -81,6 +83,7 @@ impl BoardingPassDecoder {
         self.index = 0;
         self.sub_conditional = 0;
         self.end_conditional = 0;
+        self.issue_date_raw = None;
 
         let format = self.mandatory(1)?;
         let number_of_legs = self
@@ -130,6 +133,10 @@ impl BoardingPassDecoder {
 
         self.log("PARSING LEGS COMPLETE");
         legs.sort_by_key(|leg| leg.leg_index);
+        let raw_issue = self.issue_date_raw.clone();
+        for leg in &mut legs {
+            leg.issue_date_raw = raw_issue.clone();
+        }
 
         let mut security: Option<BoardingPassSecurityData> = None;
         let mut blob: Option<String> = None;
@@ -315,6 +322,7 @@ impl BoardingPassDecoder {
             passenger_status,
             conditional_size: field_size,
             conditional_data: None,
+            issue_date_raw: None,
         })
     }
 
@@ -348,6 +356,11 @@ impl BoardingPassDecoder {
         let mut check_source = Some(self.conditional(1)?);
         let mut pass_source = Some(self.conditional(1)?);
         let mut issue_date = Some(self.conditional(4)?);
+        if let Some(ref raw) = issue_date {
+            if raw.len() == 4 && raw.bytes().all(|b| b.is_ascii_digit()) {
+                self.issue_date_raw = Some(raw.clone());
+            }
+        }
         let mut doc_type = Some(self.conditional(1)?);
         let airline_code = self.conditional(3)?;
 

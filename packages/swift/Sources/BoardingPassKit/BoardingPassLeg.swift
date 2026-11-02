@@ -60,6 +60,9 @@ public struct BoardingPassLeg: Codable {
     
     /// The conditional data for this leg of the boarding pass
     public var conditionalData: BoardingPassLegData?
+
+    /// Untrimmed BCBP date of issue (`YDDD`) from the unique conditional. Used to resolve `flightDate()`.
+    public var dateOfIssue: String? = nil
     
     /// Print out the details of the boarding pass parent
     public func printout() {

@@ -12,6 +12,7 @@ open class BoardingPassDecoder: NSObject {
     private var index: Int = 0
     private var subConditional: Int = 0
     private var endConditional: Int = 0
+    private var rawIssueDate: String?
     
     /// Setting this to `true` will print lots of details to the console
     public var debug: Bool = true
@@ -86,6 +87,7 @@ open class BoardingPassDecoder: NSObject {
         index = 0
         subConditional = 0
         endConditional = 0
+        rawIssueDate = nil
         
         // BOARDING PASS HEADER INFO
         let format          = try mandatory(1)
@@ -188,6 +190,11 @@ open class BoardingPassDecoder: NSObject {
         if debug { print("PARSING LEGS COMPLETE") }
         // Ensure legs are sorted by legIndex in ascending order
         legs.sort { $0.legIndex < $1.legIndex }
+        if let rawIssue = rawIssueDate {
+            for index in legs.indices {
+                legs[index].dateOfIssue = rawIssue
+            }
+        }
         
         var security: BoardingPassSecurityData?
         var blob: String?
@@ -420,6 +427,10 @@ open class BoardingPassDecoder: NSObject {
             var issueDate: String?   = try conditional(4)
             var docType: String?     = try conditional(1)
             let airlineCode: String  = try conditional(3)
+
+            if let raw = issueDate, raw.count == 4, raw.allSatisfy(\.isNumber) {
+                rawIssueDate = raw
+            }
             
             // Apply leading zero trimming to relevant fields
             if trimLeadingZeroes {

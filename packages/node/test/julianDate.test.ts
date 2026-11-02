@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { julianToCalendarDate } from '../src/utils/julianDate.js';
+import { flightYearFromIssueDate, julianToCalendarDate } from '../src/utils/julianDate.js';
 import { BoardingPassError, BoardingPassErrorCode } from '../src/errors/BoardingPassError.js';
 
 describe('julianToCalendarDate', () => {
@@ -53,5 +53,30 @@ describe('julianToCalendarDate', () => {
 
   it('throws for day 366 in non-leap year', () => {
     expect(() => julianToCalendarDate(366, 2023)).toThrow(BoardingPassError);
+  });
+});
+
+describe('flightYearFromIssueDate', () => {
+  const scannedOn = new Date(Date.UTC(2026, 10, 2));
+
+  it('uses the issue-date year digit when the flight is the same Julian day', () => {
+    expect(flightYearFromIssueDate('5209', 209, scannedOn)).toBe(2025);
+    const date = julianToCalendarDate(209, 2025);
+    expect(date.getUTCFullYear()).toBe(2025);
+    expect(date.getUTCMonth()).toBe(6);
+    expect(date.getUTCDate()).toBe(28);
+  });
+
+  it('rolls the flight into the next calendar year when it is before the issue day', () => {
+    expect(flightYearFromIssueDate('5360', 14, new Date(Date.UTC(2026, 0, 10)))).toBe(2026);
+  });
+
+  it('keeps a year ending in 0', () => {
+    expect(flightYearFromIssueDate('0360', 14, new Date(Date.UTC(2030, 0, 10)))).toBe(2031);
+  });
+
+  it('returns null when the field is not YDDD', () => {
+    expect(flightYearFromIssueDate('209', 209, scannedOn)).toBeNull();
+    expect(flightYearFromIssueDate('', 209, scannedOn)).toBeNull();
   });
 });

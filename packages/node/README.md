@@ -89,7 +89,7 @@ decoder.emptyStringIsNil = true;  // Convert empty strings to null
 
 ## Julian Date Conversion
 
-BCBP encodes flight date as a 3-digit **day-of-year** (001–366). The year is not stored in the barcode.
+BCBP encodes the flight date as a 3-digit **day-of-year** (001–366). The date of issue (`YDDD` in the unique conditional) stores the last digit of the year. `flightDate()` uses that digit when it is present, and otherwise infers the year from a reference date.
 
 ```typescript
 import { julianToCalendarDate } from 'boarding-pass-kit';
@@ -106,7 +106,7 @@ const flightDate2025 = pass.boardingPassLegs[0]!.flightDate({ year: 2025 });
 const flightDateAtScan = pass.boardingPassLegs[0]!.flightDate({ relativeTo: scanDate });
 ```
 
-Year inference uses a ±183-day heuristic for flights near year boundaries.
+When the date of issue is missing, year inference uses a ±183-day heuristic for flights near year boundaries. A flight day earlier than the issue day is treated as the next calendar year.
 
 ## Demo Data
 
