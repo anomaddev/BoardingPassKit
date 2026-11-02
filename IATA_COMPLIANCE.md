@@ -135,6 +135,8 @@ swift test   # macOS
 
 ## Version History
 
+- **2.3.6** - Resolve flight year from the date-of-issue digit (#21)
+
 - **2.3.3 / Rust 0.2.1** - Image barcode extraction for QR, Aztec, and PDF417
   - Same `extractQrPayload` / `extract_qr_payload` / `BoardingPassQRExtractor` APIs now scan QR, Aztec, and PDF417
   - Shared fixtures: `testdata/images/simple_aztec.png`, `testdata/images/simple_pdf417.png`
