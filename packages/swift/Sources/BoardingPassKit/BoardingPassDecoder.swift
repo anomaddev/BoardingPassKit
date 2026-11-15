@@ -39,6 +39,23 @@ open class BoardingPassDecoder: NSObject {
         else { throw BoardingPassError.DataFailedStringDecoding }
         return str
     }
+
+    /// `data` is an implicitly unwrapped optional. Reading `.count` or slicing it
+    /// while nil traps, which `catch` cannot recover from.
+    private func storedBytes() throws -> Data {
+        guard let data else { throw BoardingPassError.DataFailedStringDecoding }
+        return data
+    }
+
+    /// Half-open byte slice that throws instead of trapping on an invalid range.
+    /// `start + length` is safe: the guard proves `length <= count - start`.
+    private func safeSubdata(_ data: Data, from start: Int, length: Int) throws -> Data {
+        guard start >= 0, length >= 0, start <= data.count, data.count - start >= length else {
+            throw BoardingPassError.MandatoryItemNotFound(index: start)
+        }
+        if length == 0 { return Data() }
+        return data.subdata(in: start..<(start + length))
+    }
     
     /// Helper function to apply emptyStringIsNil logic to optional strings
     private func applyEmptyStringIsNil(_ value: String?) -> String? {
@@ -64,14 +81,18 @@ open class BoardingPassDecoder: NSObject {
     ///
     /// - parameter code: `String` of a barcode scan
     /// - returns: `BoardingPass` codable object
-    /// - throws: `BoardingPassDecoderError` code
+    /// - throws: `BoardingPassError` when `code` is not valid ASCII, or when it is not a boarding pass
     ///
     /// - todo: remove optional in the return
     ///
     public func decode(code: String) throws -> BoardingPass {
-        self.data = code.data(using: .ascii)
-        self.code = code
-        return try breakdown()
+        // BCBP is an ASCII byte format. `data(using: .ascii)` returns nil for any
+        // non-ASCII scalar (accented letters, emoji, etc.). Assigning that nil to
+        // the `data` IUO used to trap in `mandatory` instead of throwing.
+        guard let data = code.data(using: .ascii) else {
+            throw BoardingPassError.DataFailedStringDecoding
+        }
+        return try decode(data)
     }
 
     /// Extract a QR, Aztec, or PDF417 payload from PNG/JPEG/HEIC image bytes, then decode it as BCBP.
@@ -82,6 +103,11 @@ open class BoardingPassDecoder: NSObject {
     
     /// Breaks down the code/data and returns the boarding pass decoded. This is the mothership function
     private func breakdown() throws -> BoardingPass {
+        // Fail before any field read if a caller reached parsing without ASCII bytes.
+        guard data != nil, code != nil else {
+            throw BoardingPassError.DataFailedStringDecoding
+        }
+
         if debug { print("PARSING BOARDING PASS...") }
         
         index = 0
@@ -199,9 +225,14 @@ open class BoardingPassDecoder: NSObject {
         var security: BoardingPassSecurityData?
         var blob: String?
 
-        if index < data.count {
+        let bytes = try storedBytes()
+        if index < 0 {
+            throw BoardingPassError.MandatoryItemNotFound(index: index)
+        }
+
+        if index < bytes.count {
             // Peek the next character without advancing the index
-            let firstCharData = data.subdata(in: index..<(index + 1))
+            let firstCharData = try safeSubdata(bytes, from: index, length: 1)
             let firstChar = String(data: firstCharData, encoding: .ascii)
 
             if firstChar == "^" {
@@ -221,17 +252,19 @@ open class BoardingPassDecoder: NSObject {
         }
         
         // After a valid security block, if there is any remaining data, capture it as the airline blob
-        if index < data.count {
-            let remaining = data.subdata(in: index..<data.count)
+        if index >= 0, index < bytes.count {
+            let remaining = try safeSubdata(bytes, from: index, length: bytes.count - index)
             if let remainingString = String(data: remaining, encoding: .ascii) {
                 let processedString = trimWhitespace ? remainingString.trimmingCharacters(in: .whitespaces) : remainingString
                 blob = applyEmptyStringIsNil(processedString)
             }
-            index = data.count
+            index = bytes.count
         }
         
         guard subConditional == 0
-        else { throw NSError() }
+        else { throw BoardingPassError.ConditionalIndexInvalid(endConditional, subConditional) }
+
+        guard let code else { throw BoardingPassError.DataFailedStringDecoding }
         
         print("parsed boarding pass...")
         let pass = BoardingPass(
@@ -256,7 +289,11 @@ open class BoardingPassDecoder: NSObject {
     
     /// This returns a mandatory string in the decoding sequence of the barcode scan
     private func mandatory(_ length: Int) throws -> String {
-        if (data.count < index + length)
+        let bytes = try storedBytes()
+        // Compare with subtraction so a huge or negative length throws instead of
+        // trapping on `index + length` overflow, and so a nil `data` cannot trap.
+        let fits = length >= 0 && index >= 0 && index <= bytes.count && bytes.count - index >= length
+        if !fits
         { throw BoardingPassError.MandatoryItemNotFound(index: index) }
         
         var string: String = try readdata(length)
@@ -314,15 +351,25 @@ open class BoardingPassDecoder: NSObject {
     private func readdata(_ length: Int) throws -> String {
         // Match Node Buffer.subarray: clamp to available bytes, but always advance
         // the cursor by the requested length (may move past EOF).
+        let bytes = try storedBytes()
+        guard length >= 0, index >= 0 else {
+            throw BoardingPassError.MandatoryItemNotFound(index: index)
+        }
+
         let start = index
-        let end = min(start + length, data.count)
         let subdata: Data
-        if start >= data.count || start >= end {
+        if start >= bytes.count {
             subdata = Data()
         } else {
-            subdata = data.subdata(in: start ..< end)
+            let readable = min(length, bytes.count - start)
+            subdata = try safeSubdata(bytes, from: start, length: readable)
         }
-        index += length
+
+        let (advanced, overflowed) = index.addingReportingOverflow(length)
+        guard !overflowed else {
+            throw BoardingPassError.MandatoryItemNotFound(index: index)
+        }
+        index = advanced
         
         guard let rawString = String(data: subdata, encoding: String.Encoding.ascii)
         else { throw BoardingPassError.DataFailedStringDecoding }
@@ -331,8 +378,8 @@ open class BoardingPassDecoder: NSObject {
     
     
     /// Read the next section of data of a given length and return the decimal hex value as an `Int`
-    private func readhex(_ length: Int, isMandatory: Bool! = true) throws -> Int {
-        let str: String!
+    private func readhex(_ length: Int, isMandatory: Bool = true) throws -> Int {
+        let str: String
         
         if isMandatory { str = try mandatory(length) }
         else { str = try conditional(length) }

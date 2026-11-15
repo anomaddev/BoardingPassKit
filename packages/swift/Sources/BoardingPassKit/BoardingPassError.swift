@@ -49,7 +49,7 @@ extension BoardingPassError: CustomStringConvertible {
         case .CIQRCodeGeneratorOutputFailed:            return "For some reason we could not generate the barcode output from the filter"
             
         case .MandatoryItemNotFound(let index):         return "Mandatory field value is not found at index \(index)"
-        case .DataFailedStringDecoding:                 return "Data fail .ascii String decoding"
+        case .DataFailedStringDecoding:                 return "Boarding pass input is not valid ASCII"
         case .FieldValueNotRequiredInteger(let value):  return "Field value \(value) is supposed to be an integer and is not"
         case .HexStringFailedDecoding(let str):         return "String \(str) failed to decode as hexidecimal"
             
