@@ -135,6 +135,9 @@ swift test   # macOS
 
 ## Version History
 
+- **2.3.7** - `decode(code:)` throws `BoardingPassError.DataFailedStringDecoding` on non-ASCII input instead of trapping (#25, fixes #24)
+  - Also publish the Node package to GitHub Packages (#23)
+
 - **2.3.6** - Resolve flight year from the date-of-issue digit (#21)
 
 - **2.3.3 / Rust 0.2.1** - Image barcode extraction for QR, Aztec, and PDF417
