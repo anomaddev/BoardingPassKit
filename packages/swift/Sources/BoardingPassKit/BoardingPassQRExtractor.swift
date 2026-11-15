@@ -4,6 +4,7 @@
 //  Reads a QR, Aztec, or PDF417 payload from PNG, JPEG, or HEIC image data.
 //
 
+#if canImport(CoreGraphics) && canImport(ImageIO) && canImport(Vision)
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -101,3 +102,13 @@ public enum BoardingPassQRExtractor {
         ["heic", "heix", "heif", "hevc", "hevx", "mif1", "msf1"].contains(brand)
     }
 }
+#else
+import Foundation
+
+public enum BoardingPassQRExtractor {
+    /// Barcode scanning needs Vision, which is not available on this platform.
+    public static func payload(from imageData: Data) throws -> String {
+        throw BoardingPassError.ImageDecodeFailed
+    }
+}
+#endif

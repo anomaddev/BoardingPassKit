@@ -131,6 +131,7 @@ final class BoardingPassKitTests: XCTestCase {
         XCTAssertEqual(calendar.component(.day, from: flightDate!), 14)
     }
 
+#if canImport(Vision)
     func testdataImagesDir() -> URL {
         var url = URL(fileURLWithPath: #filePath)
         while url.path != "/" && url.lastPathComponent != "packages" {
@@ -191,5 +192,105 @@ final class BoardingPassKitTests: XCTestCase {
                 return XCTFail("expected UnsupportedImageFormat, got \(error)")
             }
         }
+    }
+#endif
+
+    /// Issue #24: non-ASCII input must throw `DataFailedStringDecoding` instead of trapping.
+    func testDecodeNonASCIIThrowsInsteadOfCrashing() {
+        let base = BoardingPass.DemoData.Simple.string
+        let chars = Array(base)
+        XCTAssertGreaterThan(chars.count, 40)
+
+        func replacing(_ index: Int, with character: Character) -> String {
+            var copy = chars
+            copy[index] = character
+            return String(copy)
+        }
+
+        let samples = [
+            "M1CAFÉ",
+            replacing(2, with: "É"),
+            replacing(2, with: "ñ"),
+            replacing(30, with: "ü"),
+            replacing(chars.count - 1, with: "€"),
+            "M1✈️ACKERMANN/JUSTIN",
+            "M1" + String(repeating: "😀", count: 3),
+            "M1CAFE\u{0301}XXXXXXXXXXXXXXX",
+            "M1王小明",
+            "👨‍✈️",
+            "M1CAF\u{1D538}",
+        ]
+
+        for sample in samples {
+            let decoder = BoardingPassDecoder()
+            decoder.debug = false
+            XCTAssertThrowsError(try decoder.decode(code: sample), "expected throw for \(sample)") { error in
+                guard let boardingError = error as? BoardingPassError,
+                      case .DataFailedStringDecoding = boardingError else {
+                    return XCTFail("expected DataFailedStringDecoding for \(sample), got \(error)")
+                }
+                XCTAssertTrue(
+                    boardingError.description.contains("ASCII"),
+                    "error should describe the ASCII rejection, got \(boardingError.description)"
+                )
+            }
+        }
+    }
+
+    func testDecodeASCIIBoundaryDoesNotMisclassify() {
+        let decoder = BoardingPassDecoder()
+        decoder.debug = false
+
+        // DEL is ASCII. Too short to be a boarding pass, but the failure is validation.
+        XCTAssertThrowsError(try decoder.decode(code: "M\u{7F}")) { error in
+            if case BoardingPassError.DataFailedStringDecoding = error {
+                XCTFail("U+007F is ASCII and must not be reported as an encoding failure")
+            }
+        }
+
+        // The first non-ASCII scalar must throw instead of trapping.
+        XCTAssertThrowsError(try decoder.decode(code: "M\u{80}")) { error in
+            guard case BoardingPassError.DataFailedStringDecoding = error else {
+                return XCTFail("expected DataFailedStringDecoding for U+0080, got \(error)")
+            }
+        }
+    }
+
+    func testDecodeNonASCIIDataThrows() {
+        let decoder = BoardingPassDecoder()
+        decoder.debug = false
+        let data = Data("M1CAFÉ".utf8)
+        XCTAssertThrowsError(try decoder.decode(data)) { error in
+            guard case BoardingPassError.DataFailedStringDecoding = error else {
+                return XCTFail("expected DataFailedStringDecoding, got \(error)")
+            }
+        }
+    }
+
+    func testDecodeMalformedASCIIThrows() {
+        let decoder = BoardingPassDecoder()
+        decoder.debug = false
+        XCTAssertThrowsError(try decoder.decode(code: "M")) { error in
+            guard case BoardingPassError.MandatoryItemNotFound = error else {
+                return XCTFail("expected MandatoryItemNotFound, got \(error)")
+            }
+        }
+        XCTAssertThrowsError(try decoder.decode(code: "")) { error in
+            guard case BoardingPassError.MandatoryItemNotFound = error else {
+                return XCTFail("expected MandatoryItemNotFound, got \(error)")
+            }
+        }
+    }
+
+    func testDecodeValidPassAfterNonASCIIFailure() throws {
+        let decoder = BoardingPassDecoder()
+        decoder.debug = false
+        XCTAssertThrowsError(try decoder.decode(code: "M1CAFÉ"))
+
+        let code = BoardingPass.DemoData.Simple.string
+        let pass = try decoder.decode(code: code)
+        XCTAssertEqual(pass.passengerName, "ACKERMANN/JUSTIN DAV")
+        XCTAssertEqual(pass.code, code)
+        XCTAssertEqual(pass.boardingPassLegs[0].origin, "MSY")
     }
 }
